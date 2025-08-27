@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+* {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
+  user-select: none;         /* Standard */
+}
+
+::selection {
+  background: transparent; /* No highlight color */
+  color: inherit; /* Keep original text color */
+}
+
+/* Base HTML and Body setup */
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
+}
+
+/* Hide scrollbar for WebKit browsers */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#root {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#root::-webkit-scrollbar {
+  display: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* THEME DEFINITIONS */
+@theme {
+  /* Dark Space Theme  */
+ --color-background: #0b1226; /* Deep Space Navy */
+ --color-overlay: #121212; 
+--color-card: #16213e; /* Starship Blue */
+--color-text: #e6f1ff; /* Moonlight White */
+--color-secondary-text: #8fa5c6; /* Soft Nebula Blue */
+--color-primary: #1f6feb; /* Galactic Blue */
+--color-accent: #5d3fd3; /* Deep Cosmic Purple */
+--color-badge-bg: #ffb347; /* Solar Flare Amber */
+--color-badge-text: #0b1226; /* Deep Space Navy */
+--color-primary-alpha: rgba(31, 111, 235, 0.25); /* Galactic Blue Glow */
+  --color-primary-alpha: rgba(31, 111, 235, 0.25); /* Galactic Blue Glow */
+  --color-accent-alpha: rgba(93, 63, 211, 0.25); /* Cosmic Purple Glow */
+  --color-border: rgba(230, 241, 255, 0.1); /* Moonlight White @ 10% */
+
+  /* Light Space Theme (High Contrast) */
+  --color-light-background: #87CEEB; /* Clean White */
+  --color-light-card: #ffffff; /* Pure White Card */
+  --color-light-text: #1e293b; /* Deep Navy Text */
+  --color-light-secondary-text: #64748b; /* Slate Gray */
+  --color-light-primary: #0f4c75; /* Deep Ocean Blue */
+  --color-light-accent: #7c3aed; /* Rich Violet */
+  --color-light-badge-bg: #0f4c75;
+  --color-light-badge-text: #ffffff;
+  --color-light-primary-alpha: rgba(15, 76, 117, 0.15);
+    --color-light-primary-alpha: rgba(15, 76, 117, 0.15);
+  --color-light-accent-alpha: rgba(124, 58, 237, 0.25); /* Rich Violet Glow */
+  --color-light-border: rgba(30, 41, 59, 0.1); /* Deep Navy Text @ 10% */
+
+  /* Typography System (No Change) */
+  --font-heading: "Orbitron", sans-serif;
+  --font-body: "Fredoka", sans-serif;
+  --font-display: "Baloo 2", cursive;
+  --font-ui: "Quicksand", sans-serif;
+
+  /* Font Weights (No Change) */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font Sizes (No Change) */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+}
+
+/* BASE AND FONT-FACE LAYER (No changes needed here) */
+@layer base {
+  /* Font-face declarations remain the same */
+  @font-face {
+    font-family: "Orbitron";
+    font-weight: 500;
+    src: url("/fonts/Orbitron-Medium.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Orbitron";
+    font-weight: 700;
+    src: url("/fonts/Orbitron-Bold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Fredoka";
+    font-weight: 400;
+    src: url("/fonts/Fredoka-Regular.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Fredoka";
+    font-weight: 500;
+    src: url("/fonts/Fredoka-Medium.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Fredoka";
+    font-weight: 700;
+    src: url("/fonts/Fredoka-Bold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Baloo 2";
+    font-weight: 600;
+    src: url("/fonts/Baloo2-SemiBold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Baloo 2";
+    font-weight: 700;
+    src: url("/fonts/Baloo2-Bold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Quicksand";
+    font-weight: 400;
+    src: url("/fonts/Quicksand-Regular.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "Quicksand";
+    font-weight: 500;
+    src: url("/fonts/Quicksand-Medium.woff2") format("woff2");
+  }
+
+  /* Apply base styles */
+  body {
+    width: 100dvw;
+    overflow-x: hidden;
+    background-color: var(--color-background);
+    font-family: var(--font-body);
+    color: var(--color-text);
+  }
+}
+
+/* UTILITIES LAYER (No changes needed here) */
+@layer utilities {
+  /* All utility classes remain the same */
+  .absolute-center {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  .hero-heading {
+    @apply font-heading uppercase text-5xl sm:text-7xl md:text-9xl lg:text-[12rem];
+  }
+  .about-subtext {
+    @apply absolute bottom-[-80dvh] left-1/2 w-full max-w-96 -translate-x-1/2 text-center text-lg md:max-w-[34rem];
+  }
+  
+  .about-image {
+    @apply absolute left-1/2 top-0 z-20 h-[60vh] w-96 origin-center -translate-x-1/2 overflow-hidden rounded-3xl md:w-[30vw];
+  }
+  
+  .mask-clip-path {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  
+  .special-font b {
+    font-family: var(--font-heading);
+  }
+  .animated-title {
+    @apply flex flex-col gap-1 text-5xl md:text-6xl lg:text-[5rem] uppercase leading-[0.8];
+  }
+  .animated-word {
+    @apply font-heading font-black opacity-0;
+    transform: translate3d(10px, 51px, -60px) rotateY(60deg) rotateX(-40deg);
+    transform-origin: 50% 50% -150px !important;
+    will-change: opacity, transform;
+  }
+  .border-hsla {
+    @apply border border-white/20;
+  } /* Adjusted for white text */
+  .bento-tilt_1 {
+    @apply relative col-span-2 overflow-hidden rounded-md transition-transform duration-300 ease-out md:col-span-1;
+  }
+  .bento-tilt_2 {
+    @apply relative col-span-1 row-span-1 overflow-hidden rounded-md transition-transform duration-300 ease-out;
+  }
+  .bento-title {
+    @apply uppercase md:text-6xl text-4xl font-black;
+  }
+  .sword-man-clip-path {
+    clip-path: polygon(16% 0, 89% 15%, 75% 100%, 0 97%);
+  }
+  .contact-clip-path-1 {
+    clip-path: polygon(25% 0%, 74% 0, 69% 64%, 34% 73%);
+  }
+  .contact-clip-path-2 {
+    clip-path: polygon(29% 15%, 85% 30%, 50% 100%, 10% 64%);
+  }
+  .button-primary {
+    @apply rounded-full bg-primary px-8 py-3 font-body text-sm font-bold uppercase text-badge-text transition-transform duration-300 ease-out hover:scale-105;
+  }
+  .reveal-from-left {
+    clip-path: inset(0% 100% 0% 0%);
+  }
+  .story-img-container {
+    @apply relative md:h-dvh h-[90vh] w-full;
+    filter: url("#flt_tag");
+  }
+  .story-img-mask {
+    @apply absolute left-0 top-0 size-full overflow-hidden md:left-[20%] md:top-[-10%] md:size-4/5;
+    clip-path: polygon(4% 0, 83% 21%, 100% 73%, 0% 100%);
+  }
+  .story-img-content {
+    @apply absolute w-full md:h-dvh h-[50dvh] opacity-100 left-10 top-16 md:left-0 md:top-10 lg:left-[-300px] lg:top-[-100px];
+    transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0) scale(1);
+  }
+  
+}
+
+.ecosystem-title b {
+  font-weight: 500 !important;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-primary) 50%,
+    var(--color-badge-bg) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+.animate-scale-up {
+  animation: scaleUp 0.3s ease-out forwards;
+}
