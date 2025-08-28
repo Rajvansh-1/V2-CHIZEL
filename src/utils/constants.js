@@ -200,3 +200,47 @@ export const offers = [
     hoverShadow: "hover:shadow-[0_0_40px_rgba(255,179,71,0.3)]",
   },
 ];
+
+export const solutionCards = [
+  {
+    icon: "FaPuzzlePiece",
+    title: "Interactive Learning Games",
+    description: "Engaging games that make learning fun and effective.",
+    gradient: "from-blue-500 to-teal-400",
+  },
+  {
+    icon: "FaRocket",
+    title: "Personalized Journeys",
+    description: "AI-powered learning paths that adapt to your child's pace.",
+    gradient: "from-purple-500 to-indigo-400",
+  },
+  {
+    icon: "FaUsers",
+    title: "Safe Community",
+    description: "A moderated community for kids to collaborate and grow.",
+    gradient: "from-pink-500 to-rose-400",
+  },
+  {
+    icon: "FaShieldAlt",
+    title: "Parental Peace of Mind",
+    description: "Track progress and manage screen time with our parent dashboard.",
+    gradient: "from-orange-500 to-amber-400",
+  },
+];
+export const chizelverseCards = [
+  {
+    title: "The Learning Core",
+    description: "At the heart of the Chizelverse, the Learning Core adapts to each child's unique journey, offering personalized challenges that make education an adventure.",
+    image: "/images/vision-image.webp", // Replace with actual card image
+  },
+  {
+    title: "Creativity Nebula",
+    description: "A vibrant space where ideas collide and imagination takes flight. Here, children collaborate on projects, build worlds, and express themselves freely.",
+    image: "/images/about-image.webp", // Replace with actual card image
+  },
+  {
+    title: "Social Sphere",
+    description: "Connect with fellow explorers in a safe and moderated environment. The Social Sphere is where friendships are forged and communication skills are honed.",
+    image: "/images/ecosystem-image.webp", // Replace with actual card image
+  },
+];

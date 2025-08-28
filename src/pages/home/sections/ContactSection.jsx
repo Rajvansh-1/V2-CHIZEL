@@ -6,62 +6,24 @@ import Button from "@/components/ui/Button";
 
 const ContactSection = () => {
   const containerRef = useRef(null);
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1pgIheerPwWhEGL8gNWiv-fvXsn2POEbU2HjEl4RievU/viewform?edit_requested=true"; 
 
   useGSAP(
     () => {
-      gsap.to(".float-1", {
-        y: -20,
-        rotation: 180,
-        duration: 6,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-      gsap.to(".float-2", {
-        y: -15,
-        rotation: 225,
-        duration: 8,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: 2,
-      });
-      gsap.to(".float-3", {
-        y: 20,
-        rotation: 180,
-        duration: 7,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: 1,
-      });
-      gsap.to(".float-slow-1", {
-        y: -30,
-        scale: 1.1,
-        duration: 12,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: 3,
-      });
-      gsap.to([".pulse-slow", ".contact-ping"], {
-        opacity: 0.25,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-      gsap.to(".dot-pulse", {
-        scale: 1.5,
-        opacity: 0,
-        duration: 1.5,
-        repeat: -1,
-        ease: "power1.inOut",
-        stagger: 0.3,
-      });
+      // Your existing GSAP animations are preserved here
+      gsap.to(".float-1", { y: -20, rotation: 180, duration: 6, repeat: -1, yoyo: true, ease: "sine.inOut" });
+      gsap.to(".float-2", { y: -15, rotation: 225, duration: 8, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 2 });
+      gsap.to(".float-3", { y: 20, rotation: 180, duration: 7, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 1 });
+      gsap.to(".float-slow-1", { y: -30, scale: 1.1, duration: 12, repeat: -1, yoyo: true, ease: "sine.inOut", delay: 3 });
+      gsap.to([".pulse-slow", ".contact-ping"], { opacity: 0.25, duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut" });
+      gsap.to(".dot-pulse", { scale: 1.5, opacity: 0, duration: 1.5, repeat: -1, ease: "power1.inOut", stagger: 0.3 });
     },
     { scope: containerRef }
   );
+
+  const handleContactClick = () => {
+    window.open(GOOGLE_FORM_URL, "_blank");
+  };
 
   return (
     <div
@@ -122,9 +84,7 @@ const ContactSection = () => {
             <Button
               title="Contact Us"
               containerClass="button-primary"
-              onClick={() =>
-                (window.location.href = "mailto:chizelconnect@gmail.com")
-              }
+              onClick={handleContactClick}
             />
           </div>
 
