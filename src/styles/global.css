@@ -77,7 +77,7 @@ body::-webkit-scrollbar {
   --color-light-border: rgba(30, 41, 59, 0.1); /* Deep Navy Text @ 10% */
 
   /* Typography System (No Change) */
-  --font-heading: "Orbitron", sans-serif;
+  --font-heading: "Baloo 2", cursive;
   --font-body: "Fredoka", sans-serif;
   --font-display: "Baloo 2", cursive;
   --font-ui: "Quicksand", sans-serif;
@@ -148,6 +148,18 @@ body::-webkit-scrollbar {
     font-weight: 500;
     src: url("/fonts/Quicksand-Medium.woff2") format("woff2");
   }
+  @font-face {
+    font-family: "Merriweather";
+    font-weight: 400 900;
+    src: url("/fonts/Merriweather-VariableFont_opsz,wdth,wght.ttf") format("truetype");
+    font-style: normal;
+  }
+  @font-face {
+    font-family: "Merriweather";
+    font-weight: 400 900;
+    src: url("/fonts/Merriweather-Italic-VariableFont_opsz,wdth,wght.ttf") format("truetype");
+    font-style: italic;
+  }
 
   /* Apply base styles */
   body {
@@ -161,6 +173,9 @@ body::-webkit-scrollbar {
 
 /* UTILITIES LAYER (No changes needed here) */
 @layer utilities {
+  .card-font {
+    font-family: "Merriweather", serif;
+  }
   /* All utility classes remain the same */
   .absolute-center {
     @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
