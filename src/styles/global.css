@@ -281,3 +281,21 @@ body::-webkit-scrollbar {
 .animate-scale-up {
   animation: scaleUp 0.3s ease-out forwards;
 }
+/* ================================================== */
+/* COSMIC GARDEN - FLORA POD STYLES                 */
+/* ================================================== */
+
+.flora-pod {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pod-petal {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  background: rgba(20, 20, 40, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 100% 0;
+  transform-origin: bottom left;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}

@@ -203,30 +203,27 @@ export const offers = [
 
 export const solutionCards = [
   {
-    icon: "FaPuzzlePiece",
-    title: "Interactive Learning Games",
-    description: "Engaging games that make learning fun and effective.",
-    gradient: "from-blue-500 to-teal-400",
+    emoji: "🎮",
+    title: "Play Smart",
+    description: "Gaming made genius—same fun, smarter gains.",
   },
   {
-    icon: "FaRocket",
-    title: "Personalized Journeys",
-    description: "AI-powered learning paths that adapt to your child's pace.",
-    gradient: "from-purple-500 to-indigo-400",
+    emoji: "💬",
+    title: "Confident Me",
+    description: "An AI buddy that helps kids talk, connect, and make friends.",
   },
   {
-    icon: "FaUsers",
-    title: "Safe Community",
-    description: "A moderated community for kids to collaborate and grow.",
-    gradient: "from-pink-500 to-rose-400",
+    emoji: "🤝",
+    title: "Chizel Club",
+    description: "A safe space to find buddies, share ideas, and grow together.",
   },
   {
-    icon: "FaShieldAlt",
-    title: "Parental Peace of Mind",
-    description: "Track progress and manage screen time with our parent dashboard.",
-    gradient: "from-orange-500 to-amber-400",
+    emoji: "🛡️",
+    title: "Safe & Meaningful",
+    description: "Peace of mind for parents with growth-focused fun.",
   },
 ];
+
 export const chizelverseCards = [
   {
     title: "The Learning Core",
