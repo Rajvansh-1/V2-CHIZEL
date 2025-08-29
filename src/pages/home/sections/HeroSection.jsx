@@ -48,7 +48,7 @@ const Home = () => {
       {/* ============== CENTERED CONTENT ============== */}
       <div className="relative z-30 flex-center h-full flex-col text-center">
         <div className="max-w-4xl px-4">
-          <h1 className="hero-element font-heading text-5xl font-bold uppercase text-text sm:text-6xl md:text-7xl drop-shadow-[0_0_25px_rgba(31,111,235,0.45)]">
+          <h1 className="hero-element text-5xl font-bold uppercase text-text sm:text-6xl md:text-7xl drop-shadow-[0_0_25px_rgba(31,111,235,0.45)]" style={{ fontFamily: 'Orbitron, sans-serif' }}>
             Turning Screen Time Into <span className="bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent">Skill Time</span>
           </h1>
           <p className="hero-element mx-auto mt-4 max-w-2xl font-body text-base text-secondary-text md:text-xl">
