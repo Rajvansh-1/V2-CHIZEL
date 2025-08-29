@@ -2,76 +2,112 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { FaExclamationTriangle } from "react-icons/fa";
 import { problemSlides } from "@utils/constants";
-import ProblemCard from "@/components/features/about/ProblemCard";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// New FieryProblemCard component, styled according to your reference
+const FieryProblemCard = ({ slide }) => {
+  return (
+    <div
+      className={`problem-card-container relative w-full rounded-3xl border-4 border-yellow-400/30 bg-gradient-to-br ${slide.gradient} backdrop-blur-xl overflow-hidden shadow-[0_0_80px_rgba(255,51,51,0.3)] transition-all duration-500 hover:scale-[1.06]`}
+    >
+      {/* Fiery Impact Indicator */}
+      <div className="absolute top-5 right-5 flex gap-1 z-20">
+        <div className="w-6 h-6 bg-yellow-400 rounded-full opacity-60 animate-ping" />
+        <div className="w-6 h-6 bg-red-600 rounded-full opacity-40 animate-pulse delay-200" />
+      </div>
+      
+      {/* Meteoric Border at Bottom */}
+      <div className="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-r from-red-700 via-yellow-400 to-indigo-800 opacity-35 blur-sm z-10" />
+
+      <img
+        src={slide.image}
+        alt={slide.title}
+        className="w-full h-72 md:h-80 lg:h-96 object-cover object-center rounded-t-3xl border-b-4 border-yellow-500/40"
+      />
+      
+      <div className="p-8 md:p-10 bg-black/80">
+        <span className="px-4 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-red-600 to-indigo-700 border border-red-700 text-white font-bold text-base uppercase tracking-widest shadow-lg">
+          {slide.badge}
+        </span>
+        <h3 className="mt-6 font-heading text-3xl md:text-4xl lg:text-5xl text-yellow-400 font-black tracking-tight drop-shadow-lg animate-pulse">
+          {slide.title}
+        </h3>
+        <p className="mt-3 font-heading text-xl md:text-2xl lg:text-3xl text-red-600 bg-gradient-to-r from-yellow-300 via-red-600 to-indigo-800 bg-clip-text text-transparent font-bold drop-shadow-lg animate-pulse">
+          {slide.highlight}
+        </p>
+        <p className="mt-5 font-body text-lg md:text-xl text-gray-100 max-w-2xl font-bold border-l-4 border-yellow-400 pl-5">
+          {slide.description}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 
 const ProblemStatementSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
+    // --- Your trusted GSAP animation logic ---
     const scrollTriggerConfig = {
       toggleActions: "play none none reverse",
       fastScrollEnd: true,
       preventOverlaps: true,
     };
 
-    let ctx = gsap.context(() => {
-      gsap.from(".problem-heading", {
+    gsap.from(".problem-heading", {
+      scrollTrigger: {
+        trigger: ".problem-heading",
+        start: "top 85%",
+        ...scrollTriggerConfig,
+      },
+      opacity: 0,
+      y: 30,
+      duration: 0.8,
+      ease: "power2.out",
+    });
+
+    gsap.utils.toArray(".problem-slide").forEach((el) => {
+      if (!el) return;
+      gsap.from(el, {
         scrollTrigger: {
-          trigger: ".problem-heading",
+          trigger: el,
           start: "top 85%",
           ...scrollTriggerConfig,
         },
         opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: "power2.out",
+        y: 50,
+        duration: 0.7,
+        ease: "power3.out",
       });
-      gsap.utils.toArray(".problem-slide").forEach((el) => {
-        if (!el) return;
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: "top 85%",
-            ...scrollTriggerConfig,
-          },
-          opacity: 0,
-          y: 50,
-          duration: 0.7,
-          ease: "power3.out",
-        });
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
+    });
+  }, { scope: containerRef });
 
   return (
     <div ref={containerRef}>
       <section
         id="problem"
-        className="relative w-screen bg-background pt-8 sm:pt-12 pb-6 sm:pb-12 overflow-hidden"
+        className="relative w-screen bg-background/100 py-24 overflow-hidden"
       >
-        <div className="absolute inset-0 pointer-events-none -z-10">
-          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 h-60 w-60 rounded-full bg-red-500/10 blur-[90px]" />
+        {/* Fiery Space Background from your reference */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px] animate-pulse" />
+          <div className="absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px] animate-pulse delay-1000" />
+          <div className="absolute top-32 left-1/2 transform -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px] animate-pulse delay-500" />
         </div>
-        <div className="container mx-auto px-6 md:px-8">
+
+        <div className="container mx-auto px-6 md:px-8 relative z-10">
           <div className="problem-heading text-center mb-16 space-y-6">
-            <div className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-full font-semibold">
-              <FaExclamationTriangle />
-              <span className="text-sm uppercase tracking-wider">
-                THE PROBLEM
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-red-600 via-red-500 to-orange-500 bg-clip-text">
-              Screen Time is Hurting <br /> Our Kids
+            <p className="font-bold text-lg uppercase tracking-widest text-red-600 mb-2 animate-pulse">
+              EXTREME WARNING
+            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-red-600 via-yellow-400 to-indigo-800 bg-clip-text drop-shadow-lg animate-pulse">
+              Every Second is a Disaster
             </h2>
-            <p className="text-xl text-secondary-text font-medium max-w-3xl mx-auto">
-              While technology should help children grow, most apps are designed
-              to be addictive rather than educational.
+            <p className="mt-4 text-2xl text-white font-semibold font-heading animate-pulse">
+              Act now or your child’s spark will vanish forever.
             </p>
           </div>
           <div className="space-y-14 max-w-4xl mx-auto">
@@ -79,9 +115,8 @@ const ProblemStatementSection = () => {
               <div
                 key={i}
                 className="problem-slide w-full max-w-[900px] mx-auto"
-                style={{ willChange: "transform, opacity" }}
               >
-                <ProblemCard slide={slide} />
+                <FieryProblemCard slide={slide} />
               </div>
             ))}
           </div>
