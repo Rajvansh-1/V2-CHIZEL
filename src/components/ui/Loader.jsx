@@ -1,15 +1,17 @@
+// src/components/ui/Loader.jsx
+
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 const Loader = ({ setIsLoading }) => {
   const [progress, setProgress] = useState(0);
-
   const loaderRef = useRef(null);
-  const progressBarRef = useRef(null);
+  const logoPathRef = useRef(null);
+  const coreRef = useRef(null);
   const progressTextRef = useRef(null);
 
-  // All animation and progress logic is preserved exactly as it was.
+  // Simulate loading progress
   useEffect(() => {
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
@@ -17,138 +19,114 @@ const Loader = ({ setIsLoading }) => {
           clearInterval(progressInterval);
           return 100;
         }
-        const increment = Math.random() * 10;
+        const increment = Math.random() * 5 + 1; // More controlled increments
         return Math.min(prev + increment, 100);
       });
-    }, 150);
+    }, 100);
     return () => clearInterval(progressInterval);
   }, []);
 
-  useGSAP(
-    () => {
-      gsap.to(progressBarRef.current, {
-        width: `${progress}%`,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-      gsap.to(progressTextRef.current, {
+  useGSAP(() => {
+    // Animate based on progress
+    gsap.to(progressTextRef.current, {
         textContent: Math.round(progress),
         duration: 0.5,
         ease: "power2.out",
         snap: { textContent: 1 },
-      });
-      if (progress >= 100) {
-        const exitTl = gsap.timeline({
-          delay: 0.8,
-          onComplete: () => setIsLoading(false),
-        });
-        exitTl
-          .to(".anim-element", {
-            y: -40,
-            opacity: 0,
-            duration: 0.4,
-            stagger: 0.1,
-            ease: "power2.in",
-          })
-          .to(
-            loaderRef.current,
-            { yPercent: -100, duration: 1.2, ease: "expo.inOut" },
-            ">-0.2"
-          );
-      }
-    },
-    { dependencies: [progress, setIsLoading], scope: loaderRef }
-  );
+    });
 
-  useGSAP(
-    () => {
-      gsap.to(".mascot", {
-        y: -8,
-        repeat: -1,
-        yoyo: true,
-        duration: 2,
-        ease: "sine.inOut",
+    // Animate the logo being "etched"
+    if (logoPathRef.current) {
+        const pathLength = logoPathRef.current.getTotalLength();
+        gsap.to(logoPathRef.current, {
+            strokeDashoffset: pathLength - (progress / 100) * pathLength,
+            duration: 0.5,
+            ease: "power2.out"
+        });
+    }
+    
+    // Make the core glow brighter with progress
+    gsap.to(coreRef.current, {
+        scale: 1 + (progress / 100) * 0.5,
+        opacity: 0.5 + (progress / 100) * 0.5,
+        boxShadow: `0 0 ${progress * 0.5}px #1f6feb`,
+        duration: 0.5,
+        ease: "power2.out"
+    });
+
+    // Final animation sequence when loading is complete
+    if (progress >= 100) {
+      const exitTl = gsap.timeline({
+        delay: 0.5,
+        onComplete: () => setIsLoading(false),
       });
-      gsap.to(".robot-eye", {
-        scaleY: 0.1,
-        repeat: -1,
-        repeatDelay: 2.5,
-        yoyo: true,
-        duration: 0.08,
-        ease: "power1.inOut",
-      });
-      gsap.to(".antenna-light", {
-        opacity: 0.5,
-        repeat: -1,
-        yoyo: true,
-        duration: 0.8,
-        ease: "sine.inOut",
-      });
-      gsap.to(".bg-shape", {
-        y: (i) => (i % 2 === 0 ? -15 : 15),
-        x: (i) => (i % 2 === 0 ? 10 : -10),
-        rotation: (i) => (i % 2 === 0 ? 10 : -10),
-        repeat: -1,
-        yoyo: true,
-        duration: 5,
-        ease: "sine.inOut",
-        stagger: 0.5,
-      });
-    },
-    { scope: loaderRef }
-  );
+      exitTl
+        .to([coreRef.current, progressTextRef.current], {
+            opacity: 0,
+            duration: 0.5,
+            ease: "power2.out"
+        })
+        .to(".logo-container", {
+            scale: 2,
+            filter: "drop-shadow(0 0 30px #5d3fd3)",
+            duration: 0.4,
+            ease: "power2.out"
+        })
+        .to(".logo-container", {
+            scale: 1,
+            filter: "drop-shadow(0 0 15px #1f6feb)",
+            duration: 0.4,
+            ease: "power2.in"
+        })
+        .to(loaderRef.current, {
+            opacity: 0,
+            duration: 1,
+            ease: "power2.inOut"
+        }, "-=0.2");
+    }
+  }, { dependencies: [progress, setIsLoading], scope: loaderRef });
 
   return (
-    // ============== LOADER CONTAINER ==============
     <div
       ref={loaderRef}
-      className="fixed inset-0 z-[100] flex-center flex-col gap-3 bg-overlay text-text"
+      className="fixed inset-0 z-[100] flex-center flex-col bg-background text-text overflow-hidden"
     >
-      {/* Background shapes using dark theme colors */}
-      <div className="absolute inset-0 pointer-events-none opacity-50">
-        <div className="bg-shape absolute top-[20%] left-[10%] w-6 h-6 bg-primary rounded-full" />
-        <div className="bg-shape absolute top-[70%] left-[25%] w-8 h-8 bg-badge-bg rounded-full" />
-        <div className="bg-shape absolute top-[15%] right-[15%] w-5 h-5 bg-accent rounded-lg rotate-45" />
-        <div className="bg-shape absolute top-[80%] right-[20%] w-7 h-7 bg-primary-alpha rounded-lg -rotate-45" />
-      </div>
-
-      <div className="relative z-10 text-center">
-        {/* ============== MASCOT ============== */}
-        <div className="mascot anim-element mb-4">
-          <div className="w-20 h-20 mx-auto relative">
-            <div className="w-16 h-16 bg-accent border-2 border-accent/50 rounded-xl mx-auto relative shadow-lg">
-              <div className="robot-eye absolute top-5 left-4 w-3 h-3 bg-white rounded-full" />
-              <div className="robot-eye absolute top-5 right-4 w-3 h-3 bg-white rounded-full" />
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-4 border-b-2 border-l-2 border-r-2 border-background rounded-b-full" />
+        {/* VFX Artist's Note: Particles would be added here, flowing towards the center.
+            Their speed and density would be tied to the `progress` state. */}
+        
+        <div className="relative flex-center flex-col">
+            <div ref={coreRef} className="absolute w-48 h-48 bg-primary rounded-full blur-2xl opacity-50" />
+            
+            <div className="logo-container relative w-48 h-48">
+                {/* SVG for the Chizel Logo - Crown and Wordmark */}
+                <svg className="absolute-center w-full h-full" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#5d3fd3" />
+                            <stop offset="100%" stopColor="#1f6feb" />
+                        </linearGradient>
+                    </defs>
+                    <path
+                        ref={logoPathRef}
+                        d="M20,40 Q50,10 80,40 M25,40 L25,60 Q50,75 75,60 L75,40 M35,60 Q50,50 65,60"
+                        stroke="url(#logo-gradient)"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeDasharray="250"
+                        strokeDashoffset="250"
+                    />
+                </svg>
             </div>
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-secondary-text" />
-            <div className="antenna-light absolute -top-5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full" />
-          </div>
+            
+            <div className="absolute bottom-[-4rem] text-center">
+                <p className="font-ui text-4xl text-text">
+                    <span ref={progressTextRef}>0</span>%
+                </p>
+                <p className="font-body text-secondary-text mt-1">Forging Universe...</p>
+            </div>
         </div>
-
-        {/* ============== TEXT CONTENT ============== */}
-        <div className="anim-element space-y-1 px-4">
-          <h1 className="text-3xl md:text-4xl font-heading uppercase font-bold">
-            Get Ready — We’re Teleporting You Into Space
-          </h1>
-          <p className="font-body text-secondary-text text-xl">
-            Brace yourself for your journey into the world of Chizel
-          </p>
-        </div>
-
-        {/* ============== PROGRESS BAR ============== */}
-        <div className="anim-element w-60 mx-auto mt-6 px-4">
-          <div className="flex justify-end text-sm text-secondary-text mb-1 font-ui">
-            <span ref={progressTextRef}>0</span>%
-          </div>
-          <div className="w-full h-2 bg-card border border-text/10 rounded-full overflow-hidden">
-            <div
-              ref={progressBarRef}
-              className="h-full bg-primary rounded-full"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

@@ -1,67 +1,75 @@
+// src/pages/home/sections/AboutSection.jsx
+
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { FaChild, FaUsers, FaRocket } from "react-icons/fa";
-import OfferCard from "@/components/features/about/OfferCard";
-import { offers } from "@utils/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const iconMap = {
-  kids: <FaChild className="text-3xl text-white" />,
-  parents: <FaUsers className="text-3xl text-white" />,
-  investors: <FaRocket className="text-3xl text-white" />,
-};
-
 const AboutSection = () => {
   const containerRef = useRef(null);
+  const pinRef = useRef(null);
+  const contentRef = useRef(null);
 
   useGSAP(() => {
-    gsap.from(".offer-card", {
+    // Horizontal scrolling animation
+    gsap.to(contentRef.current, {
+      x: () => -(contentRef.current.scrollWidth - pinRef.current.clientWidth),
+      ease: "none",
       scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 80%",
-        toggleActions: "play none none reverse",
+        trigger: pinRef.current,
+        pin: true,
+        scrub: 1,
+        start: "top top",
+        end: () => `+=${contentRef.current.scrollWidth}`,
       },
-      opacity: 0,
-      y: 50,
-      duration: 0.7,
-      stagger: 0.2,
-      ease: "power3.out",
     });
+
+    // Animate each world's content as it comes into view
+    gsap.utils.toArray(".world-content").forEach(section => {
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: section,
+                containerAnimation: gsap.getTweensOf(contentRef.current)[0], // Link to the horizontal scroll
+                start: "left 75%",
+                toggleActions: "play reverse play reverse",
+            }
+        });
+        tl.from(section, { y: 50, opacity: 0, scale: 0.9, duration: 1, ease: "power2.out" });
+    });
+
   }, { scope: containerRef });
 
   return (
-    <section
-      ref={containerRef}
-      id="what-we-offer"
-      className="relative w-screen bg-background pt-16 sm:pt-24 pb-16 sm:pb-24 overflow-hidden"
-    >
-      <div className="container mx-auto px-6 md:px-8">
-        <div className="text-center space-y-6 md:space-y-8">
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-text">
-            What We Offer
-          </h2>
-          <p className="font-body text-lg text-secondary-text max-w-3xl mx-auto">
-            Tailored experiences for every member of the Chizel family. From
-            playful learning to strategic growth, we've got something special
-            for everyone.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 pt-6">
-            {offers.map((offer) => (
-              <OfferCard
-                key={offer.title}
-                icon={iconMap[offer.icon]} 
-                title={offer.title}
-                description={offer.description}
-                bgGradient={offer.bgGradient}
-                iconGradient={offer.iconGradient}
-                hoverShadow={offer.hoverShadow}
-                className="offer-card" // Add a class for GSAP targeting
-              />
-            ))}
+    <section ref={containerRef} id="about-us" className="overflow-hidden">
+      <div ref={pinRef} className="h-screen w-full">
+        <div ref={contentRef} className="flex h-full w-[300vw]">
+          {/* World 1: For Kids */}
+          <div className="world-section flex-center relative w-screen h-full bg-gradient-to-br from-[#1a237e] to-[#0d1226]">
+            <img src="/images/about-image.webp" alt="Kids creating in Chizel" className="absolute inset-0 w-full h-full object-contain opacity-40"/>
+            <div className="world-content text-center relative z-10">
+                <p className="font-ui text-secondary-text uppercase tracking-widest">For Kids</p>
+                <h2 className="font-heading text-5xl md:text-7xl text-text mt-2">A Universe to Create</h2>
+            </div>
+          </div>
+
+          {/* World 2: For Parents */}
+          <div className="world-section flex-center relative w-screen h-full bg-gradient-to-br from-[#0d1226] to-[#2a0d45]">
+            <img src="/images/vision-image.webp" alt="Parents witnessing growth" className="absolute inset-0 w-full h-full object-contain opacity-30"/>
+            <div className="world-content text-center relative z-10">
+                <p className="font-ui text-secondary-text uppercase tracking-widest">For Parents</p>
+                <h2 className="font-heading text-5xl md:text-7xl text-text mt-2">A Journey to Witness</h2>
+            </div>
+          </div>
+
+          {/* World 3: For Investors */}
+          <div className="world-section flex-center relative w-screen h-full bg-gradient-to-br from-[#2a0d45] to-[#0d1226]">
+            <img src="/images/ecosystem-image.webp" alt="The future of Chizel expanding" className="absolute inset-0 w-full h-full object-contain opacity-40"/>
+            <div className="world-content text-center relative z-10">
+                <p className="font-ui text-secondary-text uppercase tracking-widest">For Investors</p>
+                <h2 className="font-heading text-5xl md:text-7xl text-text mt-2">A Future to Build</h2>
+            </div>
           </div>
         </div>
       </div>

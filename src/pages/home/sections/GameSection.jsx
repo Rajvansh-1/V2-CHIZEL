@@ -1,145 +1,141 @@
-import BentoTilt from "@components/common/BentoTilt";
-import BentoCard from "@components/features/games/BentoCard";
-import {
-  TiStarFullOutline,
-  TiPuzzle,
-  TiChartLine,
-  TiLightbulb,
-} from "react-icons/ti";
-import { FaLayerGroup,} from "react-icons/fa";
+// src/pages/home/sections/GameSection.jsx
 
-const GameSection = () => (
-  <section id="games" className="bg-background py-12 md:py-16 pb-20 md:pb-24">
-    <div className="container mx-auto px-4 md:px-8">
-      {/* ============== SECTION HEADER ============== */}
-      <div className="text-center flex flex-col items-center mb-12 space-y-4 md:space-y-6">
-        <p className="font-ui text-lg text-primary uppercase tracking-wider">
-          Explore Our Games
-        </p>
-        <h1 className="font-heading text-5xl md:text-6xl text-text">
-          A Universe of Fun & Learning
-        </h1>
-        
-      </div>
+import { useState, useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { featuresData } from "@utils/constants"; // We reuse this data for our games
+import { TiPuzzle, TiChartLine, TiLightbulb } from "react-icons/ti";
 
-      <div className="text-center mb-8">
-        <h3 className="font-heading text-3xl md:text-4xl text-accent mb-3 uppercase">
-          Expore our games
-        </h3>
-        <p className="font-body text-lg text-secondary-text max-w-3xl mx-auto">
-          Our games don't just entertain — they transform. Here's how much these
-          games literally help your child grow:
-        </p>
-      </div>
+const gameIcons = {
+  "Word Warriors": <TiChartLine />,
+  "Logic League": <TiPuzzle />,
+  "Chizel Club": <TiLightbulb />,
+};
+
+const GameSection = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef(null);
+  const orreryRef = useRef(null);
+
+  // This timeline will be controlled by the click handler
+  const tl = useRef();
+
+  const handlePlanetSelect = (index) => {
+    if (activeIndex === index) return;
+
+    // Use a timeline to smoothly transition the orrery and content
+    tl.current = gsap.timeline({
+      onStart: () => setActiveIndex(index), // Set state at the beginning of the animation
+    });
+
+    // Animate out the old content
+    tl.current.to(".transmission-panel > *", {
+        opacity: 0,
+        y: 10,
+        stagger: 0.1,
+        duration: 0.3,
+        ease: "power2.in",
+    });
+
+    // Rotate the orrery to the new planet
+    const rotation = -120 * index; // 3 planets, 120 degrees each
+    tl.current.to(orreryRef.current, {
+        rotation: rotation,
+        duration: 1,
+        ease: "power3.inOut",
+    });
     
+    // Animate in the new content
+    tl.current.fromTo(".transmission-panel > *",
+        { opacity: 0, y: -10 },
+        { opacity: 1, y: 0, stagger: 0.1, duration: 0.5, ease: "power2.out" }
+    );
+  };
 
-      <div className="grid w-full auto-rows-[22rem] gap-5 md:gap-6">
-        <BentoTilt className="col-span-1 md:col-span-2" data-aos="fade-up">
-          <BentoCard
-            icon={<TiPuzzle />}
-            title={
-              <>
-                🧩 Play That
-                <br />
-                Teaches
-              </>
-            }
-            description={
-              <span className="block font-body text-base md:text-lg text-text">
-                Smart challenges that grow focus, memory, and logic.
-              </span>
-            }
-          />
-        </BentoTilt>
+  useGSAP(() => {
+    // Entrance animation for the whole section
+    gsap.from(containerRef.current, {
+        scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 70%",
+            toggleActions: "play none none reverse"
+        },
+        opacity: 0,
+        duration: 1,
+        ease: "power2.inOut"
+    });
 
-        <BentoTilt
-          className="col-span-1"
-          data-aos="fade-up"
-          data-aos-delay="100"
-        >
-          <BentoCard
-            icon={<TiChartLine />}
-            title={
-              <>
-                🤖 Confidence in
-                <br />
-                Conversation
-              </>
-            }
-            description={
-              <span className="block font-body text-base md:text-lg text-text">
-                An AI buddy that boosts social skills, conversation, and
-                confident choices.
-              </span>
-            }
-          />
-        </BentoTilt>
+    // Gentle continuous rotation of the planets themselves
+    gsap.to(".planet-icon", {
+        rotation: 360,
+        repeat: -1,
+        duration: 20,
+        ease: "none"
+    });
 
-        <BentoTilt
-          className="col-span-1"
-          data-aos="fade-up"
-          data-aos-delay="200"
-        >
-          <BentoCard
-            icon={<TiLightbulb />}
-            title={
-              <>
-                🌍 Moderated
-                <br />
-                Global Community
-              </>
-            }
-            description={
-              <span className="block font-body text-base md:text-lg text-text">
-                Where children spark ideas, share skills, and grow into
-                confident creators safely.
-              </span>
-            }
-          />
-        </BentoTilt>
+  }, { scope: containerRef });
 
-        <BentoTilt
-          className="col-span-1 md:col-span-2"
-          data-aos="fade-up"
-          data-aos-delay="300"
-        >
-          <BentoCard
-            icon={<FaLayerGroup />}
-            title={
-              <>
-                🎖Inclusive
-                <br />
-                by Design
-              </>
-            }
-            description={
-              <span className="block font-body text-base md:text-lg text-text">
-                Accessible learning for all children — because learning is a
-                right, not a privilege.
-              </span>
-            }
-          />
-        </BentoTilt>
+  return (
+    <section ref={containerRef} id="games" className="bg-background py-20 md:py-24 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-8">
+        {/* ============== SECTION HEADER ============== */}
+        <div className="text-center flex flex-col items-center mb-16 space-y-4 md:space-y-6">
+          <p className="font-ui text-lg text-primary uppercase tracking-wider">
+            Explore Our Worlds
+          </p>
+          <h1 className="font-heading text-5xl md:text-6xl text-text">
+            The Galaxy of Games
+          </h1>
+        </div>
 
-        <BentoTilt className="col-span-1 md:col-span-3">
-          <div className="flex h-full flex-col justify-center items-center text-center bg-card border-hsla rounded-xl p-6 gap-4 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-badge-bg/10 animate-pulse" />
-            <h3 className="font-heading text-4xl md:text-6xl font-extrabold text-text relative z-10 tracking-wide">
-              More Big Things Coming Soon!
-            </h3>
-            <TiStarFullOutline className="text-6xl text-primary relative z-10 animate-bounce" />
-            <p className="font-body text-lg md:text-2xl text-secondary-text relative z-10 italic">
-              Bigger. Smarter. Fiercer.
-              <br />
-              <span className="text-primary font-semibold">
-                The next wave is closer than you think.
-              </span>
-            </p>
-          </div>
-        </BentoTilt>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center min-h-[60vh]">
+            {/* Left Side: The Interactive Orrery */}
+            <div className="w-full h-96 flex-center">
+                <div ref={orreryRef} className="relative w-80 h-80 md:w-96 md:h-96">
+                    {/* The Sun */}
+                    <div className="absolute-center w-24 h-24 bg-primary/30 rounded-full shadow-2xl shadow-primary/50 flex-center">
+                        <div className="w-16 h-16 bg-primary/50 rounded-full animate-pulse" />
+                    </div>
+
+                    {/* Orbital Paths */}
+                    <div className="absolute-center w-full h-full border border-primary/20 rounded-full" />
+                    
+                    {/* The Planets (Games) */}
+                    {featuresData.map((game, index) => {
+                        const angle = index * 120; // 3 planets, 120 degrees apart
+                        return (
+                            <div 
+                                key={game.title}
+                                className="planet-container absolute top-0 left-1/2 w-0 h-full"
+                                style={{ transform: `rotate(${angle}deg)`}}
+                            >
+                                <div 
+                                    onClick={() => handlePlanetSelect(index)}
+                                    className={`absolute top-[-24px] left-[-24px] w-12 h-12 md:w-16 md:h-16 rounded-full flex-center text-3xl md:text-4xl cursor-pointer transition-all duration-500
+                                    ${activeIndex === index ? 'bg-primary shadow-lg shadow-primary/50 text-white' : 'bg-card text-primary/70 hover:bg-primary/50'}`}
+                                >
+                                   <div className="planet-icon" style={{transform: `rotate(${-angle}deg)`}}>
+                                     {gameIcons[game.title]}
+                                   </div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
+            {/* Right Side: Transmission Panel */}
+            <div className="relative h-96">
+                <div className="transmission-panel absolute inset-0 bg-card/50 border border-white/10 rounded-2xl p-8 flex flex-col justify-center">
+                    <h3 className="font-heading text-4xl text-text mb-2">{featuresData[activeIndex].title}</h3>
+                    <p className="font-body text-secondary-text mb-4">{featuresData[activeIndex].description}</p>
+                    <cite className="font-body text-text/70 italic">"{featuresData[activeIndex].quote}"</cite>
+                </div>
+            </div>
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default GameSection;
