@@ -70,33 +70,43 @@ export const socialLinks = [
 
 export const problemSlides = [
   {
-    badge: "🚨 Threat Detected",
-    title: "The Silent Nebula",
-    highlight: "A creeping void that consumes imagination.",
+    badge: "🧠 Brainrot",
+    title: "The Silent Pandemic",
+    highlight: "Every second, a black hole empties your child's mind.",
     description:
-      "Across the galaxy of childhood, a dark anomaly spreads. It drains focus, fades memories, and numbs the heart. We must act before all light is extinguished.",
+      "What looks like play is silent harm. Focus weakens, memory fades, and feelings turn numb. We need to fix it now before it's too late.",
     gradient: "from-purple-900/70 via-indigo-700/60 to-blue-700/60",
     image: "/gifs/brain_rot.gif",
   },
   {
-    badge: "💔 Connection Lost",
-    title: "The Emotional Singularity",
-    highlight: "Empathy, compassion, and connection are collapsing.",
+    badge: "🧠 Mind Theft",
+    title: "Screens Are Stealing Childhood",
+    highlight: "Bit by bit, the screen is stealing their spark.",
     description:
-      "The warmth of feeling is being pulled into a black hole of isolation. Children are becoming shadows, adrift in a silent universe, unable to connect.",
+      "It feels like play, but every moment online steals tomorrow — second by second, dream by dream.",
+    gradient: "from-red-700/50 via-orange-600/50 to-yellow-500/50",
+    image: "/gifs/brain_hijack.gif",
+  },
+  {
+    badge: "💔 Emotional Decay",
+    title: "Hearts Going Radio Silent",
+    highlight: "Love, empathy, and compassion are dying in real time.",
+    description:
+      "The fire of feeling is fading. Kids are turning into shadows, unable to love or connect.",
     gradient: "from-purple-700/60 via-pink-600/60 to-red-600/60",
     image: "/gifs/emotional_decay.gif",
   },
   {
-    badge: "⚠️ Uncharted Territory",
-    title: "Gateway to the Void",
-    highlight: "One wrong turn can lead to a darker dimension.",
+    badge: "🚨 Gateway to Harm",
+    title: "The Dark Side of Screens",
+    highlight: "One wrong swipe can shatter innocence forever.",
     description:
-      "The digital cosmos hides dangers no child should face. Predators, violence, and toxic content are twisting childhood into something unrecognizable.",
+      "The internet hides dangers no child should face. Predators, violence, and toxic content are twisting childhood into something darker.",
     gradient: "from-red-900/70 via-red-700/60 to-orange-600/60",
     image: "/gifs/gateway-to-harm.gif",
   },
 ];
+
 
 
 
