@@ -299,3 +299,38 @@ body::-webkit-scrollbar {
   transform-origin: bottom left;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* In your global CSS file, e.g., globals.css */
+
+.animated-gradient-heading {
+  /* Set a transparent text color to allow the background gradient to show through */
+  color: transparent;
+  /* Apply the background gradient */
+  background: linear-gradient(
+    90deg,
+    #8e2de2 0%, /* A vibrant purple */
+    #4a00e0 25%, /* A deeper blue-purple */
+    #00c6ff 50%, /* A bright blue */
+    #8e2de2 75%, /* Return to vibrant purple */
+    #4a00e0 100% /* A deeper blue-purple */
+  );
+  /* Make the background clip to the text */
+  background-clip: text;
+  -webkit-background-clip: text; /* For Webkit browsers */
+  /* Define the size of the background, making it larger than the text area to allow animation */
+  background-size: 200% auto;
+  /* Start the animation */
+  animation: gradient-animation 8s linear infinite; /* Adjust duration as needed */
+  font-weight: 800; /* Ensure the text is bold for better gradient visibility */
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
