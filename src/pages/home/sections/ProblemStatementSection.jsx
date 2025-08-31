@@ -18,7 +18,7 @@ const FieryProblemCard = ({ slide }) => {
         <div className="w-6 h-6 bg-yellow-400 rounded-full opacity-60 animate-ping" />
         <div className="w-6 h-6 bg-red-600 rounded-full opacity-40 animate-pulse delay-200" />
       </div>
-      
+
       <div className="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-r from-red-700 via-yellow-400 to-indigo-800 opacity-35 blur-sm z-10" />
 
       <img
@@ -26,7 +26,7 @@ const FieryProblemCard = ({ slide }) => {
         alt={slide.title}
         className="w-full h-72 md:h-80 lg:h-96 object-cover object-center rounded-t-3xl border-b-4 border-yellow-500/40"
       />
-      
+
       <div className="p-8 md:p-10 bg-black/80">
         <span className="px-4 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-red-600 to-indigo-700 border border-red-700 text-white font-bold text-base uppercase tracking-widest shadow-lg">
           {slide.badge}
@@ -51,12 +51,12 @@ const ProblemStatementSection = () => {
 
   useGSAP(() => {
     const tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1, // Tie animations directly to scroll position
-        }
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1, // Tie animations directly to scroll position
+      }
     });
 
     // Animate the background nebulae with parallax
@@ -128,7 +128,14 @@ const ProblemStatementSection = () => {
               >
                 <FieryProblemCard slide={slide} />
               </div>
+
             ))}
+            {/* Call to Action - Extreme Urgency */}
+            <div className="relative z-10 text-center px-4 mt-16">
+              <div className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition cursor-pointer select-none">
+                Act Now — Protect Their Future &#x1F6A8;
+              </div>
+            </div>
           </div>
         </div>
       </section>
