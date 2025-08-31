@@ -77,7 +77,7 @@ const NebulaSection = () => {
         
         <div className="nebula-content relative w-full h-full flex flex-col items-center justify-start pt-24">
             <div className="nebula-title text-center">
-                <h2 className="font-heading text-5xl md:text-6xl text-text">Explore the Core Worlds</h2>
+                <h2 className="font-heading text-5xl md:text-6xl text-text"><span>Ready To Turn Your Screen Time Into Skill Time?</span></h2>
                 <p className="font-body text-secondary-text mt-2">Scroll to pilot your journey.</p>
             </div>
             
