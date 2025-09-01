@@ -334,3 +334,35 @@ body::-webkit-scrollbar {
     background-position: 0% 50%;
   }
 }
+/* Add this to your utilities layer or at the end of the file */
+.animated-gradient-heading {
+  /* Set a transparent text color to allow the background gradient to show through */
+  color: transparent;
+  /* Apply the background gradient */
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    var(--color-primary) 50%,
+    var(--color-badge-bg) 100%
+  );
+  /* Make the background clip to the text */
+  background-clip: text;
+  -webkit-background-clip: text; /* For Webkit browsers */
+  /* Define the size of the background, making it larger than the text area to allow animation */
+  background-size: 200% auto;
+  /* Start the animation */
+  animation: gradient-animation 8s linear infinite; /* Adjust duration as needed */
+  font-weight: 800; /* Ensure the text is bold for better gradient visibility */
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
