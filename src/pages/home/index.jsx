@@ -13,8 +13,13 @@ import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloati
 // Import our new and refined sections
 import ProblemStatementSection from "@/pages/home/sections/ProblemStatementSection";
 import SolutionSection from "@/pages/home/sections/SolutionSection";
-import NebulaSection from "@/pages/home/sections/NebulaSection"; // Our new cinematic journey
-import ParentsNebulaSection from "@/pages/home/sections/ParentsNebulaSection";
+import ChizelverseIntroSection from "@/pages/home/sections/ChizelverseIntroSection";
+import ChizelverseCardsSection from "@/pages/home/sections/ChizelverseCardsSection";
+import ChizelverseOutroSection from "@/pages/home/sections/ChizelverseOutroSection";
+import GsapAnimationSection from "@/pages/home/sections/GsapAnimationSection";
+import OfferSection from "@/pages/home/sections/OfferSection";
+import ChizelEcosystemSection from "@/pages/home/sections/ChizelEcosystemSection";
+import ChizelWebSection from "@/pages/home/sections/ChizelWebSection";
 
 
 const HomePage = () => {
@@ -34,11 +39,16 @@ const HomePage = () => {
       <SolutionSection />
       
       {/* The Cinematic Core Experience */}
-      <NebulaSection />
+      <ChizelverseIntroSection />
+      <ChizelverseCardsSection />
+      <ChizelverseOutroSection />
       
       {/* Supporting Sections */}
-      <ParentsNebulaSection />
+      <GsapAnimationSection />
+      <OfferSection />
       <AboutSection />
+      <ChizelEcosystemSection />
+      <ChizelWebSection />
       <ChizelAppSection />
       <ContactSection />
       
