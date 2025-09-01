@@ -244,3 +244,26 @@ export const chizelverseCards = [
     image: "/images/ecosystem-image.webp", // Replace with actual card image
   },
 ];
+
+export const chizelverseInfo = [
+  { 
+    icon: 'gamepad', 
+    title: 'Clubs, Games, Friends – Let’s Go!',
+    points: [
+      'Join Clubs, Discover New Hobbies',
+      'Make Friends, Play, and Collaborate anywhere',
+      'Learn New Skills, Create, Spark Ideas',
+      'Share Your Creations in a Safe Space'
+    ]
+  },
+  { 
+    icon: 'users', 
+    title: 'Family Bonding, Activities, and Memories Await',
+    points: [
+      'Discover workshops, activities, and events',
+      'Connect with a vast, creative parent community',
+      'Enjoy safe, verified clubs and spaces',
+      'Bond through activities and achievement'
+    ]
+  },
+];
