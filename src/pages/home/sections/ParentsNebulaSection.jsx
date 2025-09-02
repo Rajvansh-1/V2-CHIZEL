@@ -1,5 +1,3 @@
-// src/pages/home/sections/ParentsNebulaSection.jsx
-
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -25,13 +23,13 @@ const ParentsNebulaSection = () => {
         pin: true,
         scrub: 1.5,
         start: "top top",
-        end: "+=3000",
+        end: "+=1800", // MINIMIZED SCROLL DURATION
       },
     });
 
     // Animate the title in and out
-    tl.from(".parents-title", { opacity: 0, y: -50, duration: 1 })
-      .to(".parents-title", { opacity: 0, y: -50, duration: 1 }, "+=1");
+    tl.from(".parents-title", { opacity: 0, y: -50, duration: 0.5 })
+      .to(".parents-title", { opacity: 0, y: -50, duration: 0.5 }, "+=0.5");
 
     // Animate the star along the SVG path
     tl.to(star, {
@@ -41,24 +39,24 @@ const ParentsNebulaSection = () => {
             alignOrigin: [0.5, 0.5],
             autoRotate: true,
         },
-        duration: 10,
+        duration: 4, // Shortened animation duration
         ease: "power1.inOut",
     }, 0);
 
     // Animate the path drawing itself
-    tl.from(".path-line", { strokeDashoffset: 2058, duration: 10, ease: "power1.inOut" }, 0);
+    tl.from(".path-line", { strokeDashoffset: 2058, duration: 4, ease: "power1.inOut" }, 0);
 
-    // Trigger milestones at specific points along the timeline
+    // Trigger milestones at specific points along the shorter timeline
     milestones.forEach((milestone, index) => {
         tl.fromTo(milestone, 
             { scale: 0, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 1, ease: "back.out(1.7)" },
-            2 + index * 2.5 // Stagger the milestones along the timeline
+            { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" },
+            1 + index * 1 // Stagger milestones along the timeline
         );
     });
 
     // Animate final message
-    tl.from(".final-message-parents", { opacity: 0, y: 50, duration: 1.5 });
+    tl.from(".final-message-parents", { opacity: 0, y: 50, duration: 1 });
 
   }, { scope: containerRef });
 
@@ -72,8 +70,9 @@ const ParentsNebulaSection = () => {
             ))}
         </div>
 
-        <div className="parents-title text-center">
-            <h2 className="font-heading text-5xl md:text-6xl text-text">Mission Control for Parents</h2>
+        <div className="parents-title text-center px-4">
+            {/* EYE-CATCHING TITLE: Added animated gradient class */}
+            <h2 className="font-heading text-5xl md:text-6xl animated-gradient-heading">Mission Control for Parents</h2>
             <p className="font-body text-secondary-text mt-2">Scroll to witness their journey.</p>
         </div>
 
@@ -84,14 +83,15 @@ const ParentsNebulaSection = () => {
                     id="journey-path"
                     d="M50,300 C150,100 300,100 400,200 S650,300 750,100" 
                     fill="none" 
-                    stroke="#1f6feb" 
+                    stroke="var(--color-primary)" 
                     strokeWidth="2" 
                     className="path-line opacity-30"
                     strokeDasharray="2058"
                 />
             </svg>
             
-            <div className="journey-star w-6 h-6 rounded-full bg-badge-bg shadow-[0_0_20px_#ffb347] opacity-0" style={{opacity: 1}} />
+            {/* ENHANCED VISUALS: Added animate-pulse for a living feel */}
+            <div className="journey-star w-6 h-6 rounded-full bg-badge-bg shadow-[0_0_20px_var(--color-badge-bg)] animate-pulse" />
 
             {/* Milestones */}
             <div className="milestone absolute flex flex-col items-center gap-2" style={{top: '18%', left: '25%'}}>
@@ -108,7 +108,7 @@ const ParentsNebulaSection = () => {
             </div>
         </div>
 
-        <div className="final-message-parents absolute bottom-24 text-center">
+        <div className="final-message-parents absolute bottom-24 text-center px-4">
             <h3 className="font-heading text-3xl text-text">Track their journey. Witness their growth.</h3>
         </div>
          <style>{`

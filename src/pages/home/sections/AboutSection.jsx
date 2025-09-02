@@ -64,7 +64,7 @@ const AboutSection = () => {
           </div>
 
           {/* World 3: For Investors */}
-          <div className="world-section flex-center relative w-screen h-full bg-gradient-to-br from-[#2a0d45] to-[#0d1226]">
+          <div className="world-section flex-center relative w-screen h-full bg-gradient-to-br from-[#1a237e] to-[#0d1226]">
             <img src="/images/ecosystem-image.webp" alt="The future of Chizel expanding" className="absolute inset-0 w-full h-full object-contain opacity-40"/>
             <div className="world-content text-center relative z-10">
                 <p className="font-ui text-secondary-text uppercase tracking-widest">For Investors</p>
