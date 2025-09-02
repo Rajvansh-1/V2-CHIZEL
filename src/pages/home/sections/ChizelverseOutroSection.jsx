@@ -95,7 +95,7 @@ const ChizelverseOutroSection = () => {
       {/* The quote sits on the base background and is revealed */}
       <div ref={quoteRef} className="absolute inset-0 flex-center flex-col text-center p-8 opacity-0 z-0">
         <blockquote className="font-heading text-3xl md:text-5xl text-text max-w-4xl leading-tight">
-          "The future belongs to those who believe in the beauty of their dreams."
+          "The Future Belongs To Those Who Believe In The Beauty of Their Dreams."
         </blockquote>
         <cite className="font-body text-xl text-primary mt-4">- Eleanor Roosevelt</cite>
       </div>

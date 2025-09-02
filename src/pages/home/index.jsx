@@ -48,7 +48,7 @@ const HomePage = () => {
       <OfferSection />
       <AboutSection />
       <ChizelEcosystemSection />
-      <ChizelWebSection />
+   
       <ChizelAppSection />
       <ContactSection />
       
