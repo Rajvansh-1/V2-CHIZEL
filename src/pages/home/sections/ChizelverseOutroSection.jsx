@@ -15,7 +15,7 @@ const ChizelverseOutroSection = () => {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: "+=2000",
+        end: "+=1000", // SCROLL DURATION MINIMIZED
         scrub: 1.5,
         pin: true,
       },
