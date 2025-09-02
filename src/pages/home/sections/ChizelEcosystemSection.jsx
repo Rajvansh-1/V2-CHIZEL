@@ -99,7 +99,7 @@ const ChizelEcosystemSection = () => {
         <div className="absolute-center w-full max-w-full md:max-w-3xl h-full">
           {/* Sun */}
           <div className="orbital-sun absolute-center w-40 h-40 md:w-48 md:h-48">
-            <img src="public/images/logo.png" alt="Chizel Ecosystem Core" className="w-full h-full object-contain rounded-full shadow-2xl shadow-primary/40" />
+            <img src="/images/logo.png" alt="Chizel Ecosystem Core" className="w-full h-full object-contain rounded-full shadow-2xl shadow-primary/40" />
             <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse"></div>
           </div>
 
