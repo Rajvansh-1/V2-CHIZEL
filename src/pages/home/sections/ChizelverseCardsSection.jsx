@@ -64,7 +64,8 @@ const InfoCard = ({ card }) => {
 const DemoPreview = () => {
   const [open, setOpen] = useState(true);
   return (
-    <div className="verse-rest p-6 md:p-8 rounded-2xl bg-gradient-to-r from-purple-600/20 to-pink-500/10 backdrop-blur-md border border-primary/40 w-full shadow-lg">
+    // THEME COLOR FIX: Changed gradient to use theme colors
+    <div className="verse-rest p-6 md:p-8 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/10 backdrop-blur-md border border-primary/40 w-full shadow-lg">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div>
           <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
@@ -120,7 +121,7 @@ const ChizelverseCardsSection = () => {
       scrollTrigger: {
         trigger: introRef.current,
         start: "top top",
-        end: "+=1500", // Controls how long you scroll for the intro
+        end: "+=1500",
         scrub: 1,
         pin: true,
       },
@@ -157,7 +158,7 @@ const ChizelverseCardsSection = () => {
 
     gsap.from(".verse-rest", {
         scrollTrigger: {
-            trigger: ".chizelverse-title", // Trigger all content after title
+            trigger: ".chizelverse-title",
             start: "top 70%",
             toggleActions: "play none none reverse",
         },
@@ -178,14 +179,16 @@ const ChizelverseCardsSection = () => {
         ref={introRef}
         className="relative h-screen w-full bg-black overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-purple-950 to-black" />
+        {/* THEME COLOR FIX: Changed gradient to use theme colors */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
         <div className="cv-stars absolute inset-0" aria-hidden="true">
           {Array.from({ length: 60 }).map((_, i) => <span key={i} className="cv-star" />)}
         </div>
         
         <div className="absolute inset-0 flex items-center justify-center p-6 intro-text">
           <div className="text-center">
-            <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-2xl mb-3">
+            {/* THEME COLOR FIX: Changed gradient to use theme colors */}
+            <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl mb-3">
               Entering ChizelVerse
             </h2>
             <div className="flex items-center justify-center gap-2 md:gap-3 text-white/80">
@@ -214,7 +217,8 @@ const ChizelverseCardsSection = () => {
 
         <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-6 md:gap-8">
           <div className="w-full max-w-screen-xl mx-auto space-y-6 md:space-y-10">
-            <h2 className="chizelverse-title font-heading text-center text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            {/* THEME COLOR FIX: Changed gradient to use theme colors */}
+            <h2 className="chizelverse-title font-heading text-center text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               Welcome To The ChizelVerse 🚀
             </h2>
 
