@@ -63,7 +63,7 @@ const ChizelverseOutroSection = () => {
       );
   }, { scope: containerRef });
 
-  // Reusable background component with the correct theme from the reference file
+  // The dynamic space background is now only for the planet layer
   const SpaceBackground = () => (
     <>
       <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
@@ -74,13 +74,10 @@ const ChizelverseOutroSection = () => {
   );
 
   return (
-    <section ref={containerRef} className="relative h-screen w-screen overflow-hidden">
-      {/* Base Layer: Correct Blue Space Background */}
-      <div className="absolute inset-0">
-        <SpaceBackground />
-      </div>
+    // This section now has the default dark background of your site
+    <section ref={containerRef} className="relative h-screen w-screen overflow-hidden bg-background">
       
-      {/* Planet Layer: This layer has the same background and shrinks away */}
+      {/* Planet Layer: This layer has the dynamic background and shrinks away */}
       <div ref={planetLayerRef} className="absolute inset-0 z-10" style={{ clipPath: "circle(100% at 50% 50%)" }}>
         <SpaceBackground />
       </div>
@@ -95,7 +92,7 @@ const ChizelverseOutroSection = () => {
         </p>
       </div>
 
-      {/* The quote sits on the base background and is revealed at the end */}
+      {/* The quote sits on the base background and is revealed */}
       <div ref={quoteRef} className="absolute inset-0 flex-center flex-col text-center p-8 opacity-0 z-0">
         <blockquote className="font-heading text-3xl md:text-5xl text-text max-w-4xl leading-tight">
           "The future belongs to those who believe in the beauty of their dreams."
