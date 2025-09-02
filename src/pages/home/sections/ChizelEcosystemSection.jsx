@@ -30,16 +30,16 @@ const ChizelEcosystemSection = () => {
     });
 
     tl.from(".vision-title-container > *", { opacity: 1, y: 0, duration: 0, ease: "power3.out" })
-      .fromTo(".orbital-sun", 
+      .fromTo(".orbital-sun",
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" }, 
+        { scale: 1, opacity: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" },
         "-=0.5"
       )
       .from(".orbit-path", { scale: 0, stagger: 0.2, duration: 1, ease: "power2.out" }, "-=1")
       .from(".planet", { scale: 0, opacity: 0, stagger: 0.2, duration: 1, ease: "back.out(1.7)" }, "-=0.8");
 
     // Continuous orbital animations
-    orbits.current = ecosystemPlanets.map((planet, index) => 
+    orbits.current = ecosystemPlanets.map((planet, index) =>
       gsap.to(`#orbit-${planet.id}`, {
         rotation: 360,
         repeat: -1,
@@ -79,17 +79,16 @@ const ChizelEcosystemSection = () => {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background via-[#0c102a] to-background" />
       <div className="absolute inset-0 opacity-20 z-0 [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]">
         {Array.from({ length: 150 }).map((_, i) => (
-            <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate` }} />
+          <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate` }} />
         ))}
       </div>
 
       {/* Top Content */}
       <div className="vision-title-container relative z-10 text-center w-full max-w-4xl mx-auto px-4 mb-8">
         <p className="font-ui text-lg uppercase text-secondary-text tracking-wider mb-4">Our Vision</p>
-        <AnimatedTitle
-          title="Building CHIZEL Ecosystem"
-          containerClass="text-4xl sm:text-5xl"
-        />
+        <h2 className="font-heading text-4xl sm:text-5xl font-bold text-white inline-block mb-2">
+          BUILDING CHIZEL ECOSYSTEM
+        </h2>
         <p className="font-body text-secondary-text text-lg sm:text-xl max-w-2xl mx-auto mt-6">
           We are building a comprehensive App + Web experience for your child — where learning, play, and growth come together in a single, engaging journey
         </p>
@@ -111,19 +110,19 @@ const ChizelEcosystemSection = () => {
               <div key={planet.id} id={`orbit-${planet.id}`} className="absolute-center w-full h-full">
                 <div className="orbit-path absolute-center rounded-full border border-primary/10" style={{ width: `calc(${orbitSize})`, height: `calc(${orbitSize})` }}></div>
                 <div className={`planet absolute-center ${planet.size} flex-center cursor-pointer`} style={{ top: `calc(50% - ${(planet.size.includes("24") ? 12 : 10)}rem - ${(index + 1) * 2}vw)` }}>
-                    <div className="relative w-full h-full rounded-full bg-card/70 backdrop-blur-sm border border-primary/30 flex-center">
-                        <span className="text-2xl md:text-3xl text-text">{planet.icon}</span>
-                    </div>
-                    <span className="planet-label absolute -bottom-8 font-heading text-lg opacity-0 transition-opacity duration-300" style={{ transform: "translateY(10px)" }}>
-                        {planet.label}
-                    </span>
+                  <div className="relative w-full h-full rounded-full bg-card/70 backdrop-blur-sm border border-primary/30 flex-center">
+                    <span className="text-2xl md:text-3xl text-text">{planet.icon}</span>
+                  </div>
+                  <span className="planet-label absolute -bottom-8 font-heading text-lg opacity-0 transition-opacity duration-300" style={{ transform: "translateY(10px)" }}>
+                    {planet.label}
+                  </span>
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-      
+
       <style>{` @keyframes twinkle { from { opacity: 0.1; } to { opacity: 0.7; } } `}</style>
     </section>
   );
