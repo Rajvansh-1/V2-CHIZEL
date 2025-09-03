@@ -69,7 +69,7 @@ const ChizelAppSection = () => {
                 The Next Evolution in Learning is Coming.
                 <div className="shine-effect absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </h2>
-            <p className="hype-text font-body text-secondary-text text-lg md:text-xl max-w-3xl mx-auto mt-4">Be the first to experience a new universe of smart play. Pre-register now for exclusive early access and special rewards.</p>
+            <p className="hype-text font-body text-secondary-text text-lg md:text-xl max-w-3xl mx-auto mt-4">Be the first to experience a new universe of future learning. Pre-register now for exclusive early access and special rewards.</p>
           </div>
 
           <div className="relative w-full max-w-5xl h-[450px] md:h-[500px] flex items-center justify-center mt-8">
