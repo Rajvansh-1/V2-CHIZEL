@@ -13,7 +13,6 @@ const ChizelAppSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1pgIheerPwWhEGL8gNWiv-fvXsn2POEbU2HjEl4RievU/viewform?edit_requested=true";
-  const isMobile = typeof window !== 'undefined' && 'ontouchstart' in window;
 
   const handleRedirect = () => {
     window.open(GOOGLE_FORM_URL, "_blank");
@@ -53,17 +52,18 @@ const ChizelAppSection = () => {
       <section 
         ref={containerRef} 
         id="chizel-app" 
-        className={`relative w-full min-h-screen flex flex-col justify-center items-center bg-background text-text overflow-hidden py-20 px-4 ${isMobile ? 'cursor-pointer' : ''}`}
-        onClick={isMobile ? handleRedirect : undefined}
+        // FIX: The whole section now opens the modal on any device
+        className="relative w-full min-h-screen flex flex-col justify-center items-center bg-background text-text overflow-hidden py-20 px-4 cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
       >
         {/* Background Grid & Glows */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-accent/10 via-transparent to-primary/10"></div>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-1/2 bg-primary/20 rounded-full blur-3xl opacity-50"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center w-full">
+        <div className="relative z-10 flex flex-col items-center w-full pointer-events-none">
           <div className="text-center mb-10">
             <h2 className="hype-text relative font-heading text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent overflow-hidden">
                 The Next Evolution in Learning is Coming.
@@ -97,14 +97,13 @@ const ChizelAppSection = () => {
             </div>
           </div>
           
-          <div className="cta-button mt-12">
+          <div className="cta-button mt-12 pointer-events-auto">
             <Button
               title="Join The Waitlist & Get Early Access"
+              // FIX: Button also opens the modal and stops the click from bubbling to the section
               onClick={(e) => {
-                if (!isMobile) {
-                  e.stopPropagation(); // Prevent section's onClick on desktop
-                  setIsModalOpen(true);
-                }
+                e.stopPropagation();
+                setIsModalOpen(true);
               }}
               rightIcon={<FaRocket />}
               containerClass="!text-lg !py-4 !px-8"
