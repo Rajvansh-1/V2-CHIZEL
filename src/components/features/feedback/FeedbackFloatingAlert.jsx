@@ -15,7 +15,7 @@ const FeedbackFloatingAlert = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1pgIheerPwWhEGL8gNWiv-fvXsn2POEbU2HjEl4RievU/edit";
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true";
 
   const floatingRef = useRef(null);
   const modalRef = useRef(null);
