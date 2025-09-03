@@ -1,3 +1,36 @@
+// data for AboutSection
+export const holoDecks = [
+  {
+    id: "kids",
+    title: "A Universe of Play",
+    subtitle: "For Kids",
+    description: "Fun games that make learning exciting, an AI buddy that builds confidence, and a community to explore, learn, and connect — helping them grow in every aspect of life from the very beginning.",
+    icon: "FaChild",
+    image: "/images/about-image.webp",
+    alt: "Kids creating in Chizel",
+    themeColor: "var(--color-primary)",
+  },
+  {
+    id: "parents",
+    title: "A Journey to Witness",
+    subtitle: "For Parents",
+    description: "Peace of mind knowing your child is learning while having fun. Watch their interests grow, support their journey, and turn screen time into skill time",
+    icon: "FaUsers",
+    image: "/images/vision-image.webp",
+    alt: "Parents witnessing growth",
+    themeColor: "var(--color-accent)",
+  },
+  {
+    id: "investors",
+    title: "A Future to Build",
+    subtitle: "For Investors",
+    description: "Be part of transforming lives with Chizel. This is your chance to be an early supporter of something set for massive growth — blink now, and you might miss us`.",
+    icon: "FaChartLine",
+    image: "/images/ecosystem-image.webp",
+    alt: "The future of Chizel expanding",
+    themeColor: "var(--color-badge-bg)",
+  },
+];
 // src/utils/constants.js
 
 export const navItems = [
@@ -134,7 +167,7 @@ export const chizelAppData = {
           text: "Android",
           colorClasses: "border-accent/40 bg-accent/15 text-accent",
         },
-       
+
       ],
       specialFeatures: {
         title: "What Makes Us Special",
@@ -179,7 +212,7 @@ export const chizelAppData = {
 
 export const offers = [
   {
-    icon: "kids", 
+    icon: "kids",
     title: "For Kids",
     description: "Fun games that make learning exciting, an AI buddy that builds confidence, and a community to explore, learn, and connect — helping them grow in every aspect of life from the very beginning.",
     bgGradient: "from-primary/20 via-accent/15 to-badge-bg/10",
@@ -187,7 +220,7 @@ export const offers = [
     hoverShadow: "hover:shadow-[0_0_40px_rgba(31,111,235,0.3)]",
   },
   {
-    icon: "parents", 
+    icon: "parents",
     title: "For Parents",
     description: "Peace of mind knowing your child is learning while having fun. Watch their interests grow, support their journey, and turn screen time into skill time",
     bgGradient: "from-accent/20 via-primary/15 to-badge-bg/10",
@@ -195,7 +228,7 @@ export const offers = [
     hoverShadow: "hover:shadow-[0_0_40px_rgba(93,63,211,0.3)]",
   },
   {
-    icon: "investors", 
+    icon: "investors",
     title: "For Investors",
     description: `Be part of transforming lives with Chizel. This is your chance to be an early supporter of something set for massive growth — blink now, and you might miss us`,
     bgGradient: "from-badge-bg/20 via-primary/15 to-accent/10",
@@ -246,8 +279,8 @@ export const chizelverseCards = [
 ];
 
 export const chizelverseInfo = [
-  { 
-    icon: 'gamepad', 
+  {
+    icon: 'gamepad',
     title: 'Clubs, Games, Friends – Let’s Go!',
     points: [
       'Join Clubs, Discover New Hobbies',
@@ -256,8 +289,8 @@ export const chizelverseInfo = [
       'Share Your Creations in a Safe Space'
     ]
   },
-  { 
-    icon: 'users', 
+  {
+    icon: 'users',
     title: 'Family Bonding, Activities, and Memories Await',
     points: [
       'Discover workshops, activities, and events',
