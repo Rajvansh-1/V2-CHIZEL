@@ -17,9 +17,9 @@ import ChizelverseIntroSection from "@/pages/home/sections/ChizelverseIntroSecti
 import ChizelverseCardsSection from "@/pages/home/sections/ChizelverseCardsSection";
 import ChizelverseOutroSection from "@/pages/home/sections/ChizelverseOutroSection";
 import GsapAnimationSection from "@/pages/home/sections/GsapAnimationSection";
-import OfferSection from "@/pages/home/sections/OfferSection";
+// The OfferSection import is now removed
 import ChizelEcosystemSection from "@/pages/home/sections/ChizelEcosystemSection";
-import ChizelWebSection from "@/pages/home/sections/ChizelWebSection";
+// import ChizelWebSection from "@/pages/home/sections/ChizelWebSection";
 
 
 const HomePage = () => {
@@ -45,11 +45,12 @@ const HomePage = () => {
       
       {/* Supporting Sections */}
       <GsapAnimationSection />
-      <OfferSection />
+      {/* The <OfferSection /> component call is now removed */}
       <AboutSection />
       <ChizelEcosystemSection />
    
       <ChizelAppSection />
+      {/* <ChizelWebSection /> */}
       <ContactSection />
       
       <Footer />
