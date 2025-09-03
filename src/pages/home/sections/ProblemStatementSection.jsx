@@ -1,5 +1,3 @@
-// src/pages/home/sections/ProblemStatementSection.jsx
-
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -8,18 +6,17 @@ import { problemSlides } from "@utils/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Optimized Card Component
 const FieryProblemCard = ({ slide }) => {
-  // The card component itself remains the same, as its styling is already excellent.
   return (
     <div
-      className={`problem-card-container relative w-full rounded-3xl border-4 border-yellow-400/30 bg-gradient-to-br ${slide.gradient} backdrop-blur-xl overflow-hidden shadow-[0_0_80px_rgba(255,51,51,0.3)]`}
+      className={`problem-card-container relative w-full rounded-3xl border-4 border-yellow-400/30 bg-gradient-to-br ${slide.gradient} overflow-hidden shadow-[0_0_80px_rgba(255,51,51,0.3)]`}
     >
-      <div className="absolute top-5 right-5 flex gap-1 z-20">
-        <div className="w-6 h-6 bg-yellow-400 rounded-full opacity-60 animate-ping" />
-        <div className="w-6 h-6 bg-red-600 rounded-full opacity-40 animate-pulse delay-200" />
+      <div className="absolute top-5 right-5 flex gap-1.5 z-20">
+        {/* OPTIMIZATION: Using a more performant opacity animation */}
+        <div className="w-5 h-5 bg-yellow-400 rounded-full opacity-60 animate-flicker-fast" />
+        <div className="w-5 h-5 bg-red-600 rounded-full opacity-40 animate-flicker-slow" />
       </div>
-
-      <div className="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-r from-red-700 via-yellow-400 to-indigo-800 opacity-35 blur-sm z-10" />
 
       <img
         src={slide.image}
@@ -45,25 +42,10 @@ const FieryProblemCard = ({ slide }) => {
   );
 };
 
-
 const ProblemStatementSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1, // Tie animations directly to scroll position
-      }
-    });
-
-    // Animate the background nebulae with parallax
-    tl.to(".nebula-1", { y: -200, x: 100, rotation: 20 }, 0);
-    tl.to(".nebula-2", { y: -150, x: -100, rotation: -20 }, 0);
-    tl.to(".nebula-3", { y: -100, rotation: 10 }, 0);
-
     // Animate the heading with a subtle zoom and fade
     gsap.from(".problem-heading", {
       scrollTrigger: {
@@ -72,7 +54,8 @@ const ProblemStatementSection = () => {
         toggleActions: "play none none reverse",
       },
       opacity: 0,
-      scale: 0.9,
+      y: 20,
+      scale: 0.95,
       duration: 1,
       ease: "power3.out",
     });
@@ -86,9 +69,8 @@ const ProblemStatementSection = () => {
           toggleActions: "play none none reverse",
         },
         opacity: 0,
-        scale: 0.8,
-        rotationX: -20,
-        y: 100,
+        y: 80, // Using y instead of rotationX for better performance
+        scale: 0.9,
         duration: 1,
         ease: "power3.out",
       });
@@ -96,16 +78,16 @@ const ProblemStatementSection = () => {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} style={{ perspective: '1000px' }}>
+    <div ref={containerRef}>
       <section
         id="problem"
         className="relative w-screen bg-black py-24 overflow-hidden"
       >
-        {/* Fiery Space Background */}
+        {/* OPTIMIZATION: Background nebulae now use simple, non-blocking CSS animations */}
         <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="nebula-1 absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px]" />
-          <div className="nebula-2 absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px]" />
-          <div className="nebula-3 absolute top-32 left-1/2 transform -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px]" />
+          <div className="nebula-1 absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px] animate-parallax-slow" />
+          <div className="nebula-2 absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px] animate-parallax-medium" />
+          <div className="nebula-3 absolute top-32 left-1/2 -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px] animate-parallax-fast" />
         </div>
 
         <div className="container mx-auto px-6 md:px-8 relative z-10">
@@ -122,15 +104,16 @@ const ProblemStatementSection = () => {
           </div>
           <div className="space-y-14 max-w-4xl mx-auto">
             {problemSlides.map((slide, i) => (
+              // OPTIMIZATION: translateZ(0) encourages GPU hardware acceleration
               <div
                 key={i}
                 className="problem-slide w-full max-w-[900px] mx-auto"
+                style={{ transform: 'translateZ(0)' }}
               >
                 <FieryProblemCard slide={slide} />
               </div>
 
             ))}
-            {/* Call to Action - Extreme Urgency */}
             <div className="relative z-10 text-center px-4 mt-16">
               <div className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition cursor-pointer select-none">
                 Act Now — Protect Their Future &#x1F6A8;
@@ -139,6 +122,32 @@ const ProblemStatementSection = () => {
           </div>
         </div>
       </section>
+      
+      {/* Add keyframes for the new animations */}
+      <style>{`
+        @keyframes parallax-slow {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(100px, -150px) rotate(15deg); }
+        }
+        @keyframes parallax-medium {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(-80px, -100px) rotate(-15deg); }
+        }
+        @keyframes parallax-fast {
+          0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
+          50% { transform: translate(-50%, -80px) rotate(10deg); }
+        }
+        .animate-parallax-slow { animation: parallax-slow 25s infinite ease-in-out; }
+        .animate-parallax-medium { animation: parallax-medium 20s infinite ease-in-out; }
+        .animate-parallax-fast { animation: parallax-fast 15s infinite ease-in-out; }
+
+        @keyframes flicker {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        .animate-flicker-fast { animation: flicker 1.5s infinite ease-in-out; }
+        .animate-flicker-slow { animation: flicker 2s infinite ease-in-out; }
+      `}</style>
     </div>
   );
 };
