@@ -350,13 +350,15 @@ const ChizelverseCardsSection = () => {
             className="w-full h-full object-cover"
             loading="eager"
           />
+          <div className="absolute inset-0 bg-black/70" />
         </div>
       </section>
 
       {/* SECTION 2: The Main Content */}
-      <section ref={contentRef} className="relative w-full overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
+      <section ref={contentRef} className="relative w-full bg-black overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
         <div className="absolute inset-0">
-          <img src="" alt="" className="w-full h-full object-cover" />
+          <img src="/images/Chizel-verse-bg.jpg" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/80" />
         </div>
 
         <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-6 md:gap-8">
