@@ -1,26 +1,23 @@
 // src/pages/home/index.jsx
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Loader from "@components/ui/Loader";
-import HeroSection from "@/pages/home/sections/HeroSection";
-import AboutSection from "@/pages/home/sections/AboutSection";
-import ChizelAppSection from "@/pages/home/sections/ChizelAppSection";
-import ContactSection from "@/pages/home/sections/ContactSection";
-import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
 
-// Import our new and refined sections
-import ProblemStatementSection from "@/pages/home/sections/ProblemStatementSection";
-import SolutionSection from "@/pages/home/sections/SolutionSection";
-import ChizelverseIntroSection from "@/pages/home/sections/ChizelverseIntroSection";
-import ChizelverseCardsSection from "@/pages/home/sections/ChizelverseCardsSection";
-import ChizelverseOutroSection from "@/pages/home/sections/ChizelverseOutroSection";
-import GsapAnimationSection from "@/pages/home/sections/GsapAnimationSection";
-// The OfferSection import is now removed
-import ChizelEcosystemSection from "@/pages/home/sections/ChizelEcosystemSection";
-// import ChizelWebSection from "@/pages/home/sections/ChizelWebSection";
-
+// Lazy load all the section components
+const HeroSection = lazy(() => import("@/pages/home/sections/HeroSection"));
+const AboutSection = lazy(() => import("@/pages/home/sections/AboutSection"));
+const ChizelAppSection = lazy(() => import("@/pages/home/sections/ChizelAppSection"));
+const ContactSection = lazy(() => import("@/pages/home/sections/ContactSection"));
+const ProblemStatementSection = lazy(() => import("@/pages/home/sections/ProblemStatementSection"));
+const SolutionSection = lazy(() => import("@/pages/home/sections/SolutionSection"));
+const ChizelverseIntroSection = lazy(() => import("@/pages/home/sections/ChizelverseIntroSection"));
+const ChizelverseCardsSection = lazy(() => import("@/pages/home/sections/ChizelverseCardsSection"));
+const ChizelverseOutroSection = lazy(() => import("@/pages/home/sections/ChizelverseOutroSection"));
+const GsapAnimationSection = lazy(() => import("@/pages/home/sections/GsapAnimationSection"));
+const ChizelEcosystemSection = lazy(() => import("@/pages/home/sections/ChizelEcosystemSection"));
 
 const HomePage = () => {
   const [isPageLoading, setIsPageLoading] = useState(true);
@@ -32,27 +29,19 @@ const HomePage = () => {
   return (
     <>
       <Navbar />
-      
-      {/* The Story Begins */}
-      <HeroSection />
-      <ProblemStatementSection />
-      <SolutionSection />
-      
-      {/* The Cinematic Core Experience */}
-      <ChizelverseIntroSection />
-      <ChizelverseCardsSection />
-      <ChizelverseOutroSection />
-      
-      {/* Supporting Sections */}
-      <GsapAnimationSection />
-      {/* The <OfferSection /> component call is now removed */}
-      <AboutSection />
-      <ChizelEcosystemSection />
-   
-      <ChizelAppSection />
-      {/* <ChizelWebSection /> */}
-      <ContactSection />
-      
+      <Suspense fallback={<div></div>}>
+        <HeroSection />
+        <ProblemStatementSection />
+        <SolutionSection />
+        <ChizelverseIntroSection />
+        <ChizelverseCardsSection />
+        <ChizelverseOutroSection />
+        <GsapAnimationSection />
+        <AboutSection />
+        <ChizelEcosystemSection />
+        <ChizelAppSection />
+        <ContactSection />
+      </Suspense>
       <Footer />
       <FeedbackFloatingAlert />
     </>

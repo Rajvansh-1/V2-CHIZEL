@@ -1,36 +1,44 @@
+
+
+
+// src/router/index.jsx
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useEffect } from "react";
+import { lazy, Suspense } from "react";
+import MainLayout from "@components/layout/MainLayout";
+import Loader from "@components/ui/Loader";
 import { trackPageview } from "@/utils/analytics";
 
-import MainLayout from "@components/layout/MainLayout";
-import HomePage from "@/pages/home";
-import ChizelWebPage from "@/pages/chizel-web";
+// Lazy load the page components for faster initial load
+const HomePage = lazy(() => import("@/pages/home"));
+const ChizelWebPage = lazy(() => import("@/pages/chizel-web"));
 
-// Define routes
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "chizel-web", element: <ChizelWebPage /> },
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+            <HomePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "chizel-web",
+        element: (
+          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+            <ChizelWebPage />
+          </Suspense>
+        ),
+      },
     ],
   },
 ]);
 
-// Router wrapper with Google Analytics
 const AppRouter = () => {
-  useEffect(() => {
-    // Subscribe to route changes
-    const unsubscribe = router.subscribe(({ location }) => {
-      trackPageview(location.pathname + location.search);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
   return <RouterProvider router={router} />;
 };
 
