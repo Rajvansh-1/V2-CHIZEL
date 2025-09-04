@@ -304,6 +304,14 @@ const ChizelverseCardsSection = () => {
         ease: "power3.out",
       });
 
+      gsap.to(".shine-effect", {
+        x: "200%",
+        duration: 3,
+        repeat: -1,
+        ease: "power1.inOut",
+        delay: 2,
+      });
+
       gsap.from(".verse-rest", {
         scrollTrigger: {
           trigger: ".chizelverse-title",
@@ -345,26 +353,25 @@ const ChizelverseCardsSection = () => {
 
         <div className="planet-layer absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
           <img
-            src="/images/Chizel-verse-bg.jpg"
+            src="/images/cv-bg.png"
             alt="Chizelverse background"
             className="w-full h-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-black/70" />
         </div>
       </section>
 
       {/* SECTION 2: The Main Content */}
       <section ref={contentRef} className="relative w-full bg-black overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
         <div className="absolute inset-0">
-          <img src="/images/Chizel-verse-bg.jpg" alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/80" />
+          <img src="/images/cv-bg.png" alt="" className="w-full h-full object-cover" />
         </div>
 
         <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-6 md:gap-8">
           <div className="w-full max-w-screen-xl mx-auto space-y-6 md:space-y-10">
-            <h2 className="chizelverse-title font-heading text-center text-3xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent overflow-hidden">
               Welcome To The ChizelVerse 🚀
+              <div className="shine-effect absolute top-0 -left-full w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
             </h2>
 
             <DemoPreview />
