@@ -31,17 +31,18 @@ export const holoDecks = [
     themeColor: "var(--color-badge-bg)",
   },
 ];
-// src/utils/constants.js
 
 export const navItems = [
-  { name: "Home", href: "#home" },
-  { name: "What is Chizel", href: "#about" },
-  { name: "Features", href: "#features" },
-  { name: "Games", href: "#games" },
-  { name: "Chizel-App", href: "#chizel-app" },
-  { name: "Chizel-Web", href: "#chizel-web" },
-  { name: "Contact", href: "#contact" },
-];
+    { name: "Home", href: "#home" },
+    { name: "Problem", href: "#problem" },
+    { name: "Solution", href: "#solution" },
+    { name: "Chizelverse", href: "#chizelverse-intro" },
+    { name: "About", href: "#about-us" },
+    { name: "Ecosystem", href: "#chizel-ecosystem" },
+    { name: "App", href: "#chizel-app" },
+    { name: "Web", href: "/chizel-web" },
+    { name: "Contact", href: "#contact" },
+  ];
 
 export const principles = [
   {
