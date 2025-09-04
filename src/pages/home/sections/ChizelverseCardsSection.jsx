@@ -352,68 +352,72 @@ const ChizelverseCardsSection = () => {
         </div>
 
         <div className="planet-layer absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
-          <img
-            src="/images/cv-bg.webp"
-            alt="Chizelverse background"
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
+          {/* This part is now a dynamic background, not an image */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
+          <div className="cv-stars absolute inset-0" aria-hidden="true">
+            {Array.from({ length: 60 }).map((_, i) => (
+              <span key={i} className="cv-star" />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* SECTION 2: The Main Content */}
       <section ref={contentRef} className="relative w-full bg-black overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
-        <div className="absolute inset-0">
-          <img src="/images/cv-bg.webp" alt="" className="w-full h-full object-cover" />
+        {/* Dynamic background for Section 2 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
+        <div className="cv-stars absolute inset-0" aria-hidden="true">
+            {Array.from({ length: 60 }).map((_, i) => (
+                <span key={i} className="cv-star" />
+            ))}
         </div>
 
         <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-6 md:gap-8">
           <div className="w-full max-w-screen-xl mx-auto space-y-6 md:space-y-10">
             <div className="relative w-full flex justify-center items-center group">
-  <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold 
-    bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
-    bg-clip-text text-transparent overflow-hidden">
-    
-    Welcome To The ChizelVerse
+              <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold 
+                bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
+                bg-clip-text text-transparent overflow-hidden">
+                
+                Welcome To The ChizelVerse
 
-    {/* Shine sweep effect */}
-    <div className="shine-effect absolute top-0 -left-full w-full h-full 
-      bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
-  </h2>
+                {/* Shine sweep effect */}
+                <div className="shine-effect absolute top-0 -left-full w-full h-full 
+                  bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+              </h2>
 
-  {/* Rocket bounce */}
-  <span
-    className="text-3xl md:text-5xl ml-2 md:ml-4 animate-rocket-bounce"
-    style={{ display: "inline-block" }}
-  >
-    🚀
-  </span>
+              {/* Rocket bounce */}
+              <span
+                className="text-3xl md:text-5xl ml-2 md:ml-4 animate-rocket-bounce"
+                style={{ display: "inline-block" }}
+              >
+                🚀
+              </span>
 
-  <style>{`
-    @keyframes rocket-bounce {
-      0%, 100% { transform: translateY(0) rotate(-15deg); }
-      50% { transform: translateY(-10px) rotate(5deg); }
-    }
-    .animate-rocket-bounce {
-      animation: rocket-bounce 2.5s infinite ease-in-out;
-    }
+              <style>{`
+                @keyframes rocket-bounce {
+                  0%, 100% { transform: translateY(0) rotate(-15deg); }
+                  50% { transform: translateY(-10px) rotate(5deg); }
+                }
+                .animate-rocket-bounce {
+                  animation: rocket-bounce 2.5s infinite ease-in-out;
+                }
 
-    /* Continuous shine sweep */
-    @keyframes shine-sweep {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(200%); }
-    }
-    .shine-effect {
-      animation: shine-sweep 3s infinite linear;
-      will-change: transform;
-    }
-    /* Hover = faster shine */
-    .group:hover .shine-effect {
-      animation-duration: 1.5s;
-    }
-  `}</style>
-</div>
-
+                /* Continuous shine sweep */
+                @keyframes shine-sweep {
+                  0% { transform: translateX(-100%); }
+                  100% { transform: translateX(200%); }
+                }
+                .shine-effect {
+                  animation: shine-sweep 3s infinite linear;
+                  will-change: transform;
+                }
+                /* Hover = faster shine */
+                .group:hover .shine-effect {
+                  animation-duration: 1.5s;
+                }
+              `}</style>
+            </div>
 
             <DemoPreview />
 
