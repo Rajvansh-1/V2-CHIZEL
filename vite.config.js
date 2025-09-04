@@ -21,4 +21,14 @@ export default defineConfig({
       '@router': path.resolve(__dirname, './src/router'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Group heavy dependencies into a separate chunk
+          vendor: ['react', 'react-dom', 'gsap', 'react-router-dom'],
+        },
+      },
+    },
+  },
 })
