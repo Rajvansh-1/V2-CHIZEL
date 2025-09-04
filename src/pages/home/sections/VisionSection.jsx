@@ -28,17 +28,14 @@ const VisionSection = () => {
 
   return (
     <div id="vision" className="min-h-screen w-screen bg-background">
-      {/* TOP TEXT CONTENT */}
       <div className="relative flex min-h-[40vh] md:min-h-[40vh] flex-col justify-end items-center gap-4 px-4 pb-12 text-center">
         <p className="font-ui text-xl uppercase text-secondary-text tracking-wider md:text-2xl">
           "Smart Play for Growth"
         </p>
-
         <AnimatedTitle
           title="Expl<b>o</b>re, learn <br /> and gr<b>o</b>w with Chizel"
           containerClass="!text-text"
         />
-
         <div className="about-subtext font-body text-text hidden sm:flex flex-col items-center gap-2">
           <p>Embark on a Chizel adventure!</p>
           <p className="text-secondary-text">
@@ -48,13 +45,12 @@ const VisionSection = () => {
           </p>
         </div>
       </div>
-
-      {/* GSAP ANIMATED IMAGE SECTION */}
-      <div id="clip-container" className="h-[100vh] w-screen relative overflow-hidden">
+      <div id="clip-container" className="h-[100vh] w-screen relative overflow-hidden will-change">
         <div className="mask-clip-path about-image absolute inset-0">
           <img
             src="/images/vision-image.webp"
             alt="Kids playing educational games on a tablet"
+            loading="lazy"
             className="absolute left-0 top-0 w-full h-full object-cover"
           />
         </div>

@@ -4,7 +4,6 @@ import { FaChevronDown } from "react-icons/fa";
 
 const Home = () => {
   useGSAP(() => {
-    // GSAP: Animate hero text entrance
     gsap.from(".hero-element", {
       opacity: 0,
       y: 30,
@@ -13,8 +12,6 @@ const Home = () => {
       ease: "power3.out",
       delay: 0.5,
     });
-
-    // GSAP: Animate the scroll down prompt to loop
     gsap.fromTo(
       ".scroll-prompt",
       { opacity: 0, y: 0 },
@@ -32,20 +29,16 @@ const Home = () => {
 
   return (
     <section id="home" className="relative h-screen w-screen overflow-hidden">
-      {/* ============== BACKGROUND VIDEO ============== */}
       <video
         src="/videos/home-video.webm"
         autoPlay
         loop
         muted
         playsInline
+        loading="lazy"
         className="absolute inset-0 z-0 h-full w-full object-cover"
       />
-
-      {/* ============== OVERLAY ============== */}
       <div className="absolute inset-0 z-10 bg-background/70" />
-
-      {/* ============== CENTERED CONTENT ============== */}
       <div className="relative z-30 flex-center h-full flex-col text-center">
         <div className="max-w-4xl px-4">
           <h1 className="hero-element font-heading text-5xl font-bold uppercase text-text sm:text-6xl md:text-7xl drop-shadow-[0_0_25px_rgba(31,111,235,0.45)]">
@@ -56,8 +49,6 @@ const Home = () => {
           </p>
         </div>
       </div>
-
-      {/* ============== SCROLL PROMPT ============== */}
       <div className="scroll-prompt absolute bottom-8 left-1/2 z-30 -translate-x-1/2">
         <div className="flex flex-col items-center gap-1 font-ui text-sm text-secondary-text">
           <span>Scroll for your space journey</span>

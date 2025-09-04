@@ -6,24 +6,21 @@ import { problemSlides } from "@utils/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Optimized Card Component
 const FieryProblemCard = ({ slide }) => {
   return (
     <div
       className={`problem-card-container relative w-full rounded-3xl border-4 border-yellow-400/30 bg-gradient-to-br ${slide.gradient} overflow-hidden shadow-[0_0_80px_rgba(255,51,51,0.3)]`}
     >
       <div className="absolute top-5 right-5 flex gap-1.5 z-20">
-        {/* OPTIMIZATION: Using a more performant opacity animation */}
         <div className="w-5 h-5 bg-yellow-400 rounded-full opacity-60 animate-flicker-fast" />
         <div className="w-5 h-5 bg-red-600 rounded-full opacity-40 animate-flicker-slow" />
       </div>
-
       <img
         src={slide.image}
         alt={slide.title}
+        loading="lazy"
         className="w-full h-72 md:h-80 lg:h-96 object-cover object-center rounded-t-3xl border-b-4 border-yellow-500/40"
       />
-
       <div className="p-8 md:p-10 bg-black/80">
         <span className="px-4 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-red-600 to-indigo-700 border border-red-700 text-white font-bold text-base uppercase tracking-widest shadow-lg">
           {slide.badge}
@@ -46,7 +43,6 @@ const ProblemStatementSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    // Animate the heading with a subtle zoom and fade
     gsap.from(".problem-heading", {
       scrollTrigger: {
         trigger: ".problem-heading",
@@ -59,8 +55,6 @@ const ProblemStatementSection = () => {
       duration: 1,
       ease: "power3.out",
     });
-
-    // Animate each card floating into view
     gsap.utils.toArray(".problem-slide").forEach((el) => {
       gsap.from(el, {
         scrollTrigger: {
@@ -69,7 +63,7 @@ const ProblemStatementSection = () => {
           toggleActions: "play none none reverse",
         },
         opacity: 0,
-        y: 80, // Using y instead of rotationX for better performance
+        y: 80,
         scale: 0.9,
         duration: 1,
         ease: "power3.out",
@@ -83,13 +77,11 @@ const ProblemStatementSection = () => {
         id="problem"
         className="relative w-screen bg-black py-24 overflow-hidden"
       >
-        {/* OPTIMIZATION: Background nebulae now use simple, non-blocking CSS animations */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="nebula-1 absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px] animate-parallax-slow" />
           <div className="nebula-2 absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px] animate-parallax-medium" />
           <div className="nebula-3 absolute top-32 left-1/2 -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px] animate-parallax-fast" />
         </div>
-
         <div className="container mx-auto px-6 md:px-8 relative z-10">
           <div className="problem-heading text-center mb-16 space-y-6">
             <p className="font-bold text-lg uppercase tracking-widest text-red-600 mb-2">
@@ -104,15 +96,12 @@ const ProblemStatementSection = () => {
           </div>
           <div className="space-y-14 max-w-4xl mx-auto">
             {problemSlides.map((slide, i) => (
-              // OPTIMIZATION: translateZ(0) encourages GPU hardware acceleration
               <div
                 key={i}
-                className="problem-slide w-full max-w-[900px] mx-auto"
-                style={{ transform: 'translateZ(0)' }}
+                className="problem-slide w-full max-w-[900px] mx-auto will-change"
               >
                 <FieryProblemCard slide={slide} />
               </div>
-
             ))}
             <div className="relative z-10 text-center px-4 mt-16">
               <div className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transition cursor-pointer select-none">
@@ -122,29 +111,14 @@ const ProblemStatementSection = () => {
           </div>
         </div>
       </section>
-      
-      {/* Add keyframes for the new animations */}
       <style>{`
-        @keyframes parallax-slow {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(100px, -150px) rotate(15deg); }
-        }
-        @keyframes parallax-medium {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(-80px, -100px) rotate(-15deg); }
-        }
-        @keyframes parallax-fast {
-          0%, 100% { transform: translate(-50%, 0) rotate(0deg); }
-          50% { transform: translate(-50%, -80px) rotate(10deg); }
-        }
+        @keyframes parallax-slow { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(100px, -150px) rotate(15deg); } }
+        @keyframes parallax-medium { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-80px, -100px) rotate(-15deg); } }
+        @keyframes parallax-fast { 0%, 100% { transform: translate(-50%, 0) rotate(0deg); } 50% { transform: translate(-50%, -80px) rotate(10deg); } }
         .animate-parallax-slow { animation: parallax-slow 25s infinite ease-in-out; }
         .animate-parallax-medium { animation: parallax-medium 20s infinite ease-in-out; }
         .animate-parallax-fast { animation: parallax-fast 15s infinite ease-in-out; }
-
-        @keyframes flicker {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
+        @keyframes flicker { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         .animate-flicker-fast { animation: flicker 1.5s infinite ease-in-out; }
         .animate-flicker-slow { animation: flicker 2s infinite ease-in-out; }
       `}</style>
