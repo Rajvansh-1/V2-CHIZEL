@@ -8,6 +8,8 @@ import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
   FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
   FaExpand, FaCompress,
+  // --- ICONS ADDED FOR NEW FEATURE DISPLAY ---
+  FaUserAstronaut, FaCube, FaComments, FaStore,
 } from "react-icons/fa";
 
 if (typeof window !== "undefined") {
@@ -21,7 +23,7 @@ const iconMap = {
   paintbrush: <FaPaintBrush />,
 };
 
-// --- HELPER COMPONENTS (OPTIMIZED & REDESIGNED) ---
+// --- HELPER COMPONENTS (UNCHANGED) ---
 
 const usePrefersReducedMotion = () => {
   const [reduced, setReduced] = useState(false);
@@ -35,9 +37,6 @@ const usePrefersReducedMotion = () => {
   return reduced;
 };
 
-/**
- * A unique and highly attractive "Crystal Card" with interactive shimmering highlights.
- */
 const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = true }) => {
     const cardRef = useRef(null);
     const prefersReducedMotion = usePrefersReducedMotion();
@@ -48,7 +47,6 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Animate the shimmer gradient position
         gsap.to(cardRef.current, {
             '--mouse-x': `${x}px`,
             '--mouse-y': `${y}px`,
@@ -58,7 +56,6 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
         });
 
         if (tilt) {
-            // Apply 3D tilt effect
             const rotateX = (y / rect.height - 0.5) * 15;
             const rotateY = (x / rect.width - 0.5) * -15;
             gsap.to(cardRef.current.querySelector('.crystal-card-inner'), {
@@ -73,12 +70,8 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
 
     const handleMouseLeave = () => {
         if (!cardRef.current) return;
-
-        // Fade out the shimmer
         gsap.to(cardRef.current, { '--opacity': '0', duration: 0.5, ease: 'power3.out' });
-
         if (tilt) {
-            // Reset 3D tilt effect
             gsap.to(cardRef.current.querySelector('.crystal-card-inner'), {
                 rotateX: 0,
                 rotateY: 0,
@@ -105,152 +98,219 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
 };
 
 
-const InfoCard = ({ card }) => {
-  return (
+const InfoCard = ({ card }) => (
     <CrystalCard className="h-full group verse-rest">
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-5 transform transition-transform duration-500 group-hover:-translate-y-1">
-            <div className="text-4xl md:text-5xl text-cyan-400 shrink-0 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]">{iconMap[card.icon]}</div>
-            <h3 className="font-heading text-2xl md:text-3xl font-bold text-white break-words">{card.title}</h3>
-          </div>
-          <ul className="space-y-3">
-            {card.points.map((p, i) => (
-              <li key={i} className="font-body text-gray-300 text-base md:text-lg flex leading-relaxed transition-all duration-300 group-hover:text-white group-hover:pl-2">
-                <FaStar className="text-cyan-400 mt-1 mr-3 shrink-0 transition-colors duration-300 group-hover:text-amber-400" />
-                <span className="min-w-0 break-words">{p}</span>
-              </li>
-            ))}
-          </ul>
+            <div className="flex items-center gap-4 mb-5 transform transition-transform duration-500 group-hover:-translate-y-1">
+                <div className="text-4xl md:text-5xl text-cyan-400 shrink-0 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]">{iconMap[card.icon]}</div>
+                <h3 className="font-heading text-2xl md:text-3xl font-bold text-white break-words">{card.title}</h3>
+            </div>
+            <ul className="space-y-3">
+                {card.points.map((p, i) => (
+                    <li key={i} className="font-body text-gray-300 text-base md:text-lg flex leading-relaxed transition-all duration-300 group-hover:text-white group-hover:pl-2">
+                        <FaStar className="text-cyan-400 mt-1 mr-3 shrink-0 transition-colors duration-300 group-hover:text-amber-400" />
+                        <span className="min-w-0 break-words">{p}</span>
+                    </li>
+                ))}
+            </ul>
         </div>
     </CrystalCard>
-  );
-};
+);
 
 const DemoPreview = () => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const iframeRef = useRef(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const iframeRef = useRef(null);
 
-  const toggleFullscreen = () => {
-    if (!iframeRef.current) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(err => console.error(err));
-    } else {
-      iframeRef.current.requestFullscreen().catch(err => {
-        console.error(`Error attempting full-screen: ${err.message} (${err.name})`);
-      });
-    }
-  };
-  
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
+    const toggleFullscreen = () => {
+        if (!iframeRef.current) return;
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(err => console.error(err));
+        } else {
+            iframeRef.current.requestFullscreen().catch(err => {
+                console.error(`Error attempting full-screen: ${err.message} (${err.name})`);
+            });
+        }
+    };
+    
+    useEffect(() => {
+        const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    }, []);
 
-  return (
-    <CrystalCard className="verse-rest" padding="p-4 sm:p-6 md:p-8" tilt={false}>
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-        <div>
-          <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
-          <p className="text-gray-300 text-sm md:text-base">Experience the ChizelVerse right here.</p>
-        </div>
-        <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
-          <Button
-            title={isFullscreen ? "Exit" : "Fullscreen"}
-            onClick={toggleFullscreen}
-            leftIcon={isFullscreen ? <FaCompress /> : <FaExpand />}
-            containerClass="!bg-indigo-600 hover:!bg-indigo-500 w-full sm:w-auto justify-center col-span-1"
-          />
-          <a
-            href="https://rajvansh-1.github.io/ChizelVerse/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="col-span-1 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-white/10 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:bg-white/20"
-            aria-label="Open Demo in new tab"
-          >
-            <span className="hidden sm:inline">New Tab</span>
-            <span className="sm:hidden">New Tab</span>
-            <FaExternalLinkAlt />
-          </a>
-        </div>
-      </div>
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-[16/9] shadow-inner shadow-black/50">
-        <iframe
-          ref={iframeRef}
-          title="ChizelVerse Demo"
-          src="https://rajvansh-1.github.io/ChizelVerse/"
-          loading="lazy"
-          className="w-full h-full"
-          allow="fullscreen; autoplay; clipboard-read; clipboard-write"
-        />
-      </div>
-    </CrystalCard>
-  );
+    return (
+        <CrystalCard className="verse-rest" padding="p-4 sm:p-6 md:p-8" tilt={false}>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
+                    <p className="text-gray-300 text-sm md:text-base">Experience the ChizelVerse right here.</p>
+                </div>
+                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <Button
+                        title={isFullscreen ? "Exit" : "Fullscreen"}
+                        onClick={toggleFullscreen}
+                        leftIcon={isFullscreen ? <FaCompress /> : <FaExpand />}
+                        containerClass="!bg-indigo-600 hover:!bg-indigo-500 w-full sm:w-auto justify-center col-span-1"
+                    />
+                    <a
+                        href="https://rajvansh-1.github.io/ChizelVerse/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="col-span-1 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-white/10 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:bg-white/20"
+                        aria-label="Open Demo in new tab"
+                    >
+                        <span className="hidden sm:inline">New Tab</span>
+                        <span className="sm:hidden">New Tab</span>
+                        <FaExternalLinkAlt />
+                    </a>
+                </div>
+            </div>
+            <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-[16/9] shadow-inner shadow-black/50">
+                <iframe
+                    ref={iframeRef}
+                    title="ChizelVerse Demo"
+                    src="https://rajvansh-1.github.io/ChizelVerse/"
+                    loading="lazy"
+                    className="w-full h-full"
+                    allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+                />
+            </div>
+        </CrystalCard>
+    );
 };
 
+// --- ✨ START: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
+
+// NOTE: This assumes `featuresData` has a unique `title` property.
+// Add your feature titles and desired icons here.
+const featureIconMap = {
+  "Dynamic Avatars": <FaUserAstronaut />,
+  "Interactive Environments": <FaCube />,
+  "Real-Time Social Hub": <FaComments />,
+  "Creator Economy": <FaStore />,
+};
+
+/**
+ * Redesigned "Holographic Projector" Feature Display.
+ * A top-tier, attractive, and responsive component for showcasing features.
+ */
 const FeatureDisplay = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const indicatorRef = useRef(null);
     const tabsRef = useRef([]);
-  
-    useEffect(() => {
-      const activeTab = tabsRef.current[activeIndex];
-      if (activeTab && indicatorRef.current) {
-        gsap.to(indicatorRef.current, {
-          x: activeTab.offsetLeft,
-          width: activeTab.offsetWidth,
-          duration: 0.5,
-          ease: 'power3.inOut'
-        });
-      }
+    const contentRef = useRef(null);
+    
+    // Animate the indicator for the control panel tabs
+    useGSAP(() => {
+        const activeTab = tabsRef.current[activeIndex];
+        if (activeTab && indicatorRef.current) {
+            gsap.to(indicatorRef.current, {
+                x: activeTab.offsetLeft,
+                width: activeTab.offsetWidth,
+                duration: 0.6,
+                ease: 'power3.inOut'
+            });
+        }
     }, [activeIndex]);
-  
+    
+    // Animate the content swapping in the "projector" screen
+    useGSAP(() => {
+        // Fade and slide OUT all non-active items
+        gsap.to('.feature-content-item, .feature-image-item', {
+            opacity: 0,
+            y: 15,
+            duration: 0.3,
+            ease: 'power2.in',
+            stagger: 0.05,
+            overwrite: true,
+        });
+
+        // Fade and slide IN the new active items
+        gsap.fromTo(
+            `.feature-content-item[data-index="${activeIndex}"], .feature-image-item[data-index="${activeIndex}"]`,
+            { opacity: 0, y: -15 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                ease: 'power2.out',
+                delay: 0.2,
+                stagger: 0.1
+            }
+        );
+    }, { scope: contentRef, dependencies: [activeIndex] });
+
     return (
-      <CrystalCard className="verse-rest" padding="p-6 md:p-8">
-          <div className="relative mb-6 md:mb-8">
-            <div ref={indicatorRef} className="absolute -bottom-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.7)]"></div>
-            <ul className="flex flex-wrap justify-center gap-3 md:gap-6 border-b border-white/10 pb-4">
-              {featuresData.map((f, i) => (
-                <li
-                  key={i}
-                  ref={el => tabsRef.current[i] = el}
-                  onMouseEnter={() => setActiveIndex(i)}
-                  onClick={() => setActiveIndex(i)}
-                  className="cursor-pointer text-center px-3 py-2 rounded-lg transition-colors"
-                >
-                  <h3 className={`font-heading text-base sm:text-lg md:text-2xl transition-all duration-300 ${activeIndex === i ? "text-cyan-400 scale-110 drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]" : "text-gray-300 hover:text-white"}`}>
-                    {f.title}
-                  </h3>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <div className="relative rounded-xl overflow-hidden bg-black/30 border border-white/10 shadow-lg">
-               <div className="w-full aspect-[16/10]">
-                {featuresData.map((f, i) => (
-                  <img key={i} src={f.gifSrc} alt={f.title} loading="lazy" className={`absolute inset-0 w-full h-full object-contain p-2 sm:p-4 transition-opacity duration-500 ease-in-out ${activeIndex === i ? "opacity-100" : "opacity-0"}`} />
-                ))}
-              </div>
-            </div>
-            <div className="relative min-h-[260px] sm:min-h-[240px]">
-              {featuresData.map((f, i) => (
-                <div key={i} className={`absolute inset-0 flex flex-col justify-center transition-all duration-500 ease-in-out ${activeIndex === i ? "opacity-100 transform-none" : "opacity-0 translate-x-4 pointer-events-none"}`}>
-                  <p className="font-body text-gray-200 text-base md:text-lg leading-relaxed">{f.description}</p>
-                  <div className="relative border-l-4 border-cyan-400/50 pl-4 mt-4 bg-white/5 p-4 rounded-r-lg">
-                    <FaQuoteLeft className="absolute -top-2 left-2 text-xl text-cyan-400/40 opacity-50" />
-                    <blockquote className="font-body text-gray-300 italic text-sm md:text-base">“{f.quote}”</blockquote>
-                    <cite className="block text-right text-cyan-400/80 text-sm mt-2 not-italic">- {f.author}</cite>
-                  </div>
+        <CrystalCard className="verse-rest flex flex-col" padding="p-0">
+            {/* Top Section: The "Holographic Projector" Screen */}
+            <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center p-6 md:p-8 flex-grow">
+                
+                {/* Left/Top: Image/GIF Display */}
+                <div className="relative rounded-xl overflow-hidden bg-black/30 border border-white/10 shadow-lg aspect-[16/10] w-full">
+                    {/* Decorative Grid Background */}
+                    <div className="absolute inset-0 z-0 opacity-10 bg-[linear-gradient(to_right,rgba(0,255,255,0.2)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,255,255,0.2)_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
+                    <div className="absolute inset-0 z-0 bg-gradient-to-br from-transparent via-transparent to-black/50"></div>
+                    
+                    <div className="relative w-full h-full">
+                        {featuresData.map((f, i) => (
+                            <div key={`img-${i}`} data-index={i} className="feature-image-item absolute inset-0 w-full h-full opacity-0">
+                                <img src={f.gifSrc} alt={f.title} loading="lazy" className="w-full h-full object-contain p-2 sm:p-4" />
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {/* Scanline effect */}
+                    <div className="absolute inset-0 z-10 pointer-events-none bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] animate-scanline"></div>
                 </div>
-              ))}
+
+                {/* Right/Bottom: Text Content */}
+                <div className="relative min-h-[280px] sm:min-h-[260px] lg:min-h-[300px]">
+                    {featuresData.map((f, i) => (
+                        <div key={`content-${i}`} data-index={i} className="feature-content-item absolute inset-0 flex flex-col justify-center opacity-0">
+                            <p className="font-body text-gray-200 text-base md:text-lg leading-relaxed">{f.description}</p>
+                            <div className="relative border-l-4 border-cyan-400/50 pl-4 mt-6 bg-white/5 p-4 rounded-r-lg shadow-inner shadow-black/30">
+                                <FaQuoteLeft className="absolute -top-3 left-2 text-2xl text-cyan-400/30 opacity-70" />
+                                <blockquote className="font-body text-gray-300 italic text-sm md:text-base">“{f.quote}”</blockquote>
+                                <cite className="block text-right text-cyan-400/80 text-sm mt-2 not-italic">- {f.author}</cite>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
-          </div>
-      </CrystalCard>
+
+            {/* Bottom Section: The "Control Panel" Tabs */}
+            <div className="relative border-t border-white/10 bg-slate-900/40 rounded-b-[0.85rem] px-4 py-3 md:px-6">
+                <div ref={indicatorRef} className="absolute top-0 h-full bg-cyan-500/10 rounded-lg shadow-[0_0_20px_rgba(0,255,255,0.5)] transition-all duration-500 ease-out"></div>
+                <ul className="relative z-10 flex flex-wrap justify-around items-center gap-2 md:gap-4">
+                    {featuresData.map((f, i) => (
+                        <li
+                            key={i}
+                            ref={el => tabsRef.current[i] = el}
+                            onMouseEnter={() => setActiveIndex(i)}
+                            onClick={() => setActiveIndex(i)}
+                            className="cursor-pointer flex-1 min-w-[100px] text-center px-2 py-2 rounded-lg transition-all duration-300"
+                            role="tab"
+                            aria-selected={activeIndex === i}
+                            tabIndex={0}
+                        >
+                            <div className={`flex flex-col sm:flex-row items-center justify-center gap-2 transition-all duration-300 ${activeIndex === i ? "text-cyan-300 scale-105" : "text-gray-300 hover:text-white"}`}>
+                                <div className="text-xl sm:text-2xl">{featureIconMap[f.title] || <FaStar />}</div>
+                                <h3 className="font-heading text-sm sm:text-base font-semibold">
+                                    {f.title}
+                                </h3>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </CrystalCard>
     );
 };
 
-// --- MAIN COMPONENT ---
+// --- ✨ END: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
+
+
+// --- MAIN COMPONENT (UNCHANGED) ---
 
 const ChizelverseCardsSection = () => {
     const containerRef = useRef(null);
@@ -264,12 +324,11 @@ const ChizelverseCardsSection = () => {
             return;
         }
 
-        // --- Cinematic Intro Animation (Restored & Optimized) ---
         const introTl = gsap.timeline({
             scrollTrigger: {
                 trigger: introRef.current,
                 start: "top top",
-                end: "bottom top", // Correctly pins for the duration of one screen height
+                end: "bottom top",
                 scrub: 1,
                 pin: true,
             },
@@ -280,7 +339,6 @@ const ChizelverseCardsSection = () => {
             .to(".intro-text", { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, "+=0.5")
             .fromTo(".planet-layer", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 1, ease: "power3.inOut" }, "-=0.3");
 
-        // --- Staggered Content Reveal on Scroll ---
         gsap.from(".verse-rest", {
             scrollTrigger: {
                 trigger: contentRef.current,
@@ -291,7 +349,7 @@ const ChizelverseCardsSection = () => {
             opacity: 0,
             duration: 1,
             ease: "power3.out",
-            stagger: 0.2, // Stagger the appearance of each card
+            stagger: 0.2,
         });
 
     }, { scope: containerRef, dependencies: [prefersReducedMotion] });
@@ -317,7 +375,6 @@ const ChizelverseCardsSection = () => {
     
     return (
         <div ref={containerRef} className="bg-space-dark">
-            {/* SECTION 1: The Cinematic Intro is Back! */}
             <section ref={introRef} className="relative h-screen w-full bg-black overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
                 <StarField count={60} />
@@ -339,7 +396,6 @@ const ChizelverseCardsSection = () => {
                 </div>
             </section>
 
-            {/* SECTION 2: The Main Content */}
             <section ref={contentRef} className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
                 <div className="absolute inset-0 bg-radial-nebula opacity-30" />
                 <StarField count={100} />
@@ -408,6 +464,7 @@ const ChizelverseCardsSection = () => {
                 .crystal-card-inner {
                     background: rgba(15, 23, 42, 0.6);
                     backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
                     border: 1px solid rgba(255, 255, 255, 0.07);
                     border-radius: 0.9rem;
                     will-change: transform;
@@ -441,6 +498,14 @@ const ChizelverseCardsSection = () => {
                 @keyframes shine-sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
                 .shine-effect { animation: shine-sweep 3s infinite linear; will-change: transform; }
                 .group:hover .shine-effect { animation-duration: 1.5s; }
+                /* Animation for the redesigned feature display */
+                @keyframes scanline {
+                  0% { background-position: 0 0; }
+                  100% { background-position: 0 100%; }
+                }
+                .animate-scanline {
+                    animation: scanline 10s linear infinite;
+                }
             `}</style>
         </div>
     );
