@@ -1,20 +1,13 @@
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Button from "@/components/ui/Button";
 import { chizelverseInfo, featuresData } from "@utils/constants";
 import {
-  FaGamepad,
-  FaUsers,
-  FaLightbulb,
-  FaPaintBrush,
-  FaQuoteLeft,
-  FaStar,
-  FaRocket,
-  FaExternalLinkAlt,
-  FaExpand,
-  FaCompress,
+  FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
+  FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
+  FaExpand, FaCompress,
 } from "react-icons/fa";
 
 if (typeof window !== "undefined") {
@@ -28,7 +21,7 @@ const iconMap = {
   paintbrush: <FaPaintBrush />,
 };
 
-// --- Helper Components (Optimized & Enhanced) ---
+// --- HELPER COMPONENTS (OPTIMIZED & REDESIGNED) ---
 
 const usePrefersReducedMotion = () => {
   const [reduced, setReduced] = useState(false);
@@ -42,53 +35,79 @@ const usePrefersReducedMotion = () => {
   return reduced;
 };
 
-const TiltCard = ({ children, className = "" }) => {
-  const [transformStyle, setTransformStyle] = useState("");
-  const containerRef = useRef(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
+/**
+ * A unique and highly attractive "Crystal Card" with interactive shimmering highlights.
+ */
+const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = true }) => {
+    const cardRef = useRef(null);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
-  const handleMouseMove = (event) => {
-    if (prefersReducedMotion || !containerRef.current) return;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-    const relativeX = (event.clientX - left) / width;
-    const relativeY = (event.clientY - top) / height;
-    const tiltX = (relativeY - 0.5) * 15; // Reduced intensity for a subtler effect
-    const tiltY = (relativeX - 0.5) * -15;
-    setTransformStyle(
-      `perspective(1200px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.03, 1.03, 1.03)`
+    const handleMouseMove = (e) => {
+        if (prefersReducedMotion || !cardRef.current) return;
+        const rect = cardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Animate the shimmer gradient position
+        gsap.to(cardRef.current, {
+            '--mouse-x': `${x}px`,
+            '--mouse-y': `${y}px`,
+            '--opacity': '1',
+            duration: 0.4,
+            ease: 'power2.out'
+        });
+
+        if (tilt) {
+            // Apply 3D tilt effect
+            const rotateX = (y / rect.height - 0.5) * 15;
+            const rotateY = (x / rect.width - 0.5) * -15;
+            gsap.to(cardRef.current.querySelector('.crystal-card-inner'), {
+                rotateX,
+                rotateY,
+                scale: 1.04,
+                duration: 0.6,
+                ease: 'power3.out'
+            });
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (!cardRef.current) return;
+
+        // Fade out the shimmer
+        gsap.to(cardRef.current, { '--opacity': '0', duration: 0.5, ease: 'power3.out' });
+
+        if (tilt) {
+            // Reset 3D tilt effect
+            gsap.to(cardRef.current.querySelector('.crystal-card-inner'), {
+                rotateX: 0,
+                rotateY: 0,
+                scale: 1,
+                duration: 0.8,
+                ease: 'elastic.out(1, 0.5)'
+            });
+        }
+    };
+
+    return (
+        <div
+            ref={cardRef}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className={`crystal-card-base relative rounded-2xl w-full h-full transform-style-3d ${className}`}
+            style={{ perspective: tilt ? '1000px' : 'none' }}
+        >
+            <div className={`crystal-card-inner relative w-full h-full rounded-2xl transition-transform duration-500 ease-out ${padding}`}>
+                {children}
+            </div>
+        </div>
     );
-  };
-
-  const handleMouseLeave = () => {
-    setTransformStyle("perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
-  };
-
-  return (
-    <div
-      ref={containerRef}
-      className={className}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transform: transformStyle,
-        transition: "transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)",
-        transformStyle: "preserve-3d",
-        willChange: "transform",
-      }}
-    >
-      {children}
-    </div>
-  );
 };
+
 
 const InfoCard = ({ card }) => {
   return (
-    <TiltCard className="h-full group">
-      <div className="relative p-6 md:p-8 rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/10 h-full transform-gpu transition-all duration-300 ease-out overflow-hidden shadow-lg shadow-black/30">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
-        <div className="absolute bottom-0 right-0 w-full h-px bg-gradient-to-l from-transparent via-indigo-500 to-transparent transform translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
-
+    <CrystalCard className="h-full group verse-rest">
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-5 transform transition-transform duration-500 group-hover:-translate-y-1">
             <div className="text-4xl md:text-5xl text-cyan-400 shrink-0 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]">{iconMap[card.icon]}</div>
@@ -103,8 +122,7 @@ const InfoCard = ({ card }) => {
             ))}
           </ul>
         </div>
-      </div>
-    </TiltCard>
+    </CrystalCard>
   );
 };
 
@@ -115,7 +133,7 @@ const DemoPreview = () => {
   const toggleFullscreen = () => {
     if (!iframeRef.current) return;
     if (document.fullscreenElement) {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(err => console.error(err));
     } else {
       iframeRef.current.requestFullscreen().catch(err => {
         console.error(`Error attempting full-screen: ${err.message} (${err.name})`);
@@ -130,45 +148,43 @@ const DemoPreview = () => {
   }, []);
 
   return (
-    <div className="verse-rest p-1 rounded-2xl bg-gradient-to-br from-cyan-500/40 via-indigo-600/40 to-blue-700/40 w-full shadow-2xl shadow-blue-500/10">
-      <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[15px] p-4 sm:p-6 md:p-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-          <div>
-            <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
-            <p className="text-gray-300 text-sm md:text-base">Experience the ChizelVerse right here.</p>
-          </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
-             <Button
-              title={isFullscreen ? "Exit" : "Fullscreen"}
-              onClick={toggleFullscreen}
-              leftIcon={isFullscreen ? <FaCompress /> : <FaExpand />}
-              containerClass="!bg-indigo-600 hover:!bg-indigo-500 w-full sm:w-auto justify-center col-span-1"
-            />
-            <a
-              href="https://rajvansh-1.github.io/ChizelVerse/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="col-span-1 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-white/10 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:bg-white/20"
-              aria-label="Open Demo in new tab"
-            >
-              <span className="hidden sm:inline">New Tab</span>
-               <span className="sm:hidden">New Tab</span>
-              <FaExternalLinkAlt />
-            </a>
-          </div>
+    <CrystalCard className="verse-rest" padding="p-4 sm:p-6 md:p-8" tilt={false}>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+        <div>
+          <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
+          <p className="text-gray-300 text-sm md:text-base">Experience the ChizelVerse right here.</p>
         </div>
-        <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-[16/9] shadow-inner shadow-black/50">
-          <iframe
-            ref={iframeRef}
-            title="ChizelVerse Demo"
-            src="https://rajvansh-1.github.io/ChizelVerse/"
-            loading="lazy"
-            className="w-full h-full"
-            allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+        <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
+          <Button
+            title={isFullscreen ? "Exit" : "Fullscreen"}
+            onClick={toggleFullscreen}
+            leftIcon={isFullscreen ? <FaCompress /> : <FaExpand />}
+            containerClass="!bg-indigo-600 hover:!bg-indigo-500 w-full sm:w-auto justify-center col-span-1"
           />
+          <a
+            href="https://rajvansh-1.github.io/ChizelVerse/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="col-span-1 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-white/10 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:bg-white/20"
+            aria-label="Open Demo in new tab"
+          >
+            <span className="hidden sm:inline">New Tab</span>
+            <span className="sm:hidden">New Tab</span>
+            <FaExternalLinkAlt />
+          </a>
         </div>
       </div>
-    </div>
+      <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-[16/9] shadow-inner shadow-black/50">
+        <iframe
+          ref={iframeRef}
+          title="ChizelVerse Demo"
+          src="https://rajvansh-1.github.io/ChizelVerse/"
+          loading="lazy"
+          className="w-full h-full"
+          allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+        />
+      </div>
+    </CrystalCard>
   );
 };
 
@@ -190,8 +206,7 @@ const FeatureDisplay = () => {
     }, [activeIndex]);
   
     return (
-      <div className="verse-rest p-1 rounded-2xl bg-gradient-to-br from-cyan-500/40 via-indigo-600/40 to-blue-700/40 w-full shadow-2xl shadow-blue-500/10">
-        <div className="bg-slate-900/80 backdrop-blur-2xl rounded-[15px] p-6 md:p-8">
+      <CrystalCard className="verse-rest" padding="p-6 md:p-8">
           <div className="relative mb-6 md:mb-8">
             <div ref={indicatorRef} className="absolute -bottom-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(0,255,255,0.7)]"></div>
             <ul className="flex flex-wrap justify-center gap-3 md:gap-6 border-b border-white/10 pb-4">
@@ -231,243 +246,204 @@ const FeatureDisplay = () => {
               ))}
             </div>
           </div>
-        </div>
-      </div>
+      </CrystalCard>
     );
 };
 
-// --- Main Component ---
+// --- MAIN COMPONENT ---
 
 const ChizelverseCardsSection = () => {
-  const containerRef = useRef(null);
-  const introRef = useRef(null);
-  const contentRef = useRef(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
+    const containerRef = useRef(null);
+    const introRef = useRef(null);
+    const contentRef = useRef(null);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) {
-        gsap.set([introRef.current, contentRef.current, ".chizelverse-title", ".verse-rest"], {
-          opacity: 1,
-          y: 0,
-          clipPath: "circle(100% at 50% 50%)",
+    useGSAP(() => {
+        if (prefersReducedMotion) {
+            gsap.set("[data-fade-in], .verse-rest", { opacity: 1, y: 0, scale: 1 });
+            return;
+        }
+
+        // --- Cinematic Intro Animation (Restored & Optimized) ---
+        const introTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: introRef.current,
+                start: "top top",
+                end: "bottom top", // Correctly pins for the duration of one screen height
+                scrub: 1,
+                pin: true,
+            },
         });
-        return;
-      }
 
-      // --- Cinematic Intro Animation ---
-      const introTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: introRef.current,
-          start: "top top",
-          end: "bottom top", // Changed end to fix double scroll
-          scrub: 1,
-          pin: true,
-        },
-      });
+        introTl
+            .fromTo(".intro-text", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" })
+            .to(".intro-text", { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, "+=0.5")
+            .fromTo(".planet-layer", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 1, ease: "power3.inOut" }, "-=0.3");
 
-      introTl
-        .fromTo(".intro-text", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" })
-        .to(".intro-text", { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, "+=0.5")
-        .fromTo(".planet-layer", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 1, ease: "power3.inOut" }, "-=0.3");
-
-      // --- Content Reveal Animation ---
-      gsap.from(contentRef.current, {
-        scrollTrigger: {
-          trigger: contentRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-        opacity: 0,
-        duration: 1,
-      });
-
-      gsap.from(".chizelverse-title", {
-        scrollTrigger: {
-          trigger: ".chizelverse-title",
-          start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
-
-      gsap.from(".verse-rest", {
-        scrollTrigger: {
-          trigger: ".chizelverse-title",
-          start: "top 70%",
-          toggleActions: "play none none reverse",
-        },
-        y: 60,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.15,
-      });
-    },
-    { scope: containerRef, dependencies: [prefersReducedMotion] }
-  );
-  
-  // Component that sets random star positions. Runs once.
-  const StarField = ({ count = 60 }) => {
-    useEffect(() => {
-        const stars = document.querySelectorAll(".cv-star");
-        stars.forEach(star => {
-            star.style.setProperty("--l", `${Math.random() * 100}%`);
-            star.style.setProperty("--t", `${Math.random() * 100}%`);
-            star.style.setProperty("--d", `${Math.random() * 4 + 2}s`); // duration
-            star.style.setProperty("--s", `${Math.random() * 1.5 + 0.5}px`); // size
+        // --- Staggered Content Reveal on Scroll ---
+        gsap.from(".verse-rest", {
+            scrollTrigger: {
+                trigger: contentRef.current,
+                start: "top 80%",
+                toggleActions: "play none none reverse",
+            },
+            y: 60,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+            stagger: 0.2, // Stagger the appearance of each card
         });
-    }, [count]);
 
+    }, { scope: containerRef, dependencies: [prefersReducedMotion] });
+
+    const StarField = useMemo(() => {
+        return ({ count = 100 }) => (
+            <div className="cv-stars absolute inset-0" aria-hidden="true">
+                {Array.from({ length: count }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="cv-star"
+                        style={{
+                            '--l': `${Math.random() * 100}%`,
+                            '--t': `${Math.random() * 100}%`,
+                            '--d': `${Math.random() * 4 + 2}s`,
+                            '--s': `${Math.random() * 1.5 + 0.5}px`
+                        }}
+                    />
+                ))}
+            </div>
+        );
+    }, []);
+    
     return (
-        <div className="cv-stars absolute inset-0" aria-hidden="true">
-            {Array.from({ length: count }).map((_, i) => <span key={i} className="cv-star" />)}
+        <div ref={containerRef} className="bg-space-dark">
+            {/* SECTION 1: The Cinematic Intro is Back! */}
+            <section ref={introRef} className="relative h-screen w-full bg-black overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
+                <StarField count={60} />
+                <div className="absolute inset-0 flex items-center justify-center p-6 intro-text">
+                    <div className="text-center">
+                        <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl mb-3">
+                            Entering ChizelVerse
+                        </h2>
+                        <div className="flex items-center justify-center gap-2 md:gap-3 text-white/80">
+                            <FaRocket className="text-lg md:text-xl animate-pulse" />
+                            <span className="text-sm md:text-lg font-body">Initializing portal...</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="planet-layer absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
+                    <div className="absolute inset-0 bg-space-dark" />
+                    <div className="absolute -bottom-1/2 w-full h-full bg-radial-nebula opacity-50" />
+                    <StarField count={100} />
+                </div>
+            </section>
+
+            {/* SECTION 2: The Main Content */}
+            <section ref={contentRef} className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
+                <div className="absolute inset-0 bg-radial-nebula opacity-30" />
+                <StarField count={100} />
+
+                <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-8 md:gap-12">
+                    <div className="w-full max-w-screen-xl mx-auto space-y-8 md:space-y-12">
+                        <div className="relative w-full flex justify-center items-center group">
+                            <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold 
+                                bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
+                                bg-clip-text text-transparent overflow-hidden">
+                                Welcome To The ChizelVerse
+                                <div className="shine-effect absolute top-0 -left-full w-full h-full 
+                                bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
+                            </h2>
+                            <span className="text-3xl md:text-5xl ml-2 md:ml-4 animate-rocket-bounce" style={{ display: "inline-block" }}>🚀</span>
+                        </div>
+
+                        <DemoPreview />
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                            {chizelverseInfo.map((card) => (
+                                <InfoCard key={card.title} card={card} />
+                            ))}
+                        </div>
+
+                        <FeatureDisplay />
+
+                        <CrystalCard className="verse-rest" padding="p-8 md:p-10">
+                            <div className="absolute inset-0 z-0 opacity-20">
+                                {Array.from({ length: 20 }).map((_, i) => (
+                                    <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate` }} />
+                                ))}
+                            </div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+                            <div className="relative z-10 text-center">
+                                <div className="mb-4">
+                                    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
+                                </div>
+                                <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
+                                    The ChizelVerse is Expanding...
+                                </h3>
+                                <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
+                                    Our Developer is working really hard to bring an unimaginable experience in your devices <br />STAY TUNE WITH US!
+                                </p>
+                            </div>
+                        </CrystalCard>
+                    </div>
+                </div>
+            </section>
+
+            <style jsx global>{`
+                :root { --color-space-dark: #020010; --mouse-x: 50%; --mouse-y: 50%; --opacity: 0; }
+                .bg-space-dark { background-color: var(--color-space-dark); }
+                .bg-radial-nebula { background-image: radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.15), transparent 40%), radial-gradient(circle at 80% 30%, rgba(129, 140, 248, 0.15), transparent 40%); }
+                .cv-star {
+                    position: absolute; left: var(--l); top: var(--t);
+                    width: var(--s); height: var(--s);
+                    background: white; border-radius: 50%;
+                    animation: cv-twinkle var(--d) infinite ease-in-out;
+                    will-change: opacity, transform;
+                }
+                .crystal-card-base {
+                    background: #090e20;
+                    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 20px 50px rgba(0,0,0,0.5);
+                }
+                .crystal-card-inner {
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.07);
+                    border-radius: 0.9rem;
+                    will-change: transform;
+                    transform-style: preserve-3d;
+                }
+                .crystal-card-inner::before {
+                    content: '';
+                    position: absolute;
+                    inset: -1px; /* The border shimmer */
+                    border-radius: inherit;
+                    background: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.5), transparent 40%);
+                    opacity: var(--opacity);
+                    transition: opacity 0.4s ease-out;
+                    z-index: -1;
+                }
+                .crystal-card-inner::after { /* The inner glow */
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: inherit;
+                    background: radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.1), transparent 50%);
+                    opacity: var(--opacity);
+                    transition: opacity 0.4s ease-out;
+                    z-index: 0;
+                }
+                @keyframes cv-twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+                @keyframes float { 0%, 100% { transform: translateY(0px) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+                .animate-float { animation: float 6s infinite ease-in-out; }
+                @keyframes rocket-bounce { 0%, 100% { transform: translateY(0) rotate(-15deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
+                .animate-rocket-bounce { animation: rocket-bounce 2.5s infinite ease-in-out; }
+                @keyframes shine-sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+                .shine-effect { animation: shine-sweep 3s infinite linear; will-change: transform; }
+                .group:hover .shine-effect { animation-duration: 1.5s; }
+            `}</style>
         </div>
     );
-  };
-
-
-  return (
-    <div ref={containerRef} className="bg-space-dark">
-      {/* SECTION 1: The Cinematic Intro - Original Background */}
-      <section ref={introRef} className="relative h-screen w-full bg-black overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-slate-900/50 to-black" />
-        <StarField count={80} />
-
-        <div className="absolute inset-0 flex items-center justify-center p-6 intro-text">
-          <div className="text-center">
-            <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(100,150,255,0.5)] mb-3">
-              Entering ChizelVerse
-            </h2>
-            <div className="flex items-center justify-center gap-2 md:gap-3 text-white/80">
-              <FaRocket className="text-lg md:text-xl animate-pulse" />
-              <span className="text-sm md:text-lg font-body">Initializing portal...</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Planet Layer to reveal the new background */}
-        <div className="planet-layer absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
-           <div className="absolute inset-0 bg-space-dark" />
-           <div className="absolute -bottom-1/2 w-full h-full bg-radial-nebula opacity-50" />
-           <StarField count={100} />
-        </div>
-      </section>
-
-      {/* SECTION 2: The Main Content - New Space Background */}
-      <section ref={contentRef} className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
-        <div className="absolute inset-0 bg-space-dark" />
-        <div className="absolute top-0 w-full h-full bg-radial-nebula opacity-30" />
-        <StarField count={100} />
-
-        <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-8 md:gap-12">
-          <div className="w-full max-w-screen-xl mx-auto space-y-8 md:space-y-12">
-            <div className="relative w-full flex justify-center items-center group">
-              <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold 
-                bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
-                bg-clip-text text-transparent overflow-hidden">
-                Welcome To The ChizelVerse
-                <div className="shine-effect absolute top-0 -left-full w-full h-full 
-                  bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
-              </h2>
-              <span className="text-3xl md:text-5xl ml-2 md:ml-4 animate-rocket-bounce" style={{ display: "inline-block" }}>
-                🚀
-              </span>
-            </div>
-
-            <DemoPreview />
-
-            <div className="verse-rest grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              {chizelverseInfo.map((card) => (
-                <InfoCard key={card.title} card={card} />
-              ))}
-            </div>
-
-            <FeatureDisplay />
-
-            <TiltCard className="w-full verse-rest">
-              <div className="relative p-8 md:p-10 rounded-2xl bg-gradient-to-br from-blue-900/40 to-indigo-900/40 backdrop-blur-xl border border-blue-500/40 text-center w-full shadow-2xl shadow-blue-500/10 overflow-hidden">
-                <div className="absolute inset-0 z-0 opacity-20">
-                  {Array.from({ length: 20 }).map((_, i) => (
-                    <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate`}}/>
-                  ))}
-                </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="relative z-10">
-                  <div className="mb-4">
-                    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-                  </div>
-                  <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
-                    The ChizelVerse is Expanding...
-                  </h3>
-                  <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-                    Our Developer is working really hard to bring an unimaginable experience in your devices <br />STAY TUNE WITH US!
-                  </p>
-                </div>
-              </div>
-            </TiltCard>
-          </div>
-        </div>
-      </section>
-
-      {/* Global styles for dynamic effects */}
-      <style jsx global>{`
-        :root {
-          --color-space-dark: #020010;
-        }
-        .bg-space-dark {
-          background-color: var(--color-space-dark);
-        }
-        .bg-radial-nebula {
-          background-image: radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.15), transparent 40%),
-                            radial-gradient(circle at 80% 30%, rgba(129, 140, 248, 0.15), transparent 40%);
-        }
-        .cv-star {
-          position: absolute;
-          left: var(--l);
-          top: var(--t);
-          width: var(--s);
-          height: var(--s);
-          background: white;
-          border-radius: 50%;
-          animation: cv-twinkle var(--d) infinite ease-in-out;
-          will-change: opacity, transform;
-        }
-        @keyframes cv-twinkle {
-          0%, 100% { opacity: 0.2; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(-5deg); }
-          50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        .animate-float {
-            animation: float 6s infinite ease-in-out;
-        }
-        @keyframes rocket-bounce {
-          0%, 100% { transform: translateY(0) rotate(-15deg); }
-          50% { transform: translateY(-10px) rotate(5deg); }
-        }
-        .animate-rocket-bounce {
-          animation: rocket-bounce 2.5s infinite ease-in-out;
-        }
-        .shine-effect {
-          animation: shine-sweep 3s infinite linear;
-          will-change: transform;
-        }
-        @keyframes shine-sweep {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-        .group:hover .shine-effect {
-          animation-duration: 1.5s;
-        }
-      `}</style>
-    </div>
-  );
 };
 
 export default ChizelverseCardsSection;
