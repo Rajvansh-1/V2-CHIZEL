@@ -94,11 +94,13 @@ const ChizelverseOutroSection = () => {
 
       {/* The quote sits on the base background and is revealed */}
       <div ref={quoteRef} className="absolute inset-0 flex-center flex-col text-center p-8 opacity-0 z-0">
-        <blockquote className="font-heading text-3xl md:text-5xl text-text max-w-4xl leading-tight">
-          "The Future Belongs To Those Who Believe In The Beauty of Their Dreams."
-        </blockquote>
-        <cite className="font-body text-xl text-primary mt-4">- Eleanor Roosevelt</cite>
-      </div>
+  <blockquote className="font-heading text-3xl md:text-5xl text-text max-w-5xl leading-tight">
+    "We are not raising children — we are forging the architects of a future beyond even our wildest dreams."
+  </blockquote>
+  <cite className="font-body text-xl text-primary mt-4">- Chizel Founders</cite>
+</div>
+
+
 
       <style jsx global>{`
         .cv-stars-outro { position: absolute; width: 100%; height: 100%; overflow: hidden; }
