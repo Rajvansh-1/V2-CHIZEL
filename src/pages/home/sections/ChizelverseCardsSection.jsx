@@ -121,6 +121,26 @@ const DemoPreview = () => {
     const [isInteracting, setIsInteracting] = useState(false);
     const iframeRef = useRef(null);
     const containerRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data === 'closeChizelverseDemo') {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
 
     const handleInteract = () => {
         setIsInteracting(true);
@@ -128,9 +148,29 @@ const DemoPreview = () => {
             iframeRef.current.requestFullscreen();
         }
     };
+    
+    if (isMobile) {
+        return (
+            <div className="verse-rest md:hidden">
+                <CrystalCard padding="p-6" tilt={false}>
+                    <div className="text-center">
+                        <h3 className="font-heading text-3xl font-bold text-white mb-4">
+                            INTERACT WITH CHIZEL
+                        </h3>
+                        <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer">
+                            <Button
+                                title="Launch Experience"
+                                containerClass="!bg-primary"
+                            />
+                        </a>
+                    </div>
+                </CrystalCard>
+            </div>
+        )
+    }
 
     return (
-        <div className="verse-rest md:block hidden">
+        <div className="verse-rest hidden md:block">
             <CrystalCard padding="p-0" tilt={false}>
                 <div
                     ref={containerRef}
@@ -167,7 +207,6 @@ const DemoPreview = () => {
         </div>
     );
 };
-
 
 // --- ✨ START: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
 
