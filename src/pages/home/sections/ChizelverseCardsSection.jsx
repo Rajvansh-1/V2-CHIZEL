@@ -124,61 +124,50 @@ const DemoPreview = () => {
 
     const handleInteract = () => {
         setIsInteracting(true);
-        gsap.to(containerRef.current, {
-            "--overlay-opacity": 0,
-            duration: 0.5,
-            ease: "power2.out",
-        });
-    };
-
-    const handleFullscreen = () => {
         if (iframeRef.current) {
             iframeRef.current.requestFullscreen();
         }
     };
 
     return (
-        <CrystalCard className="verse-rest" padding="p-0" tilt={false}>
-            <div
-                ref={containerRef}
-                className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
-            >
-                <iframe
-                    ref={iframeRef}
-                    title="ChizelVerse Demo"
-                    src="https://rajvansh-1.github.io/ChizelVerse/"
-                    loading="lazy"
-                    className="w-full h-full"
-                    allow="fullscreen; autoplay; clipboard-read; clipboard-write"
-                />
+        <div className="verse-rest md:block hidden">
+            <CrystalCard padding="p-0" tilt={false}>
                 <div
-                    className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
-                    style={{ opacity: isInteracting ? 0 : 1, pointerEvents: isInteracting ? 'none' : 'auto' }}
+                    ref={containerRef}
+                    className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
                 >
-                    <h3 className="font-heading text-4xl font-bold text-white mb-4">
-                        INTERACT WITH CHIZEL
-                    </h3>
-                    <Button
-                        title="Interact"
-                        onClick={handleInteract}
-                        containerClass="!bg-primary"
+                    <iframe
+                        ref={iframeRef}
+                        title="ChizelVerse Demo"
+                        src="https://rajvansh-1.github.io/ChizelVerse/"
+                        loading="lazy"
+                        className="w-full h-full"
+                        allow="fullscreen; autoplay; clipboard-read; clipboard-write"
                     />
+                    <div
+                        className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
+                        style={{ opacity: isInteracting ? 0 : 1, pointerEvents: isInteracting ? 'none' : 'auto' }}
+                    >
+                        <h3 className="font-heading text-4xl font-bold text-white mb-4">
+                            INTERACT WITH CHIZEL
+                        </h3>
+                        <Button
+                            title="Interact"
+                            onClick={handleInteract}
+                            containerClass="!bg-primary"
+                        />
+                    </div>
+                    <div className="absolute bottom-2 right-2 z-20">
+                        <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer" className="!text-xs !py-2 !px-3 bg-black/50 rounded-full flex items-center justify-center text-white">
+                            <FaExternalLinkAlt />
+                        </a>
+                    </div>
                 </div>
-                <div className="absolute bottom-2 right-2 z-20 flex gap-2">
-                    <Button
-                        title="Fullscreen"
-                        onClick={handleFullscreen}
-                        leftIcon={<FaExpand />}
-                        containerClass="!bg-black/50 !text-xs !py-2 !px-3"
-                    />
-                    <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer" className="!text-xs !py-2 !px-3 bg-black/50 rounded-full flex items-center justify-center text-white">
-                        <FaExternalLinkAlt />
-                    </a>
-                </div>
-            </div>
-        </CrystalCard>
+            </CrystalCard>
+        </div>
     );
 };
+
 
 // --- ✨ START: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
 
