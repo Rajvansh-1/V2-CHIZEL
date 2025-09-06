@@ -1,6 +1,3 @@
-
-
-
 // src/router/index.jsx
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -12,6 +9,8 @@ import { trackPageview } from "@/utils/analytics";
 // Lazy load the page components for faster initial load
 const HomePage = lazy(() => import("@/pages/home"));
 const ChizelWebPage = lazy(() => import("@/pages/chizel-web"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 const router = createBrowserRouter([
   {
@@ -31,6 +30,22 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader setIsLoading={() => {}} />}>
             <ChizelWebPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "privacy-policy",
+        element: (
+          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+            <PrivacyPolicy />
+          </Suspense>
+        ),
+      },
+      {
+        path: "terms-of-service",
+        element: (
+          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+            <TermsOfService />
           </Suspense>
         ),
       },
