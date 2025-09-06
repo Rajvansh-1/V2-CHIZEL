@@ -1,12 +1,10 @@
 // src/router/index.jsx
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import MainLayout from "@components/layout/MainLayout";
-import Loader from "@components/ui/Loader";
 import { trackPageview } from "@/utils/analytics";
 
-// Lazy load the page components for faster initial load
+// Lazy load the page components
 const HomePage = lazy(() => import("@/pages/home"));
 const ChizelWebPage = lazy(() => import("@/pages/chizel-web"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
@@ -20,7 +18,7 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+          <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <HomePage />
           </Suspense>
         ),
@@ -28,7 +26,7 @@ const router = createBrowserRouter([
       {
         path: "chizel-web",
         element: (
-          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+          <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <ChizelWebPage />
           </Suspense>
         ),
@@ -36,7 +34,7 @@ const router = createBrowserRouter([
       {
         path: "privacy-policy",
         element: (
-          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+          <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <PrivacyPolicy />
           </Suspense>
         ),
@@ -44,7 +42,7 @@ const router = createBrowserRouter([
       {
         path: "terms-of-service",
         element: (
-          <Suspense fallback={<Loader setIsLoading={() => {}} />}>
+          <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <TermsOfService />
           </Suspense>
         ),
