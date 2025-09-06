@@ -95,7 +95,7 @@ const ChizelverseOutroSection = () => {
       {/* The quote sits on the base background and is revealed */}
       <div ref={quoteRef} className="absolute inset-0 flex-center flex-col text-center p-8 opacity-0 z-0">
   <blockquote className="font-heading text-3xl md:text-5xl text-text max-w-5xl leading-tight">
-    "We are not raising children — we are forging the architects of a future beyond even our wildest dreams."
+    "We Are Not Raising Children — We Are Forging The Architects of a Future Beyond Even Our Wildest Dreams."
   </blockquote>
   <cite className="font-body text-xl text-primary mt-4">- Chizel Founders</cite>
 </div>
