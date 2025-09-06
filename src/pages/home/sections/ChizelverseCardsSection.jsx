@@ -174,7 +174,7 @@ const DemoPreview = () => {
                             INTERACT WITH CHIZEL
                         </h3>
                         <Button
-                            title="Interact"
+                            title="CLICK HERE"
                             onClick={handleInteract}
                             containerClass="!bg-primary"
                         />
@@ -444,8 +444,8 @@ const ChizelverseCardsSection = () => {
     The ChizelVerse is Expanding...
   </h3>
   <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-    Our dev’s keyboard barely survived this update ⌨⚡… <br />Stay tuned for the next big drop!
-  </p>
+    This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕ … STAY TUNED  For The Next Big Drop!
+  </p>
 </div>
                         </CrystalCard>
                     </div>
