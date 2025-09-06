@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -6,7 +6,7 @@ import { problemSlides } from "@utils/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FieryProblemCard = ({ slide }) => {
+const FieryProblemCard = memo(({ slide }) => {
   return (
     <div
       className={`problem-card-container relative w-full rounded-3xl border-4 border-yellow-400/30 bg-gradient-to-br ${slide.gradient} overflow-hidden shadow-[0_0_80px_rgba(255,51,51,0.3)]`}
@@ -37,38 +37,63 @@ const FieryProblemCard = ({ slide }) => {
       </div>
     </div>
   );
-};
+});
+
+const ProblemStatementHeader = memo(() => (
+    <div className="problem-heading text-center mb-16 space-y-6">
+        <p className="font-bold text-lg uppercase tracking-widest text-red-600 mb-2">
+            EXTREME WARNING
+        </p>
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-red-600 via-yellow-400 to-indigo-800 bg-clip-text drop-shadow-lg">
+            Every Second is a Disaster
+        </h2>
+        <p className="mt-4 text-2xl text-white font-semibold font-heading">
+            Act now or your child’s spark will vanish forever.
+        </p>
+    </div>
+));
 
 const ProblemStatementSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    gsap.from(".problem-heading", {
+    const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: ".problem-heading",
-        start: "top 85%",
+        trigger: containerRef.current,
+        start: "top center",
         toggleActions: "play none none reverse",
       },
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-      duration: 1,
-      ease: "power3.out",
     });
-    gsap.utils.toArray(".problem-slide").forEach((el) => {
-      gsap.from(el, {
-        scrollTrigger: {
-          trigger: el,
-          start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
+
+    tl.from(".problem-heading", {
+        opacity: 0,
+        y: 20,
+        scale: 0.95,
+        duration: 1,
+        ease: "power3.out",
+    }).from(".problem-slide", {
         opacity: 0,
         y: 80,
         scale: 0.9,
         duration: 1,
         ease: "power3.out",
-      });
+        stagger: 0.2,
+    }, "-=0.5");
+
+    // Parallax effect for the nebulas
+    gsap.utils.toArray(".nebula").forEach(nebula => {
+        gsap.to(nebula, {
+            y: (i) => (i % 2 === 0 ? 100 : -100),
+            ease: "none",
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1,
+            },
+        });
     });
+
   }, { scope: containerRef });
 
   return (
@@ -77,28 +102,18 @@ const ProblemStatementSection = () => {
         id="problem"
         className="relative w-screen bg-black py-24 overflow-hidden"
       >
-        <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="nebula-1 absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px] animate-parallax-slow" />
-          <div className="nebula-2 absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px] animate-parallax-medium" />
-          <div className="nebula-3 absolute top-32 left-1/2 -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px] animate-parallax-fast" />
+        <div className="absolute inset-0 pointer-events-none z-0" aria-hidden="true">
+          <div className="nebula nebula-1 absolute -top-40 -left-40 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-red-700/45 via-yellow-500/20 to-transparent blur-[80px] animate-parallax-slow" />
+          <div className="nebula nebula-2 absolute -bottom-32 right-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-600/40 via-pink-600/20 to-transparent blur-[100px] animate-parallax-medium" />
+          <div className="nebula nebula-3 absolute top-32 left-1/2 -translate-x-1/2 h-60 w-60 rounded-full bg-gradient-to-br from-indigo-700/40 via-purple-900/30 to-blue-700/20 blur-[80px] animate-parallax-fast" />
         </div>
         <div className="container mx-auto px-6 md:px-8 relative z-10">
-          <div className="problem-heading text-center mb-16 space-y-6">
-            <p className="font-bold text-lg uppercase tracking-widest text-red-600 mb-2">
-              EXTREME WARNING
-            </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-red-600 via-yellow-400 to-indigo-800 bg-clip-text drop-shadow-lg">
-              Every Second is a Disaster
-            </h2>
-            <p className="mt-4 text-2xl text-white font-semibold font-heading">
-              Act now or your child’s spark will vanish forever.
-            </p>
-          </div>
+          <ProblemStatementHeader />
           <div className="space-y-14 max-w-4xl mx-auto">
             {problemSlides.map((slide, i) => (
               <div
                 key={i}
-                className="problem-slide w-full max-w-[900px] mx-auto will-change"
+                className="problem-slide w-full max-w-[900px] mx-auto will-change-transform"
               >
                 <FieryProblemCard slide={slide} />
               </div>
