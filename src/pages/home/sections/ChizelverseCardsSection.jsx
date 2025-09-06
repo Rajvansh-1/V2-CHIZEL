@@ -1,3 +1,4 @@
+// src/pages/home/sections/ChizelverseCardsSection.jsx
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -144,33 +145,15 @@ const DemoPreview = () => {
 
     const handleInteract = () => {
         setIsInteracting(true);
-        if (iframeRef.current) {
+        if (isMobile) {
+            window.open("https://rajvansh-1.github.io/ChizelVerse/", "_blank");
+        } else if (iframeRef.current) {
             iframeRef.current.requestFullscreen();
         }
     };
     
-    if (isMobile) {
-        return (
-            <div className="verse-rest md:hidden">
-                <CrystalCard padding="p-6" tilt={false}>
-                    <div className="text-center">
-                        <h3 className="font-heading text-3xl font-bold text-white mb-4">
-                            INTERACT WITH CHIZEL
-                        </h3>
-                        <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer">
-                            <Button
-                                title="Launch Experience"
-                                containerClass="!bg-primary"
-                            />
-                        </a>
-                    </div>
-                </CrystalCard>
-            </div>
-        )
-    }
-
     return (
-        <div className="verse-rest hidden md:block">
+        <div className="verse-rest">
             <CrystalCard padding="p-0" tilt={false}>
                 <div
                     ref={containerRef}
@@ -186,9 +169,8 @@ const DemoPreview = () => {
                     />
                     <div
                         className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
-                        style={{ opacity: isInteracting ? 0 : 1, pointerEvents: isInteracting ? 'none' : 'auto' }}
                     >
-                        <h3 className="font-heading text-4xl font-bold text-white mb-4">
+                        <h3 className="font-heading text-2xl md:text-4xl font-bold text-white mb-4 text-center">
                             INTERACT WITH CHIZEL
                         </h3>
                         <Button
@@ -196,11 +178,6 @@ const DemoPreview = () => {
                             onClick={handleInteract}
                             containerClass="!bg-primary"
                         />
-                    </div>
-                    <div className="absolute bottom-2 right-2 z-20">
-                        <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer" className="!text-xs !py-2 !px-3 bg-black/50 rounded-full flex items-center justify-center text-white">
-                            <FaExternalLinkAlt />
-                        </a>
                     </div>
                 </div>
             </CrystalCard>
