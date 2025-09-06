@@ -50,7 +50,7 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
         gsap.to(cardRef.current, {
             '--mouse-x': `${x}px`,
             '--mouse-y': `${y}px`,
-            '--opacity': '1',
+            '--opacity': '0.5', // Reduced brightness
             duration: 0.4,
             ease: 'power2.out'
         });
@@ -118,54 +118,31 @@ const InfoCard = ({ card }) => (
 );
 
 const DemoPreview = () => {
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(false);
     const iframeRef = useRef(null);
+    const containerRef = useRef(null);
 
-    const toggleFullscreen = () => {
-        if (!iframeRef.current) return;
-        if (document.fullscreenElement) {
-            document.exitFullscreen().catch(err => console.error(err));
-        } else {
-            iframeRef.current.requestFullscreen().catch(err => {
-                console.error(`Error attempting full-screen: ${err.message} (${err.name})`);
-            });
+    const handleInteract = () => {
+        setIsInteracting(true);
+        gsap.to(containerRef.current, {
+            "--overlay-opacity": 0,
+            duration: 0.5,
+            ease: "power2.out",
+        });
+    };
+
+    const handleFullscreen = () => {
+        if (iframeRef.current) {
+            iframeRef.current.requestFullscreen();
         }
     };
-    
-    useEffect(() => {
-        const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-        document.addEventListener("fullscreenchange", handleFullscreenChange);
-        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    }, []);
 
     return (
-        <CrystalCard className="verse-rest" padding="p-4 sm:p-6 md:p-8" tilt={false}>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-                <div>
-                    <h3 className="font-heading text-2xl md:text-3xl text-white">Interactive Demo</h3>
-                    <p className="text-gray-300 text-sm md:text-base">Experience the ChizelVerse right here.</p>
-                </div>
-                <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 w-full md:w-auto">
-                    <Button
-                        title={isFullscreen ? "Exit" : "Fullscreen"}
-                        onClick={toggleFullscreen}
-                        leftIcon={isFullscreen ? <FaCompress /> : <FaExpand />}
-                        containerClass="!bg-indigo-600 hover:!bg-indigo-500 w-full sm:w-auto justify-center col-span-1"
-                    />
-                    <a
-                        href="https://rajvansh-1.github.io/ChizelVerse/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="col-span-1 inline-flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-full bg-white/10 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:bg-white/20"
-                        aria-label="Open Demo in new tab"
-                    >
-                        <span className="hidden sm:inline">New Tab</span>
-                        <span className="sm:hidden">New Tab</span>
-                        <FaExternalLinkAlt />
-                    </a>
-                </div>
-            </div>
-            <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40 aspect-[16/9] shadow-inner shadow-black/50">
+        <CrystalCard className="verse-rest" padding="p-0" tilt={false}>
+            <div
+                ref={containerRef}
+                className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
+            >
                 <iframe
                     ref={iframeRef}
                     title="ChizelVerse Demo"
@@ -174,6 +151,30 @@ const DemoPreview = () => {
                     className="w-full h-full"
                     allow="fullscreen; autoplay; clipboard-read; clipboard-write"
                 />
+                <div
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
+                    style={{ opacity: isInteracting ? 0 : 1, pointerEvents: isInteracting ? 'none' : 'auto' }}
+                >
+                    <h3 className="font-heading text-4xl font-bold text-white mb-4">
+                        INTERACT WITH CHIZEL
+                    </h3>
+                    <Button
+                        title="Interact"
+                        onClick={handleInteract}
+                        containerClass="!bg-primary"
+                    />
+                </div>
+                <div className="absolute bottom-2 right-2 z-20 flex gap-2">
+                    <Button
+                        title="Fullscreen"
+                        onClick={handleFullscreen}
+                        leftIcon={<FaExpand />}
+                        containerClass="!bg-black/50 !text-xs !py-2 !px-3"
+                    />
+                    <a href="https://rajvansh-1.github.io/ChizelVerse/" target="_blank" rel="noopener noreferrer" className="!text-xs !py-2 !px-3 bg-black/50 rounded-full flex items-center justify-center text-white">
+                        <FaExternalLinkAlt />
+                    </a>
+                </div>
             </div>
         </CrystalCard>
     );
@@ -241,7 +242,7 @@ const FeatureDisplay = () => {
     }, { scope: contentRef, dependencies: [activeIndex] });
 
     return (
-        <CrystalCard className="verse-rest flex flex-col" padding="p-0">
+        <CrystalCard className="verse-rest flex flex-col" padding="p-0" tilt={false}>
             {/* Top Section: The "Holographic Projector" Screen */}
             <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center p-6 md:p-8 flex-grow">
                 
@@ -475,7 +476,7 @@ const ChizelverseCardsSection = () => {
                     position: absolute;
                     inset: -1px; /* The border shimmer */
                     border-radius: inherit;
-                    background: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.5), transparent 40%);
+                    background: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.25), transparent 40%);
                     opacity: var(--opacity);
                     transition: opacity 0.4s ease-out;
                     z-index: -1;
@@ -485,7 +486,7 @@ const ChizelverseCardsSection = () => {
                     position: absolute;
                     inset: 0;
                     border-radius: inherit;
-                    background: radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.1), transparent 50%);
+                    background: radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.05), transparent 50%);
                     opacity: var(--opacity);
                     transition: opacity 0.4s ease-out;
                     z-index: 0;
