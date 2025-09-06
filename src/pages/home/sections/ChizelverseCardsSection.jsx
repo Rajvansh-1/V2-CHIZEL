@@ -437,16 +437,16 @@ const ChizelverseCardsSection = () => {
                             </div>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
                             <div className="relative z-10 text-center">
-                                <div className="mb-4">
-                                    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-                                </div>
-                                <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
-                                    The ChizelVerse is Expanding...
-                                </h3>
-                                <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-                                    Our Developer is working really hard to bring an unimaginable experience in your devices <br />STAY TUNE WITH US!
-                                </p>
-                            </div>
+  <div className="mb-4">
+    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
+  </div>
+  <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
+    The ChizelVerse is Expanding...
+  </h3>
+  <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
+    Our dev’s keyboard barely survived this update ⌨⚡… <br />Stay tuned for the next big drop!
+  </p>
+</div>
                         </CrystalCard>
                     </div>
                 </div>
