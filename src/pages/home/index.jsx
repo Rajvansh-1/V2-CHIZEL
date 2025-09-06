@@ -1,10 +1,6 @@
 // src/pages/home/index.jsx
 
-import { useState, lazy, Suspense } from "react";
-import Loader from "@components/ui/Loader";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
+import { lazy, Suspense } from "react";
 
 // Lazy load all the section components
 const HeroSection = lazy(() => import("@/pages/home/sections/HeroSection"));
@@ -20,17 +16,9 @@ const GsapAnimationSection = lazy(() => import("@/pages/home/sections/GsapAnimat
 const ChizelEcosystemSection = lazy(() => import("@/pages/home/sections/ChizelEcosystemSection"));
 
 const HomePage = () => {
-  const [isPageLoading, setIsPageLoading] = useState(true);
-
-  if (isPageLoading) {
-    return <Loader setIsLoading={setIsPageLoading} />;
-  }
-
   return (
     <>
-      <Navbar />
       <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
-        
         <HeroSection />
         <ProblemStatementSection />
         <SolutionSection />
@@ -43,8 +31,6 @@ const HomePage = () => {
         <ChizelAppSection />
         <ContactSection />
       </Suspense>
-      <Footer />
-      <FeedbackFloatingAlert />
     </>
   );
 };
