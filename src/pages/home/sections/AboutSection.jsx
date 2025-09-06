@@ -1,4 +1,5 @@
-import { useRef, useLayoutEffect } from "react";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { holoDecks } from "@utils/constants";
@@ -15,64 +16,75 @@ const iconMap = {
 const AboutSection = () => {
   const containerRef = useRef(null);
 
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      gsap.utils.toArray(".about-panel").forEach((panel, i) => {
-        // Entrance animation
-        gsap.from(panel, {
-          opacity: 0,
-          y: 80,
-          duration: 1,
-          delay: i * 0.2,
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 85%",
-            toggleActions: "play none none reverse",
-          },
-        });
+  useGSAP(() => {
+    // A single timeline for a smoother, staggered entrance
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 70%",
+        toggleActions: "play none none reverse",
+      },
+    });
 
-        // 3D tilt effect
-        panel.addEventListener("mousemove", (e) => {
-          const rect = panel.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const rotateX = ((y / rect.height) - 0.5) * 15; 
-          const rotateY = ((x / rect.width) - 0.5) * -15;
-          gsap.to(panel, {
-            rotateX,
-            rotateY,
-            duration: 0.4,
-            ease: "power2.out",
-          });
-        });
+    tl.from(".about-heading, .about-subheading", {
+      opacity: 0,
+      y: 30,
+      stagger: 0.2,
+      duration: 1,
+      ease: "power3.out",
+    }).from(".about-panel-v2", {
+      opacity: 0,
+      y: 50,
+      scale: 0.95,
+      stagger: 0.15,
+      duration: 0.8,
+      ease: "power3.out",
+    }, "-=0.5");
 
-        panel.addEventListener("mouseleave", () => {
-          gsap.to(panel, { rotateX: 0, rotateY: 0, duration: 0.6, ease: "elastic.out(1,0.3)" });
+    // Magnetic glow effect on cards
+    gsap.utils.toArray(".about-panel-v2").forEach((panel) => {
+      panel.addEventListener("mousemove", (e) => {
+        const rect = panel.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        gsap.to(panel, {
+          "--glow-x": `${x}px`,
+          "--glow-y": `${y}px`,
+          "--glow-opacity": 1,
+          duration: 0.4,
         });
       });
-    }, containerRef);
+      panel.addEventListener("mouseleave", () => {
+        gsap.to(panel, {
+          "--glow-opacity": 0,
+          duration: 0.5,
+        });
+      });
+    });
 
-    return () => ctx.revert();
-  }, []);
+  }, { scope: containerRef });
 
   return (
     <section
       ref={containerRef}
       id="about-us"
-      className="relative overflow-hidden bg-gradient-to-br from-background via-background to-black py-24"
+      className="relative overflow-hidden bg-background py-24"
     >
-      {/* Gradient orbs */}
-      <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-primary/25 blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-accent/25 blur-3xl animate-pulse-slow" />
+      {/* Background elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent blur-3xl animate-pulse-slow" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-accent/10 via-transparent to-transparent blur-3xl animate-pulse-slow" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] opacity-50" />
+      </div>
 
       {/* Heading */}
       <div className="relative text-center mb-20 px-6 z-10">
-        <h2 className="font-heading text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
+        <h2 className="about-heading font-heading text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
           What We Offer
         </h2>
-        <p className="mt-4 text-lg text-secondary-text max-w-2xl mx-auto">
+        <p className="about-subheading mt-4 text-lg text-secondary-text max-w-2xl mx-auto">
           Chizel connects learning with experience — built for kids, parents,
-          and investors with futuristic vision.
+          and investors with a futuristic vision.
         </p>
       </div>
 
@@ -81,38 +93,47 @@ const AboutSection = () => {
         {holoDecks.map((deck) => (
           <div
             key={deck.id}
-            className="about-panel group relative flex-1 min-w-[280px] max-w-sm p-8 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl transition-transform duration-300"
-            style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
+            className="about-panel-v2 group relative flex-1 min-w-[280px] max-w-sm p-8 rounded-2xl bg-card/80 backdrop-blur-xl border border-white/10 shadow-lg"
           >
-            {/* Icon */}
-            <div className="flex justify-center mb-6">{iconMap[deck.id]}</div>
-
-            {/* Title */}
-            <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-accent transition-colors drop-shadow-md">
-              {deck.title}
-            </h3>
-
-            {/* Subtitle */}
-            <p className="uppercase text-sm md:text-base font-semibold tracking-widest text-accent mb-4 drop-shadow-md">
-              {deck.subtitle}
-            </p>
-
-            {/* Description */}
-            <p className="text-secondary-text leading-relaxed">
-              {deck.description}
-            </p>
+            <div className="magnetic-glow" />
+            <div className="relative z-10">
+              <div className="flex justify-center mb-6 transition-transform duration-300 group-hover:scale-110">
+                {iconMap[deck.id]}
+              </div>
+              <h3 className="font-heading text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-primary transition-colors duration-300 drop-shadow-md">
+                {deck.title}
+              </h3>
+              <p className="uppercase text-sm md:text-base font-semibold tracking-widest text-accent mb-4 drop-shadow-md">
+                {deck.subtitle}
+              </p>
+              <p className="text-secondary-text leading-relaxed">
+                {deck.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Animations */}
       <style>{`
+        .about-panel-v2 {
+          --glow-x: 50%;
+          --glow-y: 50%;
+          --glow-opacity: 0;
+        }
+        .magnetic-glow {
+          position: absolute;
+          inset: -1px;
+          border-radius: inherit;
+          background: radial-gradient(300px circle at var(--glow-x) var(--glow-y), var(--color-primary-alpha), transparent);
+          opacity: var(--glow-opacity);
+          transition: opacity 0.3s ease-out;
+        }
         .animate-pulse-slow {
-          animation: pulse-slow 6s infinite alternate;
+          animation: pulse-slow 8s infinite alternate;
         }
         @keyframes pulse-slow {
-          0% { transform: scale(1); opacity: 0.4; }
-          100% { transform: scale(1.15); opacity: 0.9; }
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(1.2); opacity: 1; }
         }
       `}</style>
     </section>
