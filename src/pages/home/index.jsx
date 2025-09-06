@@ -30,6 +30,7 @@ const HomePage = () => {
     <>
       <Navbar />
       <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
+        
         <HeroSection />
         <ProblemStatementSection />
         <SolutionSection />
