@@ -122,15 +122,6 @@ export const problemSlides = [
     image: "/gifs/brain_hijack.gif",
   },
   {
-    badge: "💔 Emotional Decay",
-    title: "Hearts Going Radio Silent",
-    highlight: "Love, empathy, and compassion are dying in real time.",
-    description:
-      "The fire of feeling is fading. Kids are turning into shadows, unable to love or connect.",
-    gradient: "from-purple-700/60 via-pink-600/60 to-red-600/60",
-    image: "/gifs/emotional_decay.gif",
-  },
-  {
     badge: "🚨 Gateway to Harm",
     title: "The Dark Side of Screens",
     highlight: "One wrong swipe can shatter innocence forever.",
