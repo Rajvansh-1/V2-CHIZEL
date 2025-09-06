@@ -98,7 +98,7 @@ const Loader = ({ setIsLoading }) => {
         />
         <div className="loader-text">
           <h1 className="font-heading text-2xl md:text-3xl font-bold uppercase tracking-widest">
-            Teleporting You To The World Of CHIZEL
+            Teleporting You Into The World Of CHIZEL
           </h1>
           <p className="font-ui text-lg text-secondary-text mt-2">
             <span className="progress-text">0</span>%
