@@ -1,154 +1,157 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 const Loader = ({ setIsLoading }) => {
-  const [progress, setProgress] = useState(0);
+  const containerRef = useRef(null);
+  const countdownRef = useRef(null);
 
-  const loaderRef = useRef(null);
-  const progressBarRef = useRef(null);
-  const progressTextRef = useRef(null);
+  useGSAP(() => {
+    // A single, cinematic timeline for the ~5 second launch sequence
+    const tl = gsap.timeline({
+      onComplete: () => setIsLoading(false),
+      delay: 0.5,
+    });
 
-  // All animation and progress logic is preserved exactly as it was.
-  useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        const increment = Math.random() * 10;
-        return Math.min(prev + increment, 100);
-      });
-    }, 150);
-    return () => clearInterval(progressInterval);
-  }, []);
+    // Animate the countdown numbers sequentially
+    gsap.utils.toArray(".countdown-number").forEach((num, i) => {
+      tl.fromTo(num, 
+        { scale: 0.5, opacity: 0 }, 
+        { scale: 1, opacity: 1, duration: 0.7, ease: "power2.out" }
+      )
+      .to(num, 
+        { scale: 1.5, opacity: 0, duration: 0.3, ease: "power2.in" }, 
+        "+=0.2"
+      );
+    });
+    
+    // Animate the "LIFTOFF" text
+    tl.fromTo(".liftoff-text", 
+      { scale: 0.8, opacity: 0 },
+      { scale: 1.2, opacity: 1, duration: 0.5, ease: "power2.out" }
+    )
+    .to(".liftoff-text", { opacity: 0, duration: 0.5, ease: "power2.in" }, "+=0.2");
 
-  useGSAP(
-    () => {
-      gsap.to(progressBarRef.current, {
-        width: `${progress}%`,
-        duration: 0.5,
+    // Rocket ignition, shake, and launch sequence
+    tl.to(".rocket-fire-realistic", {
+        opacity: 1,
+        scaleY: 1,
+        duration: 0.4,
+        ease: "power3.out",
+      }, "-=1.2")
+      .to(".launchpad-smoke-realistic", {
+        opacity: 1,
+        scale: 2,
+        duration: 1.5,
         ease: "power2.out",
-      });
-      gsap.to(progressTextRef.current, {
-        textContent: Math.round(progress),
-        duration: 0.5,
-        ease: "power2.out",
-        snap: { textContent: 1 },
-      });
-      if (progress >= 100) {
-        const exitTl = gsap.timeline({
-          delay: 0.8,
-          onComplete: () => setIsLoading(false),
-        });
-        exitTl
-          .to(".anim-element", {
-            y: -40,
-            opacity: 0,
-            duration: 0.4,
-            stagger: 0.1,
-            ease: "power2.in",
-          })
-          .to(
-            loaderRef.current,
-            { yPercent: -100, duration: 1.2, ease: "expo.inOut" },
-            ">-0.2"
-          );
-      }
-    },
-    { dependencies: [progress, setIsLoading], scope: loaderRef }
-  );
-
-  useGSAP(
-    () => {
-      gsap.to(".mascot", {
-        y: -8,
-        repeat: -1,
-        yoyo: true,
+      }, "<")
+      .to(containerRef.current, {
+        keyframes: [
+          { x: gsap.utils.random(-2, 2), y: gsap.utils.random(-2, 2), duration: 0.05 },
+          { x: gsap.utils.random(-5, 5), y: gsap.utils.random(-5, 5), duration: 0.1 },
+          { x: 0, y: 0, duration: 0.05 },
+        ],
+        repeat: 8,
+      }, "<")
+      .to(".chizel-rocket-realistic-v2", {
+        y: "-150vh",
+        rotation: 3,
+        duration: 2.0,
+        ease: "power2.in",
+      }, "-=0.8")
+      .to(".launchpad-smoke-realistic", {
+        scale: 4,
+        opacity: 0,
         duration: 2,
-        ease: "sine.inOut",
-      });
-      gsap.to(".robot-eye", {
-        scaleY: 0.1,
-        repeat: -1,
-        repeatDelay: 2.5,
-        yoyo: true,
-        duration: 0.08,
-        ease: "power1.inOut",
-      });
-      gsap.to(".antenna-light", {
-        opacity: 0.5,
-        repeat: -1,
-        yoyo: true,
-        duration: 0.8,
-        ease: "sine.inOut",
-      });
-      gsap.to(".bg-shape", {
-        y: (i) => (i % 2 === 0 ? -15 : 15),
-        x: (i) => (i % 2 === 0 ? 10 : -10),
-        rotation: (i) => (i % 2 === 0 ? 10 : -10),
-        repeat: -1,
-        yoyo: true,
-        duration: 5,
-        ease: "sine.inOut",
-        stagger: 0.5,
-      });
-    },
-    { scope: loaderRef }
-  );
+        ease: "power2.in",
+      }, "<")
+      .to(containerRef.current, {
+        opacity: 0,
+        duration: 1,
+        ease: "power2.inOut",
+      }, "-=1");
+
+  }, { scope: containerRef, dependencies: [setIsLoading] });
 
   return (
-    // ============== LOADER CONTAINER ==============
     <div
-      ref={loaderRef}
-      className="fixed inset-0 z-[100] flex-center flex-col gap-3 bg-overlay text-text"
+      ref={containerRef}
+      className="fixed inset-0 z-[100] flex justify-center items-end bg-background text-text overflow-hidden"
     >
-      {/* Background shapes using dark theme colors */}
-      <div className="absolute inset-0 pointer-events-none opacity-50">
-        <div className="bg-shape absolute top-[20%] left-[10%] w-6 h-6 bg-primary rounded-full" />
-        <div className="bg-shape absolute top-[70%] left-[25%] w-8 h-8 bg-badge-bg rounded-full" />
-        <div className="bg-shape absolute top-[15%] right-[15%] w-5 h-5 bg-accent rounded-lg rotate-45" />
-        <div className="bg-shape absolute top-[80%] right-[20%] w-7 h-7 bg-primary-alpha rounded-lg -rotate-45" />
+      {/* Starfield */}
+      <div className="absolute inset-0 opacity-50">
+        {Array.from({ length: 100 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-px h-px bg-white rounded-full"
+            style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` }}
+          />
+        ))}
       </div>
 
-      <div className="relative z-10 text-center">
-        {/* ============== MASCOT ============== */}
-        <div className="mascot anim-element mb-4">
-          <div className="w-20 h-20 mx-auto relative">
-            <div className="w-16 h-16 bg-accent border-2 border-accent/50 rounded-xl mx-auto relative shadow-lg">
-              <div className="robot-eye absolute top-5 left-4 w-3 h-3 bg-white rounded-full" />
-              <div className="robot-eye absolute top-5 right-4 w-3 h-3 bg-white rounded-full" />
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-8 h-4 border-b-2 border-l-2 border-r-2 border-background rounded-b-full" />
-            </div>
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-1 h-4 bg-secondary-text" />
-            <div className="antenna-light absolute -top-5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full" />
-          </div>
-        </div>
+      {/* Countdown & Liftoff Text */}
+      <div className="absolute inset-0 flex-center pointer-events-none">
+        <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">3</span>
+        <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">2</span>
+        <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">1</span>
+        <span className="liftoff-text absolute font-heading text-7xl text-yellow-300 font-black opacity-0 tracking-widest">LIFTOFF</span>
+      </div>
 
-        {/* ============== TEXT CONTENT ============== */}
-        <div className="anim-element space-y-1 px-4">
-          <h1 className="text-3xl md:text-4xl font-heading uppercase font-bold">
-            Get Ready — We’re Teleporting You Into Space
-          </h1>
-          <p className="font-body text-secondary-text text-xl">
-            Brace yourself for your journey into the world of Chizel
-          </p>
+      {/* The Realistic Rocket */}
+      <div className="chizel-rocket-realistic-v2 relative z-10 flex flex-col items-center w-28 md:w-36 mb-[-30px]">
+        {/* Nose Cone */}
+        <div className="w-full h-20 md:h-24 bg-gray-200" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }} />
+        {/* Main Body */}
+        <div className="w-full h-32 md:h-40 bg-gray-100 flex-center p-2 border-y border-gray-300">
+          <img src="/images/logo.png" alt="Chizel Logo" className="w-16 h-16 object-contain" />
         </div>
-
-        {/* ============== PROGRESS BAR ============== */}
-        <div className="anim-element w-60 mx-auto mt-6 px-4">
-          <div className="flex justify-end text-sm text-secondary-text mb-1 font-ui">
-            <span ref={progressTextRef}>0</span>%
+        {/* Fins & Engine */}
+        <div className="relative w-full h-16 flex justify-center items-end">
+          <div className="absolute bottom-0 w-[140%] h-12 flex justify-between">
+            <div className="w-8 h-full bg-red-600" style={{ clipPath: 'polygon(100% 0, 0% 100%, 100% 100%)' }}/>
+            <div className="w-8 h-full bg-red-600" style={{ clipPath: 'polygon(0% 0, 0% 100%, 100% 100%)' }}/>
           </div>
-          <div className="w-full h-2 bg-card border border-text/10 rounded-full overflow-hidden">
-            <div
-              ref={progressBarRef}
-              className="h-full bg-primary rounded-full"
-            />
-          </div>
+          <div className="w-[60%] h-8 bg-gray-400 rounded-b-md" />
+        </div>
+        {/* Engine Fire */}
+        <div className="rocket-fire-realistic absolute -bottom-48 w-full h-48 opacity-0 scale-y-0 origin-top">
+            <div className="fire-inner-realistic"></div>
+            <div className="fire-middle-realistic"></div>
+            <div className="fire-outer-realistic"></div>
         </div>
       </div>
+
+      {/* Volumetric Smoke */}
+      <div className="launchpad-smoke-realistic absolute bottom-[-15%] w-[250%] h-1/2 bg-white rounded-full opacity-0" style={{ filter: "blur(80px)" }} />
+      
+      <style>{`
+        .fire-inner-realistic {
+          position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+          width: 70%; height: 100%;
+          background: linear-gradient(to top, white, #FFD700, transparent);
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          animation: flicker 0.05s infinite alternate;
+        }
+        .fire-middle-realistic {
+          position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+          width: 100%; height: 90%;
+          background: linear-gradient(to top, #FFA500, transparent);
+          clip-path: polygon(50% 0%, 10% 100%, 90% 100%);
+          animation: flicker 0.07s infinite alternate;
+        }
+        .fire-outer-realistic {
+          position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+          width: 150%; height: 70%;
+          background: linear-gradient(to top, #FF4500, transparent);
+          clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+          filter: blur(5px);
+          animation: flicker 0.09s infinite alternate;
+        }
+        @keyframes flicker {
+          from { transform: translateX(-50%) scale(1, 1); opacity: 1; }
+          to { transform: translateX(-50%) scale(0.9, 1.1); opacity: 0.8; }
+        }
+      `}</style>
     </div>
   );
 };
