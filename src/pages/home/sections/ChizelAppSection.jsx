@@ -12,7 +12,7 @@ const ChizelAppSection = () => {
   const containerRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1pgIheerPwWhEGL8gNWiv-fvXsn2POEbU2HjEl4RievU/viewform?edit_requested=true";
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true";
 
   const handleRedirect = () => {
     window.open(GOOGLE_FORM_URL, "_blank");
