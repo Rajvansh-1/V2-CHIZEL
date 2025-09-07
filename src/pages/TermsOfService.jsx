@@ -53,10 +53,15 @@ const TermsOfService = () => {
             </section>
 
             <section>
-              <h2 className="font-heading text-2xl text-text mb-4">8. Contact Us</h2>
-              <p>If you have any questions about these Terms of Service, please contact us at:</p>
-              <p className="mt-2"><a href="mailto:contact@chizel.in" className="text-primary hover:underline">chizelconnect@gmail.com</a></p>
-            </section>
+            <h2 className="font-heading text-2xl text-text mb-4">8. Contact Us</h2>
+            <p>If you have any questions about these Terms of Service, please contact us at:</p>
+            <a 
+              href="mailto:chizelconnect@gmail.com" 
+              className="inline-block mt-2 px-6 py-3 rounded-full bg-primary text-white font-semibold transform transition-transform duration-300 hover:scale-105 shadow-lg hover:shadow-primary/40"
+            >
+              chizelconnect@gmail.com
+            </a>
+          </section>
           </div>
         </div>
       </div>
