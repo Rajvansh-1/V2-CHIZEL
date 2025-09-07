@@ -1,3 +1,4 @@
+// src/pages/home/sections/ChizelverseCardsSection.jsx
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -6,11 +7,14 @@ import Button from "@/components/ui/Button";
 import { chizelverseInfo, featuresData } from "@utils/constants";
 import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
-  FaQuoteLeft, FaStar, FaRocket, FaPlay,
+  FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
+  FaExpand, FaCompress,
   FaUserAstronaut, FaCube, FaComments, FaStore,
 } from "react-icons/fa";
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const iconMap = {
   gamepad: <FaGamepad />,
@@ -18,8 +22,6 @@ const iconMap = {
   lightbulb: <FaLightbulb />,
   paintbrush: <FaPaintBrush />,
 };
-
-// --- HELPER COMPONENTS (No changes needed here) ---
 
 const usePrefersReducedMotion = () => {
   const [reduced, setReduced] = useState(false);
@@ -83,7 +85,7 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
             ref={cardRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className={`crystal-card-base verse-card relative rounded-2xl w-full h-full transform-style-3d ${className}`}
+            className={`crystal-card-base relative rounded-2xl w-full h-full transform-style-3d ${className}`}
             style={{ perspective: tilt ? '1000px' : 'none' }}
         >
             <div className={`crystal-card-inner relative w-full h-full rounded-2xl transition-transform duration-500 ease-out ${padding}`}>
@@ -95,7 +97,7 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
 
 
 const InfoCard = ({ card }) => (
-    <CrystalCard className="h-full group">
+    <CrystalCard className="h-full group verse-rest">
         <div className="relative z-10">
             <div className="flex items-center gap-4 mb-5 transform transition-transform duration-500 group-hover:-translate-y-1">
                 <div className="text-4xl md:text-5xl text-cyan-400 shrink-0 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]">{iconMap[card.icon]}</div>
@@ -114,42 +116,72 @@ const InfoCard = ({ card }) => (
 );
 
 const DemoPreview = () => {
-    const [loadIframe, setLoadIframe] = useState(false);
+    const [isInteracting, setIsInteracting] = useState(false);
+    const iframeRef = useRef(null);
+    const containerRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data === 'closeChizelverseDemo') {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
+    const handleInteract = () => {
+        setIsInteracting(true);
+        if (isMobile) {
+            window.open("https://rajvansh-1.github.io/ChizelVerse/", "_blank");
+        } else if (iframeRef.current) {
+            iframeRef.current.requestFullscreen();
+        }
+    };
+    
     return (
-        <CrystalCard padding="p-0" tilt={false}>
-            <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden group">
-                {loadIframe ? (
+        <div className="verse-rest">
+            <CrystalCard padding="p-0" tilt={false}>
+                <div
+                    ref={containerRef}
+                    className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
+                >
                     <iframe
+                        ref={iframeRef}
                         title="ChizelVerse Demo"
                         src="https://rajvansh-1.github.io/ChizelVerse/"
+                        loading="lazy"
                         className="w-full h-full"
                         allow="fullscreen; autoplay; clipboard-read; clipboard-write"
                     />
-                ) : (
-                    <>
-                        <img 
-                            src="/images/ecosystem-image.webp" // Lightweight preview image
-                            alt="Chizelverse Preview"
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    <div
+                        className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
+                    >
+                        <h3 className="font-heading text-2xl md:text-4xl font-bold text-white mb-4 text-center">
+                            INTERACT WITH CHIZEL
+                        </h3>
+                        <Button
+                            title="CLICK HERE"
+                            onClick={handleInteract}
+                            containerClass="!bg-primary"
                         />
-                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-sm transition-opacity duration-300">
-                            <h3 className="font-heading text-2xl md:text-4xl font-bold text-white mb-4 text-center">
-                                Launch Interactive Demo
-                            </h3>
-                            <Button
-                                title="Launch"
-                                onClick={() => setLoadIframe(true)}
-                                leftIcon={<FaPlay />}
-                                containerClass="!bg-primary"
-                            />
-                        </div>
-                    </>
-                )}
-            </div>
-        </CrystalCard>
+                    </div>
+                </div>
+            </CrystalCard>
+        </div>
     );
 };
+
 
 const featureIconMap = {
   "Word Warriors": <FaUserAstronaut />,
@@ -200,7 +232,7 @@ const FeatureDisplay = () => {
     }, { scope: contentRef, dependencies: [activeIndex] });
 
     return (
-        <CrystalCard className="flex flex-col" padding="p-0" tilt={false}>
+        <CrystalCard className="verse-rest flex flex-col" padding="p-0" tilt={false}>
             <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center p-6 md:p-8 flex-grow">
                 
                 <div className="relative rounded-xl overflow-hidden bg-black/30 border border-white/10 shadow-lg aspect-[16/10] w-full">
@@ -210,7 +242,14 @@ const FeatureDisplay = () => {
                     <div className="relative w-full h-full">
                         {featuresData.map((f, i) => (
                             <div key={`asset-${i}`} data-index={i} className="feature-asset-item absolute inset-0 w-full h-full opacity-0">
-                                <video src={f.assetSrc} autoPlay loop muted playsInline className="w-full h-full object-contain p-2 sm:p-4" />
+                                <video 
+                                    src={f.assetSrc} 
+                                    autoPlay 
+                                    loop 
+                                    muted 
+                                    playsInline
+                                    className="w-full h-full object-contain p-2 sm:p-4"
+                                />
                             </div>
                         ))}
                     </div>
@@ -260,7 +299,6 @@ const FeatureDisplay = () => {
     );
 };
 
-// --- MAIN COMPONENT with BOTH Premium Animation and Performance ---
 const ChizelverseCardsSection = () => {
     const containerRef = useRef(null);
     const introRef = useRef(null);
@@ -268,9 +306,11 @@ const ChizelverseCardsSection = () => {
     const prefersReducedMotion = usePrefersReducedMotion();
 
     useGSAP(() => {
-        if (prefersReducedMotion) return;
+        if (prefersReducedMotion) {
+            gsap.set("[data-fade-in], .verse-rest", { opacity: 1, y: 0, scale: 1 });
+            return;
+        }
 
-        // Premium Intro Animation: Cinematic pin and reveal
         const introTl = gsap.timeline({
             scrollTrigger: {
                 trigger: introRef.current,
@@ -286,25 +326,24 @@ const ChizelverseCardsSection = () => {
             .to(".intro-text", { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, "+=0.5")
             .fromTo(".planet-layer", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 1, ease: "power3.inOut" }, "-=0.3");
 
-        // Performant Content Animation: Staggered fade-in on enter
-        gsap.from(".verse-card", {
+        gsap.from(".verse-rest", {
             scrollTrigger: {
                 trigger: contentRef.current,
-                start: "top 85%", // Start a bit later for effect
+                start: "top 80%",
                 toggleActions: "play none none reverse",
             },
             y: 60,
             opacity: 0,
             duration: 1,
             ease: "power3.out",
-            stagger: 0.15, // A slightly slower stagger feels more premium
+            stagger: 0.2,
         });
 
     }, { scope: containerRef, dependencies: [prefersReducedMotion] });
 
     const StarField = useMemo(() => {
         return ({ count = 100 }) => (
-            <div className="absolute inset-0" aria-hidden="true">
+            <div className="cv-stars absolute inset-0" aria-hidden="true">
                 {Array.from({ length: count }).map((_, i) => (
                     <div
                         key={i}
@@ -350,7 +389,7 @@ const ChizelverseCardsSection = () => {
 
                 <div className="relative z-10 flex flex-col items-center p-4 sm:p-6 md:p-10 gap-8 md:gap-12">
                     <div className="w-full max-w-screen-xl mx-auto space-y-8 md:space-y-12">
-                         <div className="relative w-full flex justify-center items-center group verse-card">
+                        <div className="relative w-full flex justify-center items-center group">
                             <h2 className="chizelverse-title relative font-heading text-4xl md:text-6xl font-bold 
                                 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 
                                 bg-clip-text text-transparent overflow-hidden">
@@ -371,7 +410,7 @@ const ChizelverseCardsSection = () => {
 
                         <FeatureDisplay />
 
-                        <CrystalCard padding="p-8 md:p-10">
+                        <CrystalCard className="verse-rest" padding="p-8 md:p-10">
                             <div className="absolute inset-0 z-0 opacity-20">
                                 {Array.from({ length: 20 }).map((_, i) => (
                                     <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate` }} />
@@ -379,16 +418,16 @@ const ChizelverseCardsSection = () => {
                             </div>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
                             <div className="relative z-10 text-center">
-                              <div className="mb-4">
-                                <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-                              </div>
-                              <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
-                                The ChizelVerse is Expanding...
-                              </h3>
-                              <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-                                This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕ … STAY TUNED  For The Next Big Drop!
-                              </p>
-                            </div>
+  <div className="mb-4">
+    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
+  </div>
+  <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
+    The ChizelVerse is Expanding...
+  </h3>
+  <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
+    This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕ … STAY TUNED  For The Next Big Drop!
+  </p>
+</div>
                         </CrystalCard>
                     </div>
                 </div>
@@ -408,7 +447,6 @@ const ChizelverseCardsSection = () => {
                 .crystal-card-base {
                     background: #090e20;
                     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 20px 50px rgba(0,0,0,0.5);
-                    will-change: transform, opacity;
                 }
                 .crystal-card-inner {
                     background: rgba(15, 23, 42, 0.6);
@@ -422,14 +460,14 @@ const ChizelverseCardsSection = () => {
                 .crystal-card-inner::before {
                     content: '';
                     position: absolute;
-                    inset: -1px;
+                    inset: -1px; /* The border shimmer */
                     border-radius: inherit;
                     background: radial-gradient(350px circle at var(--mouse-x) var(--mouse-y), rgba(0, 255, 255, 0.25), transparent 40%);
                     opacity: var(--opacity);
                     transition: opacity 0.4s ease-out;
                     z-index: -1;
                 }
-                .crystal-card-inner::after {
+                .crystal-card-inner::after { /* The inner glow */
                     content: '';
                     position: absolute;
                     inset: 0;
@@ -447,6 +485,7 @@ const ChizelverseCardsSection = () => {
                 @keyframes shine-sweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
                 .shine-effect { animation: shine-sweep 3s infinite linear; will-change: transform; }
                 .group:hover .shine-effect { animation-duration: 1.5s; }
+                /* Animation for the redesigned feature display */
                 @keyframes scanline {
                   0% { background-position: 0 0; }
                   100% { background-position: 0 100%; }
