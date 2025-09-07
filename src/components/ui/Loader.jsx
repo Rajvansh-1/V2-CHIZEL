@@ -7,6 +7,9 @@ const Loader = ({ setIsLoading }) => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
+    // For performance, we'll only animate transforms and opacity
+    gsap.set(".chizel-rocket, .scene-container, .countdown-number, .liftoff-text", { willChange: "transform, opacity" });
+
     const tl = gsap.timeline({
       onComplete: () => setIsLoading(false),
       delay: 0.2,
@@ -15,23 +18,23 @@ const Loader = ({ setIsLoading }) => {
     // Countdown sequence
     gsap.utils.toArray(".countdown-number").forEach((num, i) => {
       tl.fromTo(num,
-        { scale: 2, opacity: 0, textShadow: "0 0 0px #fff" },
-        { scale: 1, opacity: 1, textShadow: "0 0 20px #fff", duration: 0.7, ease: "power2.out" },
+        { scale: 2, autoAlpha: 0 },
+        { scale: 1, autoAlpha: 1, textShadow: "0 0 20px #fff", duration: 0.7, ease: "power2.out" },
         i * 1
       )
       .to(num,
-        { scale: 1.5, opacity: 0, duration: 0.3, ease: "power2.in" },
+        { scale: 1.5, autoAlpha: 0, duration: 0.3, ease: "power2.in" },
         ">-0.1"
       );
     });
 
     // Show LIFTOFF text after countdown
     tl.fromTo(".liftoff-text",
-      { scale: 0.5, opacity: 0, textShadow: "0 0 0px #ffb347" },
-      { scale: 1.2, opacity: 1, textShadow: "0 0 30px #ffb347", duration: 0.5, ease: "power2.out" }
+      { scale: 0.5, autoAlpha: 0 },
+      { scale: 1.2, autoAlpha: 1, textShadow: "0 0 30px #ffb347", duration: 0.5, ease: "power2.out" }
     )
     .to(".liftoff-text",
-      { scale: 2, opacity: 0, duration: 0.4, ease: "power2.in" }
+      { scale: 2, autoAlpha: 0, duration: 0.4, ease: "power2.in" }
     );
 
     // Pre-ignition camera zoom
@@ -40,26 +43,26 @@ const Loader = ({ setIsLoading }) => {
     // Ignition, shake, and launch sequence
     tl.addLabel("ignition", "-=0.2")
       .to(".rocket-fire", {
-        opacity: 1,
+        autoAlpha: 1,
         scaleY: 1,
         duration: 0.4,
         ease: "power3.out",
       }, "ignition")
       .to(".launchpad-smoke", {
-        opacity: 1,
+        autoAlpha: 1,
         scale: 1,
         duration: 2,
         ease: "power2.out",
       }, "ignition")
       .to(containerRef.current, {
-        keyframes: [
-          { x: -2, y: 2, duration: 0.05 }, { x: 2, y: -2, duration: 0.05 }
-        ],
+        x: 'random(-2, 2)',
+        y: 'random(-2, 2)',
+        duration: 0.05,
         repeat: 20,
       }, "ignition")
       .addLabel("liftoff", ">-0.2")
       .to(".chizel-rocket", {
-        y: "-110vh", // Rocket travels the full screen height and then some
+        y: "-110vh",
         duration: 2.0,
         ease: "power2.in",
       }, "liftoff")
@@ -70,12 +73,12 @@ const Loader = ({ setIsLoading }) => {
       }, "liftoff")
       .to(".launchpad-smoke", {
         scale: 3,
-        opacity: 0,
+        autoAlpha: 0,
         duration: 2,
         ease: "power2.in",
       }, "liftoff")
       .to(containerRef.current, {
-        opacity: 0,
+        autoAlpha: 0,
         duration: 1,
         ease: "power2.inOut",
       }, ">-0.8");
@@ -89,10 +92,10 @@ const Loader = ({ setIsLoading }) => {
     >
       {/* Starfield */}
       <div className="absolute inset-0">
-        {Array.from({ length: 200 }).map((_, i) => (
+        {Array.from({ length: 100 }).map((_, i) => ( // Reduced star count for performance
           <div
             key={i}
-            className="star absolute w-px h-[1px] bg-white rounded-full opacity-50"
+            className="star absolute w-px h-px bg-white rounded-full"
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
@@ -125,7 +128,6 @@ const Loader = ({ setIsLoading }) => {
             {/* Body */}
             <div className="w-full h-36 bg-gradient-to-r from-gray-100 to-gray-300 flex-center p-2 border-y border-gray-500 shadow-inner relative">
                 <img src="/images/logo.png" alt="Chizel Logo" className="w-16 h-16 object-contain" />
-                 {/* Blue stripe removed - was here: <div className="absolute w-full h-8 bg-blue-600 top-1/2 -translate-y-1/2"></div> */}
             </div>
             <div className="relative w-full h-16 flex justify-center items-end">
               <div className="absolute bottom-0 w-[150%] h-14 flex justify-between">
@@ -160,7 +162,7 @@ const Loader = ({ setIsLoading }) => {
           50% { transform: scale(1.05, 0.9); opacity: 0.9; }
         }
         .animate-flicker { animation: flicker 0.08s infinite alternate; }
-        @keyframes twinkle { 50% { opacity: 1; transform: scale(1.5); } }
+        @keyframes twinkle { 50% { opacity: 1; transform: scale(1.2); } }
       `}</style>
     </div>
   );
