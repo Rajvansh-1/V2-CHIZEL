@@ -52,6 +52,7 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
             duration: 0.4,
             ease: 'power2.out'
         });
+        
 
         if (tilt) {
             const rotateX = (y / rect.height - 0.5) * 15;
