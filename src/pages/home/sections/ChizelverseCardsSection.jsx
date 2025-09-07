@@ -9,7 +9,6 @@ import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
   FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
   FaExpand, FaCompress,
-  // --- ICONS ADDED FOR NEW FEATURE DISPLAY ---
   FaUserAstronaut, FaCube, FaComments, FaStore,
 } from "react-icons/fa";
 
@@ -23,8 +22,6 @@ const iconMap = {
   lightbulb: <FaLightbulb />,
   paintbrush: <FaPaintBrush />,
 };
-
-// --- HELPER COMPONENTS (UNCHANGED) ---
 
 const usePrefersReducedMotion = () => {
   const [reduced, setReduced] = useState(false);
@@ -51,7 +48,7 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
         gsap.to(cardRef.current, {
             '--mouse-x': `${x}px`,
             '--mouse-y': `${y}px`,
-            '--opacity': '0.5', // Reduced brightness
+            '--opacity': '0.5',
             duration: 0.4,
             ease: 'power2.out'
         });
@@ -185,28 +182,19 @@ const DemoPreview = () => {
     );
 };
 
-// --- ✨ START: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
 
-// NOTE: This assumes `featuresData` has a unique `title` property.
-// Add your feature titles and desired icons here.
 const featureIconMap = {
-  "Dynamic Avatars": <FaUserAstronaut />,
-  "Interactive Environments": <FaCube />,
-  "Real-Time Social Hub": <FaComments />,
-  "Creator Economy": <FaStore />,
+  "Word Warriors": <FaUserAstronaut />,
+  "Logic League": <FaCube />,
+  "Chizel Club": <FaComments />,
 };
 
-/**
- * Redesigned "Holographic Projector" Feature Display.
- * A top-tier, attractive, and responsive component for showcasing features.
- */
 const FeatureDisplay = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const indicatorRef = useRef(null);
     const tabsRef = useRef([]);
     const contentRef = useRef(null);
     
-    // Animate the indicator for the control panel tabs
     useGSAP(() => {
         const activeTab = tabsRef.current[activeIndex];
         if (activeTab && indicatorRef.current) {
@@ -219,10 +207,8 @@ const FeatureDisplay = () => {
         }
     }, [activeIndex]);
     
-    // Animate the content swapping in the "projector" screen
     useGSAP(() => {
-        // Fade and slide OUT all non-active items
-        gsap.to('.feature-content-item, .feature-image-item', {
+        gsap.to('.feature-content-item, .feature-asset-item', {
             opacity: 0,
             y: 15,
             duration: 0.3,
@@ -231,9 +217,8 @@ const FeatureDisplay = () => {
             overwrite: true,
         });
 
-        // Fade and slide IN the new active items
         gsap.fromTo(
-            `.feature-content-item[data-index="${activeIndex}"], .feature-image-item[data-index="${activeIndex}"]`,
+            `.feature-content-item[data-index="${activeIndex}"], .feature-asset-item[data-index="${activeIndex}"]`,
             { opacity: 0, y: -15 },
             {
                 opacity: 1,
@@ -248,28 +233,30 @@ const FeatureDisplay = () => {
 
     return (
         <CrystalCard className="verse-rest flex flex-col" padding="p-0" tilt={false}>
-            {/* Top Section: The "Holographic Projector" Screen */}
             <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center p-6 md:p-8 flex-grow">
                 
-                {/* Left/Top: Image/GIF Display */}
                 <div className="relative rounded-xl overflow-hidden bg-black/30 border border-white/10 shadow-lg aspect-[16/10] w-full">
-                    {/* Decorative Grid Background */}
                     <div className="absolute inset-0 z-0 opacity-10 bg-[linear-gradient(to_right,rgba(0,255,255,0.2)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,255,255,0.2)_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
                     <div className="absolute inset-0 z-0 bg-gradient-to-br from-transparent via-transparent to-black/50"></div>
                     
                     <div className="relative w-full h-full">
                         {featuresData.map((f, i) => (
-                            <div key={`img-${i}`} data-index={i} className="feature-image-item absolute inset-0 w-full h-full opacity-0">
-                                <img src={f.gifSrc} alt={f.title} loading="lazy" className="w-full h-full object-contain p-2 sm:p-4" />
+                            <div key={`asset-${i}`} data-index={i} className="feature-asset-item absolute inset-0 w-full h-full opacity-0">
+                                <video 
+                                    src={f.assetSrc} 
+                                    autoPlay 
+                                    loop 
+                                    muted 
+                                    playsInline
+                                    className="w-full h-full object-contain p-2 sm:p-4"
+                                />
                             </div>
                         ))}
                     </div>
                     
-                    {/* Scanline effect */}
                     <div className="absolute inset-0 z-10 pointer-events-none bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[length:100%_4px] animate-scanline"></div>
                 </div>
 
-                {/* Right/Bottom: Text Content */}
                 <div className="relative min-h-[280px] sm:min-h-[260px] lg:min-h-[300px]">
                     {featuresData.map((f, i) => (
                         <div key={`content-${i}`} data-index={i} className="feature-content-item absolute inset-0 flex flex-col justify-center opacity-0">
@@ -284,7 +271,6 @@ const FeatureDisplay = () => {
                 </div>
             </div>
 
-            {/* Bottom Section: The "Control Panel" Tabs */}
             <div className="relative border-t border-white/10 bg-slate-900/40 rounded-b-[0.85rem] px-4 py-3 md:px-6">
                 <div ref={indicatorRef} className="absolute top-0 h-full bg-cyan-500/10 rounded-lg shadow-[0_0_20px_rgba(0,255,255,0.5)] transition-all duration-500 ease-out"></div>
                 <ul className="relative z-10 flex flex-wrap justify-around items-center gap-2 md:gap-4">
@@ -312,11 +298,6 @@ const FeatureDisplay = () => {
         </CrystalCard>
     );
 };
-
-// --- ✨ END: COMPLETELY REDESIGNED FEATURE CARD ✨ ---
-
-
-// --- MAIN COMPONENT (UNCHANGED) ---
 
 const ChizelverseCardsSection = () => {
     const containerRef = useRef(null);

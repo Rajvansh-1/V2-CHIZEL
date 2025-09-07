@@ -112,46 +112,55 @@ body::-webkit-scrollbar {
     font-family: "Orbitron";
     font-weight: 500;
     src: url("/fonts/Orbitron-Medium.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Orbitron";
     font-weight: 700;
     src: url("/fonts/Orbitron-Bold.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Fredoka";
     font-weight: 400;
     src: url("/fonts/Fredoka-Regular.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Fredoka";
     font-weight: 500;
     src: url("/fonts/Fredoka-Medium.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Fredoka";
     font-weight: 700;
     src: url("/fonts/Fredoka-Bold.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Baloo 2";
     font-weight: 600;
     src: url("/fonts/Baloo2-SemiBold.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Baloo 2";
     font-weight: 700;
     src: url("/fonts/Baloo2-Bold.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Quicksand";
     font-weight: 400;
     src: url("/fonts/Quicksand-Regular.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Quicksand";
     font-weight: 500;
     src: url("/fonts/Quicksand-Medium.woff2") format("woff2");
+    font-display: swap;
   }
   @font-face {
     font-family: "Merriweather";

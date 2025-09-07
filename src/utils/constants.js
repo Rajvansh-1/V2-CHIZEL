@@ -1,3 +1,5 @@
+// src/utils/constants.js
+
 // data for AboutSection
 export const holoDecks = [
   {
@@ -69,7 +71,7 @@ export const featuresData = [
       "Instead of wasting hours on mindless scrolling and toxic online chatter, Word Warriors helps children build strong social skills, improve speaking abilities, sharpen people skills, and grow into confident communicators from a very young age — all through engaging, language-based challenges.",
     quote: "The art of communication is the language of leadership.",
     author: "James Humes",
-    gifSrc: "/gifs/word-warrior.gif",
+    assetSrc: "/videos/word-warrior.mp4", // CORRECTED PATH
   },
   {
     title: "Logic League",
@@ -78,7 +80,7 @@ export const featuresData = [
     quote:
       "It’s not that I’m so smart, it’s just that I stay with problems longer.",
     author: "Albert Einstein",
-    gifSrc: "/gifs/logic-league.gif",
+    assetSrc: "/videos/logic-league.mp4", // CORRECTED PATH
   },
   {
     title: "Chizel Club",
@@ -86,7 +88,7 @@ export const featuresData = [
       "Chizel Club is a lively space where children can learn, grow, and share their ideas with others. Through group projects, creative collaborations, and skill-sharing activities, they not only develop knowledge but also build friendships, confidence, and a sense of belonging—all within a safe and vibrant community.",
     quote: "Alone we can do so little; together we can do so much.",
     author: "Helen Keller",
-    gifSrc: "/gifs/chizel-club.gif",
+    assetSrc: "/videos/chizel-club.mp4", // CORRECTED PATH
   },
 ];
 
@@ -110,7 +112,7 @@ export const problemSlides = [
     description:
       "What looks like play is silent harm. Focus weakens, memory fades, and feelings turn numb. We need to fix it now before it's too late.",
     gradient: "from-purple-900/70 via-indigo-700/60 to-blue-700/60",
-    image: "/gifs/brain_rot.gif",
+    assetSrc: "/videos/brain_rot.mp4", // CORRECTED PATH
   },
   {
     badge: "🧠 Mind Theft",
@@ -119,7 +121,7 @@ export const problemSlides = [
     description:
       "It feels like play, but every moment online steals tomorrow — second by second, dream by dream.",
     gradient: "from-red-700/50 via-orange-600/50 to-yellow-500/50",
-    image: "/gifs/brain_hijack.gif",
+    assetSrc: "/videos/brain_hijack.mp4", // CORRECTED PATH
   },
   {
     badge: "🚨 Gateway to Harm",
@@ -128,7 +130,7 @@ export const problemSlides = [
     description:
       "The internet hides dangers no child should face. Predators, violence, and toxic content are twisting childhood into something darker.",
     gradient: "from-red-900/70 via-red-700/60 to-orange-600/60",
-    image: "/gifs/gateway-to-harm.gif",
+    assetSrc: "/videos/gateway-to-harm.mp4", // CORRECTED PATH
   },
 ];
 
@@ -256,17 +258,17 @@ export const chizelverseCards = [
   {
     title: "The Learning Core",
     description: "At the heart of the Chizelverse, the Learning Core adapts to each child's unique journey, offering personalized challenges that make education an adventure.",
-    image: "/images/vision-image.webp", // Replace with actual card image
+    image: "/images/vision-image.webp",
   },
   {
     title: "Creativity Nebula",
     description: "A vibrant space where ideas collide and imagination takes flight. Here, children collaborate on projects, build worlds, and express themselves freely.",
-    image: "/images/about-image.webp", // Replace with actual card image
+    image: "/images/about-image.webp",
   },
   {
     title: "Social Sphere",
     description: "Connect with fellow explorers in a safe and moderated environment. The Social Sphere is where friendships are forged and communication skills are honed.",
-    image: "/images/ecosystem-image.webp", // Replace with actual card image
+    image: "/images/ecosystem-image.webp",
   },
 ];
 

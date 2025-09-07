@@ -107,7 +107,14 @@ const NebulaSection = () => {
                 <div className="orrery-container w-80 h-80 md:w-96 md:h-96 scale-75 md:scale-50">
                     {featuresData.map((game, index) => (
                         <div key={game.title} id={`planet-${index}`} className="planet absolute-center w-24 h-24 rounded-full flex-center transition-all duration-500" style={{ transform: `rotate(${index * 120}deg) translateX(150px) md:translateX(180px) rotate(${-index * 120}deg)`}}>
-                           <img src={game.gifSrc} alt={game.title} className="w-20 h-20 rounded-full object-cover"/>
+                           <video 
+                              src={game.assetSrc} 
+                              autoPlay 
+                              loop 
+                              muted 
+                              playsInline 
+                              className="w-20 h-20 rounded-full object-cover"
+                            />
                            <div className="absolute inset-0">
                                 {keywords[index].map((word, wordIndex) => (
                                     <span key={wordIndex} className={`keyword-${index} absolute font-heading text-text text-xs md:text-sm bg-black/50 px-2 py-1 rounded-full`} style={{transform: `rotate(${wordIndex * 45}deg) translate(60px) md:translate(70px) rotate(${-wordIndex * 45}deg)`}}>{word}</span>
