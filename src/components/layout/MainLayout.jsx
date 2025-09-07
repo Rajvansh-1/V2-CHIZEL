@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
 
 const MainLayout = () => {
+  // Call the hook directly. It manages its own effects.
   useLenisScroll();
 
   return (
