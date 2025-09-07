@@ -1,3 +1,4 @@
+// src/hooks/useLenisScroll.js
 import { useEffect } from 'react';
 import Lenis from '@studio-freight/lenis';
 
@@ -9,14 +10,16 @@ const useLenisScroll = () => {
       smoothTouch: true,
     });
 
+    let rafId;
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);
