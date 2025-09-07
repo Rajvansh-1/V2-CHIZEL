@@ -110,7 +110,7 @@ const Loader = ({ setIsLoading }) => {
         <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">3</span>
         <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">2</span>
         <span className="countdown-number absolute font-heading text-9xl text-white font-black opacity-0">1</span>
-        <span className="liftoff-text absolute font-heading text-9xl text-amber-400 font-black opacity-0">LIFTOFF</span>
+<span className="liftoff-text absolute font-heading text-6xl md:text-9xl text-amber-400 font-black opacity-0">LIFTOFF</span>
       </div>
 
       <div className="scene-container w-full h-full flex justify-center items-end" style={{ perspective: '800px' }}>
