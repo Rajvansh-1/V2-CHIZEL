@@ -15,10 +15,12 @@ const FieryProblemCard = memo(({ slide }) => {
         <div className="w-5 h-5 bg-yellow-400 rounded-full opacity-60 animate-flicker-fast" />
         <div className="w-5 h-5 bg-red-600 rounded-full opacity-40 animate-flicker-slow" />
       </div>
-      <img
-        src={slide.image}
-        alt={slide.title}
-        loading="lazy"
+      <video
+        src={slide.assetSrc}
+        autoPlay
+        loop
+        muted
+        playsInline
         className="w-full h-72 md:h-80 lg:h-96 object-cover object-center rounded-t-3xl border-b-4 border-yellow-500/40"
       />
       <div className="p-8 md:p-10 bg-black/80">
@@ -39,6 +41,8 @@ const FieryProblemCard = memo(({ slide }) => {
   );
 });
 
+FieryProblemCard.displayName = 'FieryProblemCard';
+
 const ProblemStatementHeader = memo(() => (
     <div className="problem-heading text-center mb-16 space-y-6">
         <p className="font-bold text-lg uppercase tracking-widest text-red-600 mb-2">
@@ -52,6 +56,8 @@ const ProblemStatementHeader = memo(() => (
         </p>
     </div>
 ));
+
+ProblemStatementHeader.displayName = 'ProblemStatementHeader';
 
 const ProblemStatementSection = () => {
   const containerRef = useRef(null);

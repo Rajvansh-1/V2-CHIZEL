@@ -35,7 +35,8 @@ const Home = () => {
         loop
         muted
         playsInline
-        loading="lazy"
+        fetchpriority="high"
+        poster="/images/hero-poster.webp"
         className="absolute inset-0 z-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 z-10 bg-background/70" />

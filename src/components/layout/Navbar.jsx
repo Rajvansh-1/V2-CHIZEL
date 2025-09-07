@@ -164,7 +164,12 @@ const Navbar = () => {
                         ))}
                     </div>
 
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="relative w-8 h-8 flex flex-col justify-center items-center gap-1.5 md:hidden" aria-label="Toggle Menu">
+                    <button 
+                        onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                        className="relative w-8 h-8 flex flex-col justify-center items-center gap-1.5 md:hidden" 
+                        aria-label="Toggle Menu"
+                        aria-expanded={isMenuOpen}
+                    >
                         <div className="hamburger-line-1 w-6 h-0.5 bg-text rounded-full origin-center" />
                         <div className="hamburger-line-2 w-6 h-0.5 bg-text rounded-full origin-center" />
                         <div className="hamburger-line-3 w-6 h-0.5 bg-text rounded-full origin-center" />

@@ -112,7 +112,7 @@ const ContactSection = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Follow Chizel on ${link.name}`}
-                  className="social-icon group" // Added social-icon class here for animation
+                  className="social-icon group" 
                 >
                   <div className="w-16 h-16 flex-center bg-card/50 border-2 border-primary/20 rounded-full backdrop-blur-md transition-all duration-300 ease-out group-hover:bg-primary group-hover:border-primary/50 group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_rgba(31,111,235,0.4)]">
                     <span className="text-primary transition-colors duration-300 group-hover:text-text">
