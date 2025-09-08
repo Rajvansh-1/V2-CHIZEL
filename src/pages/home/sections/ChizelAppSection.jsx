@@ -4,6 +4,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FaRocket, FaBrain, FaUsers, FaLightbulb, FaGooglePlay, FaApple } from "react-icons/fa";
 import Button from "@/components/ui/Button";
+import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,8 @@ const ChizelAppSection = () => {
   const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true";
 
   const handleRedirect = () => {
+    // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
+    trackEvent('join_waitlist', 'CTA', 'Chizel App Section Waitlist');
     window.open(GOOGLE_FORM_URL, "_blank");
   };
 
