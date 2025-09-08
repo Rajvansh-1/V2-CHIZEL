@@ -17,7 +17,6 @@ const ContactSection = () => {
   const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/edit"; 
 
   useGSAP(() => {
-    // A single timeline for all entrance animations
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -26,7 +25,6 @@ const ContactSection = () => {
       },
     });
 
-    // Animate the main text content first
     tl.from(".contact-element", {
       opacity: 0,
       y: 30,
@@ -35,7 +33,6 @@ const ContactSection = () => {
       ease: "power3.out",
     });
 
-    // FIX: Animate the social icons as part of the main timeline
     tl.from(".social-icon", {
         opacity: 0,
         scale: 0.5,
@@ -43,9 +40,8 @@ const ContactSection = () => {
         stagger: 0.15,
         duration: 0.8,
         ease: "back.out(1.7)",
-    }, "-=0.5"); // Start this animation slightly before the previous one ends
+    }, "-=0.5");
 
-    // Continuous background star animations
     gsap.utils.toArray(".contact-star").forEach(star => {
       gsap.to(star, {
         x: gsap.utils.random(-50, 50),
@@ -61,9 +57,13 @@ const ContactSection = () => {
   }, { scope: containerRef });
 
   const handleContactClick = () => {
-    // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
     trackEvent('enlist_now', 'CTA', 'Contact Section Button');
     window.open(GOOGLE_FORM_URL, "_blank");
+  };
+
+  // --- NEW FUNCTION TO TRACK SOCIAL CLICKS ---
+  const handleSocialClick = (socialName) => {
+    trackEvent('social_media_click', 'Social', `Clicked ${socialName} Icon`);
   };
 
   return (
@@ -115,7 +115,8 @@ const ContactSection = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Follow Chizel on ${link.name}`}
-                  className="social-icon group" 
+                  className="social-icon group"
+                  onClick={() => handleSocialClick(link.name)} // <-- ONCLICK HANDLER ADDED
                 >
                   <div className="w-16 h-16 flex-center bg-card/50 border-2 border-primary/20 rounded-full backdrop-blur-md transition-all duration-300 ease-out group-hover:bg-primary group-hover:border-primary/50 group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_rgba(31,111,235,0.4)]">
                     <span className="text-primary transition-colors duration-300 group-hover:text-text">

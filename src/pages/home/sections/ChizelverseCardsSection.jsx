@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Button from "@/components/ui/Button";
 import { chizelverseInfo, featuresData } from "@utils/constants";
+import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
 import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
   FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
@@ -142,6 +143,9 @@ const DemoPreview = () => {
     }, []);
 
     const handleInteract = () => {
+        // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
+        trackEvent('interact_with_demo', 'ChizelVerse Demo', 'Clicked to Interact');
+        
         setIsInteracting(true);
         if (isMobile) {
             window.open("https://rajvansh-1.github.io/ChizelVerse/", "_blank");
@@ -426,7 +430,7 @@ const ChizelverseCardsSection = () => {
     The ChizelVerse is Expanding...
   </h3>
   <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-    This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕ … STAY TUNED  For The Next Big Drop!
+    This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕… <br />STAY TUNED  For The Next Big Drop!
   </p>
 </div>
                         </CrystalCard>
