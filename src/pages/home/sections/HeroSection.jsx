@@ -1,4 +1,5 @@
 import { useGSAP } from "@gsap/react";
+import { trackEvent } from "@/utils/analytics";
 import gsap from "gsap";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -30,7 +31,7 @@ const Home = () => {
   return (
     <section id="home" className="relative h-screen w-screen overflow-hidden">
       <video
-        src="/videos/home-video.webm"
+        src="/videos/home-video.mp4"
         autoPlay
         loop
         muted

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Button from "@/components/ui/Button";
 import { socialLinks } from "@utils/constants";
 import { FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
+import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
 
 const iconMap = {
   Instagram: <FaInstagram size="1.5em" />,
@@ -60,6 +61,8 @@ const ContactSection = () => {
   }, { scope: containerRef });
 
   const handleContactClick = () => {
+    // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
+    trackEvent('enlist_now', 'CTA', 'Contact Section Button');
     window.open(GOOGLE_FORM_URL, "_blank");
   };
 

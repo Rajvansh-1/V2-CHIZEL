@@ -10,6 +10,7 @@ import {
   FaGem,
   FaFire
 } from "react-icons/fa";
+import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
 
 const FeedbackFloatingAlert = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,6 +96,9 @@ const FeedbackFloatingAlert = () => {
   }, []);
 
   const handleGoogleFormRedirect = useCallback(() => {
+    // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
+    trackEvent('feedback_form_open', 'CTA', 'Floating Feedback Button');
+    
     window.open(GOOGLE_FORM_URL, '_blank');
     closeModal();
     dismissAlert();
