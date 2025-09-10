@@ -117,7 +117,7 @@ const InfoCard = ({ card }) => (
     </CrystalCard>
 );
 
-const DemoPreview = () => {
+const DemoPreview = ({ forKids }) => {
     const [isInteracting, setIsInteracting] = useState(false);
     const iframeRef = useRef(null);
     const containerRef = useRef(null);
@@ -143,12 +143,15 @@ const DemoPreview = () => {
     }, []);
 
     const handleInteract = () => {
+        const url = forKids ? "https://rajvansh-1.github.io/ChizelVerse/" : "https://rajvansh-1.github.io/ParentPage-CV/";
+        const eventLabel = forKids ? 'For Kids' : 'For Parents';
+        
         // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
-        trackEvent('interact_with_demo', 'ChizelVerse Demo', 'Clicked to Interact');
+        trackEvent('interact_with_demo', 'ChizelVerse Demo', `Clicked to Interact - ${eventLabel}`);
         
         setIsInteracting(true);
-        if (isMobile) {
-            window.open("https://rajvansh-1.github.io/ChizelVerse/", "_blank");
+        if (isMobile || !forKids) {
+            window.open(url, "_blank");
         } else if (iframeRef.current) {
             iframeRef.current.requestFullscreen();
         }
@@ -161,19 +164,26 @@ const DemoPreview = () => {
                     ref={containerRef}
                     className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
                 >
-                    <iframe
-                        ref={iframeRef}
-                        title="ChizelVerse Demo"
-                        src="https://rajvansh-1.github.io/ChizelVerse/"
-                        loading="lazy"
-                        className="w-full h-full"
-                        allow="fullscreen; autoplay; clipboard-read; clipboard-write"
-                    />
+                    {forKids ? (
+                        <iframe
+                            ref={iframeRef}
+                            title="ChizelVerse Demo"
+                            src="https://rajvansh-1.github.io/ChizelVerse/"
+                            loading="lazy"
+                            className="w-full h-full"
+                            allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-black flex items-center justify-center">
+                            <img src="/images/logo.png" alt="Chizel Logo" className="w-24 h-24 opacity-50" />
+                        </div>
+                    )}
                     <div
                         className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
                     >
                         <h3 className="font-heading text-2xl md:text-4xl font-bold text-white mb-4 text-center">
-                            INTERACT WITH CHIZEL
+                            INTERACT WITH CHIZEL<br/>
+                            <span className="text-primary">{forKids ? "FOR KIDS" : "FOR PARENTS"}</span>
                         </h3>
                         <Button
                             title="CLICK HERE"
@@ -405,7 +415,10 @@ const ChizelverseCardsSection = () => {
                             <span className="text-3xl md:text-5xl ml-2 md:ml-4 animate-rocket-bounce" style={{ display: "inline-block" }}>🚀</span>
                         </div>
 
-                        <DemoPreview />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                            <DemoPreview forKids={true} />
+                            <DemoPreview forKids={false} />
+                        </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                             {chizelverseInfo.map((card) => (
