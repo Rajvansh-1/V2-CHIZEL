@@ -120,7 +120,14 @@ const InfoCard = ({ card }) => (
 const DemoPreview = ({ forKids }) => {
     const iframeRef = useRef(null);
     const containerRef = useRef(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const url = forKids ? "https://rajvansh-1.github.io/ChizelVerse/" : "https://rajvansh-1.github.io/ParentPage-CV/";
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -140,11 +147,12 @@ const DemoPreview = ({ forKids }) => {
         
         trackEvent('interact_with_demo', 'ChizelVerse Demo', `Clicked to Interact - ${eventLabel}`);
         
-        if (iframeRef.current) {
+        if (isMobile) {
+            window.open(url, "_blank");
+        } else if (iframeRef.current) {
             iframeRef.current.requestFullscreen().catch(err => {
                 console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                // Fallback for devices/browsers that don't support it or if it's blocked
-                window.open(url, "_blank");
+                window.open(url, "_blank"); // Fallback to new tab
             });
         }
     };
