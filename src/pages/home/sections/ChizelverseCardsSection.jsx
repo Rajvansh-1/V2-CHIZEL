@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Button from "@/components/ui/Button";
 import { chizelverseInfo, featuresData } from "@utils/constants";
-import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
+import { trackEvent } from "@/utils/analytics";
 import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
   FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
@@ -118,16 +118,9 @@ const InfoCard = ({ card }) => (
 );
 
 const DemoPreview = ({ forKids }) => {
-    const [isInteracting, setIsInteracting] = useState(false);
     const iframeRef = useRef(null);
     const containerRef = useRef(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const url = forKids ? "https://rajvansh-1.github.io/ChizelVerse/" : "https://rajvansh-1.github.io/ParentPage-CV/";
 
     useEffect(() => {
         const handleMessage = (event) => {
@@ -143,17 +136,16 @@ const DemoPreview = ({ forKids }) => {
     }, []);
 
     const handleInteract = () => {
-        const url = forKids ? "https://rajvansh-1.github.io/ChizelVerse/" : "https://rajvansh-1.github.io/ParentPage-CV/";
         const eventLabel = forKids ? 'For Kids' : 'For Parents';
         
-        // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
         trackEvent('interact_with_demo', 'ChizelVerse Demo', `Clicked to Interact - ${eventLabel}`);
         
-        setIsInteracting(true);
-        if (isMobile || !forKids) {
-            window.open(url, "_blank");
-        } else if (iframeRef.current) {
-            iframeRef.current.requestFullscreen();
+        if (iframeRef.current) {
+            iframeRef.current.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                // Fallback for devices/browsers that don't support it or if it's blocked
+                window.open(url, "_blank");
+            });
         }
     };
     
@@ -164,20 +156,14 @@ const DemoPreview = ({ forKids }) => {
                     ref={containerRef}
                     className="relative w-full aspect-[16/9] rounded-xl overflow-hidden"
                 >
-                    {forKids ? (
-                        <iframe
-                            ref={iframeRef}
-                            title="ChizelVerse Demo"
-                            src="https://rajvansh-1.github.io/ChizelVerse/"
-                            loading="lazy"
-                            className="w-full h-full"
-                            allow="fullscreen; autoplay; clipboard-read; clipboard-write"
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-black flex items-center justify-center">
-                            <img src="/images/logo.png" alt="Chizel Logo" className="w-24 h-24 opacity-50" />
-                        </div>
-                    )}
+                    <iframe
+                        ref={iframeRef}
+                        title={`ChizelVerse Demo - ${forKids ? 'For Kids' : 'For Parents'}`}
+                        src={url}
+                        loading="lazy"
+                        className="w-full h-full"
+                        allow="fullscreen; autoplay; clipboard-read; clipboard-write"
+                    />
                     <div
                         className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-500"
                     >
