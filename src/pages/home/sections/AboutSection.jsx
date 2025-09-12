@@ -1,3 +1,5 @@
+// src/pages/home/sections/AboutSection.jsx
+
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -17,7 +19,6 @@ const AboutSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    // A single timeline for a smoother, staggered entrance
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -36,7 +37,7 @@ const AboutSection = () => {
       opacity: 0,
       y: 50,
       scale: 0.95,
-      stagger: 0.15,
+      stagger: 0, // Reveal delay removed for instant animation
       duration: 0.8,
       ease: "power3.out",
     }, "-=0.5");
@@ -72,9 +73,23 @@ const AboutSection = () => {
     >
       {/* Background elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-accent/10 via-transparent to-transparent blur-3xl animate-pulse-slow" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] opacity-50" />
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-tl from-accent/10 via-transparent to-transparent blur-3xl" />
+        
+        {/* Dynamic Starfield */}
+        <div className="absolute inset-0 opacity-50">
+          {Array.from({ length: 100 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-px h-px bg-white rounded-full"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate`,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Heading */}
@@ -128,12 +143,9 @@ const AboutSection = () => {
           opacity: var(--glow-opacity);
           transition: opacity 0.3s ease-out;
         }
-        .animate-pulse-slow {
-          animation: pulse-slow 8s infinite alternate;
-        }
-        @keyframes pulse-slow {
-          0% { transform: scale(1); opacity: 0.8; }
-          100% { transform: scale(1.2); opacity: 1; }
+        @keyframes twinkle {
+          from { opacity: 0.2; }
+          to { opacity: 0.8; }
         }
       `}</style>
     </section>
