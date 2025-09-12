@@ -21,8 +21,8 @@ const HomePage = () => {
       <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
         <HeroSection />
         <ProblemStatementSection />
-        <SolutionSection />
-        <ChizelverseIntroSection />
+        {/* <SolutionSection /> */}
+        {/* <ChizelverseIntroSection /> */}
         <ChizelverseCardsSection />
         <ChizelverseOutroSection />
         <GsapAnimationSection />
