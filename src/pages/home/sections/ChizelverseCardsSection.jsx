@@ -282,22 +282,19 @@ const FeatureDisplay = () => {
 
             <div className="relative border-t border-white/10 bg-slate-900/40 rounded-b-[0.85rem] px-4 py-3 md:px-6">
                 <div ref={indicatorRef} className="absolute top-0 h-full bg-cyan-500/10 rounded-lg shadow-[0_0_20px_rgba(0,255,255,0.5)] transition-all duration-500 ease-out"></div>
-                <ul className="relative z-10 flex flex-wrap justify-around items-center gap-2 md:gap-4">
+                <ul className="relative z-10 flex justify-around items-center gap-1 md:gap-4">
                     {featuresData.map((f, i) => (
                         <li
                             key={i}
                             ref={el => tabsRef.current[i] = el}
                             onMouseEnter={() => setActiveIndex(i)}
                             onClick={() => setActiveIndex(i)}
-                            className="cursor-pointer flex-1 min-w-[100px] text-center px-2 py-2 rounded-lg transition-all duration-300"
-                            role="tab"
+className="cursor-pointer flex-1 min-w-0 text-center px-2 py-2 rounded-lg transition-all duration-300"                            role="tab"
                             aria-selected={activeIndex === i}
                             tabIndex={0}
                         >
-                            <div className={`flex flex-col sm:flex-row items-center justify-center gap-2 transition-all duration-300 ${activeIndex === i ? "text-cyan-300 scale-105" : "text-gray-300 hover:text-white"}`}>
-                                <div className="text-xl sm:text-2xl">{featureIconMap[f.title] || <FaStar />}</div>
-                                <h3 className="font-heading text-sm sm:text-base font-semibold">
-                                    {f.title}
+<div className={`flex items-center justify-center gap-2 transition-all duration-300 ${activeIndex === i ? "text-cyan-300 scale-105" : "text-gray-300 hover:text-white"}`}>                                <div className="text-xl sm:text-2xl">{featureIconMap[f.title] || <FaStar />}</div>
+<h3 className="font-heading text-xs sm:text-base font-semibold">                                    {f.title}
                                 </h3>
                             </div>
                         </li>

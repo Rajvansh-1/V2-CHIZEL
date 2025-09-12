@@ -108,7 +108,6 @@ export const problemSlides = [
   {
     badge: "🧠 Brainrot",
     title: "The Silent Pandemic",
-    highlight: "Every second, a black hole empties your child's mind.",
     description:
       "What looks like play is silent harm. Focus weakens, memory fades, and feelings turn numb. We need to fix it now before it's too late.",
     gradient: "from-purple-900/70 via-indigo-700/60 to-blue-700/60",
@@ -117,7 +116,6 @@ export const problemSlides = [
   {
     badge: "🧠 Mind Theft",
     title: "Screens Are Stealing Childhood",
-    highlight: "Bit by bit, the screen is stealing their spark.",
     description:
       "It feels like play, but every moment online steals tomorrow — second by second, dream by dream.",
     gradient: "from-red-700/50 via-orange-600/50 to-yellow-500/50",
@@ -126,7 +124,6 @@ export const problemSlides = [
   {
     badge: "🚨 Gateway to Harm",
     title: "The Dark Side of Screens",
-    highlight: "One wrong swipe can shatter innocence forever.",
     description:
       "The internet hides dangers no child should face. Predators, violence, and toxic content are twisting childhood into something darker.",
     gradient: "from-red-900/70 via-red-700/60 to-orange-600/60",
