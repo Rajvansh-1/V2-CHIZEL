@@ -9,7 +9,7 @@ const ChizelAppSection = lazy(() => import("@/pages/home/sections/ChizelAppSecti
 const ContactSection = lazy(() => import("@/pages/home/sections/ContactSection"));
 const ProblemStatementSection = lazy(() => import("@/pages/home/sections/ProblemStatementSection"));
 const SolutionSection = lazy(() => import("@/pages/home/sections/SolutionSection"));
-const ChizelverseIntroSection = lazy(() => import("@/pages/home/sections/ChizelverseIntroSection"));
+// const ChizelverseIntroSection = lazy(() => import("@/pages/home/sections/ChizelverseIntroSection"));
 const ChizelverseCardsSection = lazy(() => import("@/pages/home/sections/ChizelverseCardsSection"));
 const ChizelverseOutroSection = lazy(() => import("@/pages/home/sections/ChizelverseOutroSection"));
 const GsapAnimationSection = lazy(() => import("@/pages/home/sections/GsapAnimationSection"));

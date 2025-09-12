@@ -389,7 +389,12 @@ const ChizelverseCardsSection = () => {
                 </div>
             </section>
 
-            <section ref={contentRef} className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" aria-label="ChizelVerse Content">
+            <section 
+                id="chizelverse-cards"
+                ref={contentRef} 
+                className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" 
+                aria-label="ChizelVerse Content"
+            >
                 <div className="absolute inset-0 bg-radial-nebula opacity-30" />
                 <StarField count={100} />
 
