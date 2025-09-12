@@ -1,10 +1,12 @@
+// src/pages/home/sections/ChizelAppSection.jsx
+
 import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FaRocket, FaBrain, FaUsers, FaLightbulb, FaGooglePlay, FaApple } from "react-icons/fa";
 import Button from "@/components/ui/Button";
-import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
+import { trackEvent } from "@/utils/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,7 +18,6 @@ const ChizelAppSection = () => {
   const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true";
 
   const handleRedirect = () => {
-    // --- TRACK THE EVENT FOR GOOGLE ANALYTICS ---
     trackEvent('join_waitlist', 'CTA', 'Chizel App Section Waitlist');
     window.open(GOOGLE_FORM_URL, "_blank");
   };
@@ -25,13 +26,13 @@ const ChizelAppSection = () => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
-        start: "top 70%", // Start animation instantly when the section is visible
+        start: "top 70%",
         toggleActions: "play none none reverse",
       }
     });
 
     // A more fluid and interconnected animation sequence
-    tl.from(".hype-text", { y: 30, opacity: 0, stagger: 0.15, duration: 0.8, ease: "power2.out" })
+    tl.from(".hype-text", { y: 30, opacity: 0, stagger: 0, duration: 0.8, ease: "power2.out" }) // <-- Reveal delay removed
       .fromTo(".phone-artifact-container", 
         { scale: 0.8, opacity: 0 },
         { scale: 1, opacity: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" },
