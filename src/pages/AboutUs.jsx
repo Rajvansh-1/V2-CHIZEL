@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FaLinkedin, FaEnvelope, FaWhatsapp, FaQuoteLeft, FaShieldAlt, FaBrain, FaRocket } from 'react-icons/fa';
 import Button from '@/components/ui/Button';
 
+
 gsap.registerPlugin(Flip, ScrollTrigger);
 
 // --- Ultra-Attractive Founder Card Component ---
@@ -27,12 +28,10 @@ const FounderCard = ({ founder, isActive, onInteraction }) => {
   }, { dependencies: [isActive] });
 
   return (
-    // This container defines the space the card will occupy.
-    // The fixed height ensures the layout doesn't shift during animation.
-    <div className="relative h-[550px] w-full max-w-md flex items-center justify-center">
+    <div className="relative flex h-[550px] w-full items-center justify-center">
       <div
         ref={cardRef}
-        className="founder-card absolute flex h-64 w-64 cursor-pointer items-center justify-center rounded-full border-2 border-primary/30 bg-card p-2 backdrop-blur-md"
+        className="founder-card absolute flex h-56 w-56 cursor-pointer items-center justify-center rounded-full border-2 border-primary/30 bg-card p-2 backdrop-blur-md"
         onMouseEnter={() => onInteraction(true)}
         onMouseLeave={() => onInteraction(false)}
         onClick={() => onInteraction()}
@@ -63,7 +62,7 @@ const AboutUsPage = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -107,8 +106,7 @@ const AboutUsPage = () => {
           </p>
         </header>
 
-        {/* This new flex container properly aligns the cards */}
-        <section className="flex flex-col md:flex-row items-center justify-center md:-space-x-16">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
             {founders.map((founder, index) => (
                 <FounderCard
                     key={founder.name}
@@ -173,18 +171,21 @@ const AboutUsPage = () => {
           opacity: 1;
           transition: opacity 0.5s 0.2s ease-in;
         }
-        .flex:has(.is-expanded) .founder-card:not(.is-expanded) {
+        .grid:has(.is-expanded) .founder-card:not(.is-expanded) {
           filter: blur(4px) saturate(0.8);
           transform: scale(0.95);
         }
         @media (max-width: 768px) {
-          .flex-col > div {
-             margin-top: -160px; /* Overlap the cards vertically on mobile */
+          .grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
           }
-          .flex-col > div:first-child {
-            margin-top: 0;
+          .founder-card {
+            position: relative;
           }
-          .founder-card.is-expanded {
+           .founder-card.is-expanded {
             height: 28rem;
             width: 90vw;
             max-width: 22rem;
