@@ -120,7 +120,7 @@ const AboutUsPage = () => {
         <section className="animate-in relative text-center max-w-3xl mx-auto">
           <FaQuoteLeft className="absolute -top-8 left-1/2 -translate-x-1/2 text-5xl text-primary/20" />
           <blockquote className="font-heading text-3xl md:text-4xl text-text leading-tight">
-            “We aren't just raising children; we are forging the architects of a future beyond our wildest dreams.”
+            “We Are Not Building A Company We're Building Generations”
           </blockquote>
           <cite className="mt-4 block font-body text-xl text-primary">- The Chizel Founders</cite>
         </section>
@@ -131,17 +131,26 @@ const AboutUsPage = () => {
             <div className="space-y-4">
               <FaShieldAlt className="mx-auto text-5xl text-primary" />
               <h3 className="font-heading text-2xl font-bold">Safety is Non-Negotiable</h3>
-              <p className="text-secondary-text">In the vast digital universe, we are your child’s fortress. Every corner of Chizel is a sanctuary built on absolute safety and privacy-first principles, giving parents complete peace of mind.</p>
+              <p className="text-secondary-text">In an overwhelming digital world of endless distractions and unseen dangers, your child deserves a sanctuary—a digital fortress where safety is not an afterthought, but our unbreakable promise.
+Every line of code, every pixel, every interaction is forged with one purpose: to protect your child’s innocence and curiosity.
+With privacy-first architecture and zero tolerance for risk, we’re the vigilant guardians while they explore, play, and grow.</p>
             </div>
             <div className="space-y-4">
               <FaBrain className="mx-auto text-5xl text-primary" />
               <h3 className="font-heading text-2xl font-bold">Play with a Purpose</h3>
-              <p className="text-secondary-text">We reject mindless entertainment. Every game and challenge is meticulously designed to ignite curiosity, sharpen critical thinking, and build real-world skills. This isn't screen time; it's skill time.</p>
+              <p className="text-secondary-text">We don’t do “mindless entertainment.”
+Each game, challenge, and puzzle is a carefully crafted opportunity to awaken wonder, sharpen critical thinking, and nurture real-world skills.
+This is not screen time—it is skill time.
+Here, every click, tap, and swipe is a step toward making your child smarter, more curious, and incredibly capable of solving tomorrow’s problems.</p>
             </div>
             <div className="space-y-4">
               <FaRocket className="mx-auto text-5xl text-primary" />
               <h3 className="font-heading text-2xl font-bold">Forging Future Architects</h3>
-              <p className="text-secondary-text">We are not preparing children for yesterday's tests; we are arming them for tomorrow's challenges. Our mission is to cultivate a generation of innovators, communicators, and collaborators.</p>
+              <p className="text-secondary-text">Your child is not meant to follow yesterday’s footsteps.
+We are shaping a generation that doesn’t just consume technology, but invents it.
+Through bold innovation, relentless creativity, and unyielding passion, we cultivate thinkers, creators, communicators, and collaborators—ready to lead the world.
+Because raising a child is not just parenting.
+It is a mission to forge the architects of the future..</p>
             </div>
           </div>
         </section>
