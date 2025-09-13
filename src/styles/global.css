@@ -380,3 +380,34 @@ body::-webkit-scrollbar {
     background-position: 0% 50%;
   }
 }
+
+
+/* === FINAL, ULTRA-ATTRACTIVE ABOUT US PAGE STYLES === */
+/* === FINAL, ULTRA-ATTRACTIVE ABOUT US PAGE STYLES === */
+@keyframes icon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px var(--color-primary));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px var(--color-primary));
+    transform: scale(1.1);
+  }
+}
+
+.founder-card.is-expanded .social-icon {
+  animation: icon-glow 2.5s infinite ease-in-out;
+}
+
+/* Stagger the animation for each icon */
+.founder-card.is-expanded .social-icon:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.founder-card.is-expanded .social-icon:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Ensures smooth transform origin for the Flip animation */
+.founder-card {
+  transform-origin: center center;
+}
