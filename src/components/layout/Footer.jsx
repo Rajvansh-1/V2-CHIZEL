@@ -15,7 +15,11 @@ const Footer = () => {
         </p>
 
         {/* LEGAL LINKS */}
-        <div className="flex gap-4 font-ui text-sm text-secondary-text">
+        <div className="flex flex-wrap justify-center gap-4 font-ui text-sm text-secondary-text">
+          {/* v-- ADD YOUR NEW "ABOUT US" LINK HERE --v */}
+          <Link to="/about-us" className="transition-colors hover:text-primary hover:underline">
+            About Us
+          </Link>
           <Link to="/privacy-policy" className="transition-colors hover:text-primary hover:underline">
             Privacy Policy
           </Link>
