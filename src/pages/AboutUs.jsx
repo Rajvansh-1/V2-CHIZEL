@@ -1,3 +1,4 @@
+// src/pages/AboutUs.jsx
 import { useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -9,7 +10,6 @@ import { create } from 'zustand';
 
 gsap.registerPlugin(Flip, ScrollTrigger);
 
-// Zustand store for managing active card state
 const useStore = create((set) => ({
   activeCard: null,
   isMobile: false,
@@ -17,20 +17,13 @@ const useStore = create((set) => ({
   setIsMobile: (isMobile) => set({ isMobile }),
 }));
 
-// --- Ultra-Attractive Founder Card Component ---
 const FounderCard = ({ founder, index }) => {
   const cardRef = useRef(null);
-  const { activeCard, isMobile, setActiveCard } = useStore();
+  const { activeCard, setActiveCard } = useStore();
   const isActive = activeCard === index;
 
-  const handleInteraction = (isHovering) => {
-    if (isMobile) {
-      if (typeof isHovering !== 'boolean') { // Click on mobile
-        setActiveCard(isActive ? null : index);
-      }
-    } else { // Hover on desktop
-      setActiveCard(isHovering ? index : null);
-    }
+  const handleInteraction = () => {
+    setActiveCard(isActive ? null : index);
   };
 
   useGSAP(() => {
@@ -52,9 +45,7 @@ const FounderCard = ({ founder, index }) => {
       <div
         ref={cardRef}
         className="founder-card absolute flex h-56 w-56 cursor-pointer items-center justify-center rounded-full border-2 border-primary/30 bg-card p-2 backdrop-blur-md"
-        onMouseEnter={() => handleInteraction(true)}
-        onMouseLeave={() => handleInteraction(false)}
-        onClick={() => handleInteraction()}
+        onClick={handleInteraction}
       >
         <div className="relative h-full w-full overflow-hidden rounded-full">
           <img src={founder.imageUrl} alt={founder.name} className="absolute inset-0 h-full w-full object-cover scale-105" />
@@ -75,7 +66,6 @@ const FounderCard = ({ founder, index }) => {
   );
 };
 
-// --- Main About Us Page Component ---
 const AboutUsPage = () => {
   const containerRef = useRef(null);
   const { setIsMobile } = useStore();

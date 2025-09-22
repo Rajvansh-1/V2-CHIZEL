@@ -8,9 +8,8 @@ import { chizelverseInfo, featuresData } from "@utils/constants";
 import { trackEvent } from "@/utils/analytics";
 import {
   FaGamepad, FaUsers, FaLightbulb, FaPaintBrush,
-  FaQuoteLeft, FaStar, FaRocket, FaExternalLinkAlt,
-  FaExpand, FaCompress,
-  FaUserAstronaut, FaCube, FaComments, FaStore,
+  FaQuoteLeft, FaStar, FaRocket,
+  FaUserAstronaut, FaCube, FaComments,
 } from "react-icons/fa";
 
 if (typeof window !== "undefined") {
@@ -39,9 +38,17 @@ const usePrefersReducedMotion = () => {
 const CrystalCard = memo(({ children, className = "", padding = "p-6 md:p-8", tilt = true }) => {
     const cardRef = useRef(null);
     const prefersReducedMotion = usePrefersReducedMotion();
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const checkIsMobile = () => setIsMobile(window.innerWidth <= 768);
+      checkIsMobile();
+      window.addEventListener('resize', checkIsMobile);
+      return () => window.removeEventListener('resize', checkIsMobile);
+    }, []);
 
     const handleMouseMove = (e) => {
-        if (prefersReducedMotion || !cardRef.current) return;
+        if (prefersReducedMotion || isMobile || !cardRef.current) return;
         const rect = cardRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -54,7 +61,6 @@ const CrystalCard = memo(({ children, className = "", padding = "p-6 md:p-8", ti
             ease: 'power2.out'
         });
         
-
         if (tilt) {
             const rotateX = (y / rect.height - 0.5) * 15;
             const rotateY = (x / rect.width - 0.5) * -15;
@@ -69,7 +75,7 @@ const CrystalCard = memo(({ children, className = "", padding = "p-6 md:p-8", ti
     };
 
     const handleMouseLeave = () => {
-        if (!cardRef.current) return;
+        if (isMobile || !cardRef.current) return;
         gsap.to(cardRef.current, { '--opacity': '0', duration: 0.5, ease: 'power3.out' });
         if (tilt) {
             gsap.to(cardRef.current.querySelector('.crystal-card-inner'), {
@@ -88,7 +94,7 @@ const CrystalCard = memo(({ children, className = "", padding = "p-6 md:p-8", ti
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             className={`crystal-card-base relative rounded-2xl w-full h-full transform-style-3d ${className}`}
-            style={{ perspective: tilt ? '1000px' : 'none' }}
+            style={{ perspective: tilt && !isMobile ? '1000px' : 'none' }}
         >
             <div className={`crystal-card-inner relative w-full h-full rounded-2xl transition-transform duration-500 ease-out ${padding}`}>
                 {children}
