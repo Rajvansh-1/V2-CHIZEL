@@ -105,14 +105,6 @@ export const socialLinks = [
 
 export const problemSlides = [
   {
-    badge: "🧠 Brainrot",
-    title: "The Silent Pandemic",
-    description:
-      "What looks like play is silent harm. Focus weakens, memory fades, and feelings turn numb. We need to fix it now before it's too late.",
-    gradient: "from-purple-900/70 via-indigo-700/60 to-blue-700/60",
-    assetSrc: "/videos/brain_rot.mp4", // CORRECTED PATH
-  },
-  {
     badge: "🧠 Mind Theft",
     title: "Screens Are Stealing Childhood",
     description:
