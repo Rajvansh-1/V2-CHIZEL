@@ -1,6 +1,6 @@
 // src/pages/home/sections/AboutSection.jsx
 
-import { useRef } from "react";
+import { useRef, memo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -19,28 +19,20 @@ const AboutSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    const tl = gsap.timeline({
+    // --- OPTIMIZED ANIMATION: Animate all elements in at once ---
+    gsap.from(".about-heading, .about-subheading, .about-panel-v2", {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top 70%",
         toggleActions: "play none none reverse",
       },
-    });
-
-    tl.from(".about-heading, .about-subheading", {
-      opacity: 0,
-      y: 30,
-      stagger: 0.2,
-      duration: 1,
-      ease: "power3.out",
-    }).from(".about-panel-v2", {
       opacity: 0,
       y: 50,
-      scale: 0.95,
-      stagger: 0, // Reveal delay removed for instant animation
-      duration: 0.8,
+      scale: 0.98,
+      duration: 1,
       ease: "power3.out",
-    }, "-=0.5");
+      stagger: 0.1, // A very subtle stagger can feel good, set to 0 for pure simultaneous
+    });
 
     // Magnetic glow effect on cards
     gsap.utils.toArray(".about-panel-v2").forEach((panel) => {
@@ -152,4 +144,4 @@ const AboutSection = () => {
   );
 };
 
-export default AboutSection;
+export default memo(AboutSection);

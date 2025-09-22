@@ -1,6 +1,6 @@
 // src/pages/home/sections/ChizelEcosystemSection.jsx
 
-import { useRef } from "react";
+import { useRef, memo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,7 +17,7 @@ const planets = [
 ];
 
 // Reusable Planet component
-const Planet = ({ planet }) => (
+const Planet = memo(({ planet }) => (
   <div className={`planet absolute ${planet.position} ${planet.size} flex-center cursor-pointer z-10`}>
     <div className="relative w-full h-full rounded-full bg-card/70 backdrop-blur-sm border border-primary/30 flex-center transition-colors duration-300">
       <div className="planet-icon-inner text-2xl md:text-3xl text-text">
@@ -31,7 +31,9 @@ const Planet = ({ planet }) => (
       {planet.label}
     </span>
   </div>
-);
+));
+Planet.displayName = 'Planet';
+
 
 const ChizelEcosystemSection = () => {
   const containerRef = useRef(null);
@@ -46,15 +48,20 @@ const ChizelEcosystemSection = () => {
       }
     });
 
-    tl.from(".vision-title-container > *", {
-      opacity: 0, y: 30, duration: 0.8, stagger: 0.2, ease: "power3.out",
+    // --- OPTIMIZED ANIMATION: Staggers and delays removed ---
+    tl.from(".vision-title-container > *, .planet", {
+      opacity: 0, 
+      y: 30, 
+      duration: 0.8, 
+      ease: "power3.out",
     })
     .from(".orbital-sun", {
-      scale: 0.5, opacity: 0, duration: 1, ease: "elastic.out(1, 0.5)",
-    }, "-=0.5")
-    .from(".planet", {
-        scale: 0, opacity: 0, duration: 0.8, stagger: 0.15, ease: "back.out(1.7)"
-    }, "-=0.7");
+      scale: 0.5, 
+      opacity: 0, 
+      duration: 1, 
+      ease: "elastic.out(1, 0.5)",
+    }, 0); // Start at the same time
+
 
     // NEW: Simple, continuous glow effect for the sun
     gsap.to(".orbital-sun", {
@@ -178,4 +185,4 @@ const ChizelEcosystemSection = () => {
   );
 };
 
-export default ChizelEcosystemSection;
+export default memo(ChizelEcosystemSection);
