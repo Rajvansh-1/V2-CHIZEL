@@ -1,10 +1,10 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
+import { useRef, memo } from "react";
 import Button from "@/components/ui/Button";
 import { socialLinks } from "@utils/constants";
 import { FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
-import { trackEvent } from "@/utils/analytics"; // <-- IMPORT ADDED
+import { trackEvent } from "@/utils/analytics";
 
 const iconMap = {
   Instagram: <FaInstagram size="1.5em" />,
@@ -17,30 +17,20 @@ const ContactSection = () => {
   const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/edit"; 
 
   useGSAP(() => {
-    const tl = gsap.timeline({
+    // --- OPTIMIZED ANIMATION: All elements animate in together without delay ---
+    gsap.from(".contact-element, .social-icon", {
       scrollTrigger: {
         trigger: containerRef.current,
-        start: "top 60%",
+        start: "top 70%",
         toggleActions: "play none none reverse",
       },
-    });
-
-    tl.from(".contact-element", {
       opacity: 0,
       y: 30,
-      stagger: 0.2,
+      scale: 0.98,
       duration: 1,
       ease: "power3.out",
+      stagger: 0.1, // A very subtle stagger for a clean, unified effect. Set to 0 if you want pure simultaneity.
     });
-
-    tl.from(".social-icon", {
-        opacity: 0,
-        scale: 0.5,
-        y: 20,
-        stagger: 0.15,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-    }, "-=0.5");
 
     gsap.utils.toArray(".contact-star").forEach(star => {
       gsap.to(star, {
@@ -61,7 +51,6 @@ const ContactSection = () => {
     window.open(GOOGLE_FORM_URL, "_blank");
   };
 
-  // --- NEW FUNCTION TO TRACK SOCIAL CLICKS ---
   const handleSocialClick = (socialName) => {
     trackEvent('social_media_click', 'Social', `Clicked ${socialName} Icon`);
   };
@@ -116,7 +105,7 @@ const ContactSection = () => {
                   rel="noopener noreferrer"
                   aria-label={`Follow Chizel on ${link.name}`}
                   className="social-icon group"
-                  onClick={() => handleSocialClick(link.name)} // <-- ONCLICK HANDLER ADDED
+                  onClick={() => handleSocialClick(link.name)}
                 >
                   <div className="w-16 h-16 flex-center bg-card/50 border-2 border-primary/20 rounded-full backdrop-blur-md transition-all duration-300 ease-out group-hover:bg-primary group-hover:border-primary/50 group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_rgba(31,111,235,0.4)]">
                     <span className="text-primary transition-colors duration-300 group-hover:text-text">
@@ -132,4 +121,4 @@ const ContactSection = () => {
   );
 };
 
-export default ContactSection;
+export default memo(ContactSection);
