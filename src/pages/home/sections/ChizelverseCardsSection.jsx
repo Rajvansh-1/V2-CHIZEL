@@ -1,5 +1,5 @@
 // src/pages/home/sections/ChizelverseCardsSection.jsx
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect, useMemo, memo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -36,7 +36,7 @@ const usePrefersReducedMotion = () => {
   return reduced;
 };
 
-const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = true }) => {
+const CrystalCard = memo(({ children, className = "", padding = "p-6 md:p-8", tilt = true }) => {
     const cardRef = useRef(null);
     const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -95,10 +95,9 @@ const CrystalCard = ({ children, className = "", padding = "p-6 md:p-8", tilt = 
             </div>
         </div>
     );
-};
+});
 
-
-const InfoCard = ({ card }) => (
+const InfoCard = memo(({ card }) => (
     <CrystalCard className="h-full group verse-rest">
         <div className="relative z-10">
             <div className="flex items-center gap-4 mb-5 transform transition-transform duration-500 group-hover:-translate-y-1">
@@ -115,9 +114,9 @@ const InfoCard = ({ card }) => (
             </ul>
         </div>
     </CrystalCard>
-);
+));
 
-const DemoPreview = ({ forKids }) => {
+const DemoPreview = memo(({ forKids }) => {
     const iframeRef = useRef(null);
     const containerRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -189,8 +188,7 @@ const DemoPreview = ({ forKids }) => {
             </CrystalCard>
         </div>
     );
-};
-
+});
 
 const featureIconMap = {
   "Word Warriors": <FaUserAstronaut />,
@@ -198,7 +196,7 @@ const featureIconMap = {
   "Chizel Club": <FaComments />,
 };
 
-const FeatureDisplay = () => {
+const FeatureDisplay = memo(() => {
     const [activeIndex, setActiveIndex] = useState(0);
     const indicatorRef = useRef(null);
     const tabsRef = useRef([]);
@@ -289,13 +287,12 @@ const FeatureDisplay = () => {
                             ref={el => tabsRef.current[i] = el}
                             onMouseEnter={() => setActiveIndex(i)}
                             onClick={() => setActiveIndex(i)}
-className="cursor-pointer flex-1 min-w-0 text-center px-2 py-2 rounded-lg transition-all duration-300"                            role="tab"
+                            className="cursor-pointer flex-1 min-w-0 text-center px-2 py-2 rounded-lg transition-all duration-300"                            role="tab"
                             aria-selected={activeIndex === i}
                             tabIndex={0}
                         >
-<div className={`flex items-center justify-center gap-2 transition-all duration-300 ${activeIndex === i ? "text-cyan-300 scale-105" : "text-gray-300 hover:text-white"}`}>                                <div className="text-xl sm:text-2xl">{featureIconMap[f.title] || <FaStar />}</div>
-<h3 className="font-heading text-xs sm:text-base font-semibold">                                    {f.title}
-                                </h3>
+                            <div className={`flex items-center justify-center gap-2 transition-all duration-300 ${activeIndex === i ? "text-cyan-300 scale-105" : "text-gray-300 hover:text-white"}`}>                                <div className="text-xl sm:text-2xl">{featureIconMap[f.title] || <FaStar />}</div>
+                                <h3 className="font-heading text-xs sm:text-base font-semibold">{f.title}</h3>
                             </div>
                         </li>
                     ))}
@@ -303,34 +300,18 @@ className="cursor-pointer flex-1 min-w-0 text-center px-2 py-2 rounded-lg transi
             </div>
         </CrystalCard>
     );
-};
+});
 
 const ChizelverseCardsSection = () => {
     const containerRef = useRef(null);
-    const introRef = useRef(null);
     const contentRef = useRef(null);
     const prefersReducedMotion = usePrefersReducedMotion();
 
     useGSAP(() => {
         if (prefersReducedMotion) {
-            gsap.set("[data-fade-in], .verse-rest", { opacity: 1, y: 0, scale: 1 });
+            gsap.set(".verse-rest", { opacity: 1, y: 0, scale: 1 });
             return;
         }
-
-        const introTl = gsap.timeline({
-            scrollTrigger: {
-                trigger: introRef.current,
-                start: "top top",
-                end: "bottom top",
-                scrub: 1,
-                pin: true,
-            },
-        });
-
-        introTl
-            .fromTo(".intro-text", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" })
-            .to(".intro-text", { opacity: 0, scale: 0.8, duration: 0.3, ease: "power2.in" }, "+=0.5")
-            .fromTo(".planet-layer", { clipPath: "circle(0% at 50% 50%)" }, { clipPath: "circle(75% at 50% 50%)", duration: 1, ease: "power3.inOut" }, "-=0.3");
 
         gsap.from(".verse-rest", {
             scrollTrigger: {
@@ -368,31 +349,10 @@ const ChizelverseCardsSection = () => {
     
     return (
         <div ref={containerRef} className="bg-space-dark">
-            <section ref={introRef} className="relative h-screen w-full bg-black overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-background to-accent/40" />
-                <StarField count={60} />
-                <div className="absolute inset-0 flex items-center justify-center p-6 intro-text">
-                    <div className="text-center">
-                        <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent drop-shadow-2xl mb-3">
-                            Entering ChizelVerse
-                        </h2>
-                        <div className="flex items-center justify-center gap-2 md:gap-3 text-white/80">
-                            <FaRocket className="text-lg md:text-xl animate-pulse" />
-                            <span className="text-sm md:text-lg font-body">Initializing portal...</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="planet-layer absolute inset-0" style={{ clipPath: "circle(0% at 50% 50%)" }}>
-                    <div className="absolute inset-0 bg-space-dark" />
-                    <div className="absolute -bottom-1/2 w-full h-full bg-radial-nebula opacity-50" />
-                    <StarField count={100} />
-                </div>
-            </section>
-
             <section 
                 id="chizelverse-cards"
                 ref={contentRef} 
-                className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24" 
+                className="relative w-full bg-space-dark overflow-hidden pb-16 md:pb-24 pt-16 md:pt-24" 
                 aria-label="ChizelVerse Content"
             >
                 <div className="absolute inset-0 bg-radial-nebula opacity-30" />
@@ -432,16 +392,16 @@ const ChizelverseCardsSection = () => {
                             </div>
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
                             <div className="relative z-10 text-center">
-  <div className="mb-4">
-    <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-  </div>
-  <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
-    The ChizelVerse is Expanding...
-  </h3>
-  <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-    This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕… <br />STAY TUNED  For The Next Big Drop!
-  </p>
-</div>
+                              <div className="mb-4">
+                                <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
+                              </div>
+                              <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
+                                The ChizelVerse is Expanding...
+                              </h3>
+                              <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
+                                This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕… <br />STAY TUNED  For The Next Big Drop!
+                              </p>
+                            </div>
                         </CrystalCard>
                     </div>
                 </div>

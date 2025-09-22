@@ -1,9 +1,9 @@
 import { useGSAP } from "@gsap/react";
-import { trackEvent } from "@/utils/analytics";
 import gsap from "gsap";
 import { FaChevronDown } from "react-icons/fa";
+import { memo } from "react";
 
-const Home = () => {
+const HeroSection = memo(() => {
   useGSAP(() => {
     gsap.from(".hero-element", {
       opacity: 0,
@@ -59,6 +59,6 @@ const Home = () => {
       </div>
     </section>
   );
-};
+});
 
-export default Home;
+export default HeroSection;

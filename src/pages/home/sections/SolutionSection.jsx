@@ -1,6 +1,6 @@
 // src/pages/home/sections/SolutionSection.jsx
 
-import { useRef } from "react";
+import { useRef, memo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,7 +8,7 @@ import { solutionCards } from "@utils/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SolutionSection = () => {
+const SolutionSection = memo(() => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
@@ -127,6 +127,6 @@ const SolutionSection = () => {
       </div>
     </section>
   );
-};
+});
 
 export default SolutionSection;
