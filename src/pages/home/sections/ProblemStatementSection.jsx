@@ -63,28 +63,19 @@ const ProblemStatementSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    const tl = gsap.timeline({
+    // --- OPTIMIZED ANIMATION: All elements animate in together ---
+    gsap.from(".problem-heading, .problem-slide", {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top center",
         toggleActions: "play none none reverse",
       },
+      opacity: 0,
+      y: 50,
+      scale: 0.95,
+      duration: 1,
+      ease: "power3.out",
     });
-
-    tl.from(".problem-heading", {
-        opacity: 0,
-        y: 20,
-        scale: 0.95,
-        duration: 1,
-        ease: "power3.out",
-    }).from(".problem-slide", {
-        opacity: 0,
-        y: 80,
-        scale: 0.9,
-        duration: 1,
-        ease: "power3.out",
-        stagger: 0.2,
-    }, "-=0.5");
 
     // Parallax effect for the nebulas
     gsap.utils.toArray(".nebula").forEach(nebula => {

@@ -16,6 +16,8 @@ const OrbitingIcon = memo(({ icon, positionClasses, delay }) => (
       {icon}
   </div>
 ));
+OrbitingIcon.displayName = 'OrbitingIcon';
+
 
 // --- Main Component ---
 const ChizelAppSection = () => {
@@ -38,15 +40,18 @@ const ChizelAppSection = () => {
       }
     });
 
-    // A more fluid and interconnected animation sequence
-    tl.from(".hype-text", { y: 30, opacity: 0, stagger: 0, duration: 0.8, ease: "power2.out" }) // <-- Reveal delay removed
-      .fromTo(".phone-artifact-container", 
+    // --- OPTIMIZED ANIMATION: Staggers and delays removed for a faster reveal ---
+    tl.from(".hype-text, .feature-display, .cta-button", {
+      opacity: 0,
+      y: 30,
+      duration: 0.8,
+      ease: "power2.out",
+    })
+    .fromTo(".phone-artifact-container", 
         { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.5, ease: "elastic.out(1, 0.5)" },
-        "-=0.5"
-      )
-      .from(".feature-display", { opacity: 0, x: (index) => index === 0 ? -30 : 30, stagger: { amount: 0.4, from: "edges" }, duration: 0.8, ease: "power2.out" }, "-=1")
-      .from(".cta-button", { opacity: 0, y: 30, duration: 1, ease: "power3.out" }, "-=0.5");
+        { scale: 1, opacity: 1, duration: 1.2, ease: "elastic.out(1, 0.5)" },
+        0 // Start at the same time
+      );
 
     // Continuous background animations
     gsap.to(".phone-artifact", { y: -10, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
@@ -145,4 +150,4 @@ const ChizelAppSection = () => {
   );
 };
 
-export default ChizelAppSection;
+export default memo(ChizelAppSection);
