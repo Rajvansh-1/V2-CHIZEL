@@ -147,4 +147,4 @@ const ProblemStatementSection = () => {
   );
 };
 
-export default ProblemStatementSection;
+export default memo(ProblemStatementSection);

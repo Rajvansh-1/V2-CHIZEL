@@ -1,6 +1,6 @@
 // src/pages/home/sections/ChizelAppSection.jsx
 
-import { useRef, useState } from "react";
+import { useRef, useState, memo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,6 +9,13 @@ import Button from "@/components/ui/Button";
 import { trackEvent } from "@/utils/analytics";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// --- Memoized OrbitingIcon Component ---
+const OrbitingIcon = memo(({ icon, positionClasses, delay }) => (
+  <div className={`orbit-icon absolute ${positionClasses} w-10 h-10 md:w-14 md:h-14 flex-center bg-card/50 border-2 border-primary/30 rounded-full text-primary text-xl backdrop-blur-md animate-pulse`} style={{ animationDelay: `${delay}s` }}>
+      {icon}
+  </div>
+));
 
 // --- Main Component ---
 const ChizelAppSection = () => {
@@ -47,12 +54,6 @@ const ChizelAppSection = () => {
     gsap.to(".shine-effect", { x: "200%", duration: 3, repeat: -1, ease: "power1.inOut", delay: 2 });
 
   }, { scope: containerRef });
-
-  const OrbitingIcon = ({ icon, positionClasses, delay }) => (
-    <div className={`orbit-icon absolute ${positionClasses} w-10 h-10 md:w-14 md:h-14 flex-center bg-card/50 border-2 border-primary/30 rounded-full text-primary text-xl backdrop-blur-md animate-pulse`} style={{ animationDelay: `${delay}s` }}>
-        {icon}
-    </div>
-  );
 
   return (
     <>

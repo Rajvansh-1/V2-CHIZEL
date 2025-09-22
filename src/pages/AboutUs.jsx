@@ -1,17 +1,37 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { Flip } from 'gsap/Flip';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FaLinkedin, FaEnvelope, FaWhatsapp, FaQuoteLeft, FaShieldAlt, FaBrain, FaRocket } from 'react-icons/fa';
 import Button from '@/components/ui/Button';
-
+import { create } from 'zustand';
 
 gsap.registerPlugin(Flip, ScrollTrigger);
 
+// Zustand store for managing active card state
+const useStore = create((set) => ({
+  activeCard: null,
+  isMobile: false,
+  setActiveCard: (index) => set({ activeCard: index }),
+  setIsMobile: (isMobile) => set({ isMobile }),
+}));
+
 // --- Ultra-Attractive Founder Card Component ---
-const FounderCard = ({ founder, isActive, onInteraction }) => {
+const FounderCard = ({ founder, index }) => {
   const cardRef = useRef(null);
+  const { activeCard, isMobile, setActiveCard } = useStore();
+  const isActive = activeCard === index;
+
+  const handleInteraction = (isHovering) => {
+    if (isMobile) {
+      if (typeof isHovering !== 'boolean') { // Click on mobile
+        setActiveCard(isActive ? null : index);
+      }
+    } else { // Hover on desktop
+      setActiveCard(isHovering ? index : null);
+    }
+  };
 
   useGSAP(() => {
     const card = cardRef.current;
@@ -19,7 +39,7 @@ const FounderCard = ({ founder, isActive, onInteraction }) => {
 
     const state = Flip.getState(card, { props: "borderRadius" });
     card.classList.toggle('is-expanded', isActive);
-    
+
     Flip.from(state, {
       duration: 0.7,
       ease: 'power3.inOut',
@@ -32,9 +52,9 @@ const FounderCard = ({ founder, isActive, onInteraction }) => {
       <div
         ref={cardRef}
         className="founder-card absolute flex h-56 w-56 cursor-pointer items-center justify-center rounded-full border-2 border-primary/30 bg-card p-2 backdrop-blur-md"
-        onMouseEnter={() => onInteraction(true)}
-        onMouseLeave={() => onInteraction(false)}
-        onClick={() => onInteraction()}
+        onMouseEnter={() => handleInteraction(true)}
+        onMouseLeave={() => handleInteraction(false)}
+        onClick={() => handleInteraction()}
       >
         <div className="relative h-full w-full overflow-hidden rounded-full">
           <img src={founder.imageUrl} alt={founder.name} className="absolute inset-0 h-full w-full object-cover scale-105" />
@@ -58,31 +78,20 @@ const FounderCard = ({ founder, isActive, onInteraction }) => {
 // --- Main About Us Page Component ---
 const AboutUsPage = () => {
   const containerRef = useRef(null);
-  const [activeCard, setActiveCard] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const { setIsMobile } = useStore();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [setIsMobile]);
 
   const founders = [
     { name: "Shamiq Khan", imageUrl: "/images/f1.png", socials: [ { name: 'LinkedIn', url: 'https://www.linkedin.com/in/shamiqkhan/', icon: <FaLinkedin /> }, { name: 'WhatsApp', url: 'https://wa.me/918955986358', icon: <FaWhatsapp /> }, { name: 'Email', url: 'mailto:shamiqkhan4@gmail.com', icon: <FaEnvelope /> } ] },
     { name: "Rajvansh", imageUrl: "/images/f2.jpg", socials: [ { name: 'LinkedIn', url: 'https://www.linkedin.com/in/rajvansh-25abcdee/', icon: <FaLinkedin /> }, { name: 'WhatsApp', url: 'https://wa.me/917426810155', icon: <FaWhatsapp /> }, { name: 'Email', url: 'mailto:rajvansh2525@gmail.com', icon: <FaEnvelope /> } ] },
   ];
 
-  const handleInteraction = (index, isHovering) => {
-    if (isMobile) {
-      if (typeof isHovering !== 'boolean') { // Ensure it's a click
-        setActiveCard(activeCard === index ? null : index);
-      }
-    } else {
-      setActiveCard(isHovering ? index : null);
-    }
-  };
-  
   useGSAP(() => {
     gsap.from(".animate-in", {
       scrollTrigger: { trigger: containerRef.current, start: "top 80%", toggleActions: "play none none reverse" },
@@ -111,8 +120,7 @@ const AboutUsPage = () => {
                 <FounderCard
                     key={founder.name}
                     founder={founder}
-                    isActive={activeCard === index}
-                    onInteraction={(isHovering) => handleInteraction(index, isHovering)}
+                    index={index}
                 />
             ))}
         </section>
