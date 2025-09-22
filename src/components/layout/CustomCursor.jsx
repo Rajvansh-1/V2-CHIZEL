@@ -1,10 +1,20 @@
+// src/components/layout/CustomCursor.jsx
 import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
 const CustomCursor = () => {
   const [isHovering, setIsHovering] = useState(false);
-  const isMobile = window.innerWidth <= 768 || "ontouchstart" in window;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
 
   const cursorRingRef = useRef(null);
   const cursorDotRef = useRef(null);
@@ -12,9 +22,12 @@ const CustomCursor = () => {
   const { contextSafe } = useGSAP({ scope: document.body });
 
   useEffect(() => {
-    if (!isMobile) {
-      document.body.style.cursor = "none";
+    if (isMobile) {
+      document.body.style.cursor = "auto";
+      return;
     }
+
+    document.body.style.cursor = "none";
 
     const moveCursor = contextSafe((e) => {
       const { clientX, clientY } = e.touches ? e.touches[0] : e;
@@ -44,9 +57,7 @@ const CustomCursor = () => {
     document.addEventListener("mouseover", handleMouseOver);
 
     return () => {
-      if (!isMobile) {
-        document.body.style.cursor = "auto";
-      }
+      document.body.style.cursor = "auto";
       document.removeEventListener("mousemove", moveCursor);
       document.removeEventListener("touchmove", moveCursor);
       document.removeEventListener("mouseover", handleMouseOver);
@@ -55,6 +66,8 @@ const CustomCursor = () => {
 
   // GSAP: Animate cursor based on hover state
   useGSAP(() => {
+    if (isMobile) return;
+
     gsap.to(cursorRingRef.current, {
       scale: isHovering ? 1.8 : 1,
       opacity: isHovering ? 0.7 : 1,
@@ -66,7 +79,7 @@ const CustomCursor = () => {
       duration: 0.3,
       ease: "power2.out",
     });
-  }, [isHovering]);
+  }, [isHovering, isMobile]);
 
   if (isMobile) {
     return null;
