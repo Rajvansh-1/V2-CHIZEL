@@ -390,25 +390,27 @@ const ChizelverseCardsSection = () => {
 
                         <FeatureDisplay />
 
-                        <CrystalCard className="verse-rest" padding="p-8 md:p-10">
-                            <div className="absolute inset-0 z-0 opacity-20">
-                                {Array.from({ length: 20 }).map((_, i) => (
-                                    <div key={i} className="absolute w-px h-px bg-white rounded-full" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, animation: `twinkle ${Math.random() * 5 + 3}s infinite alternate` }} />
-                                ))}
-                            </div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
-                            <div className="relative z-10 text-center">
-                              <div className="mb-4">
-                                <FaRocket className="text-5xl md:text-6xl text-cyan-400 mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)]" />
-                              </div>
-                              <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
-                                The ChizelVerse is Expanding...
-                              </h3>
-                              <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
-                                This Update Cost Us a Few Brain Cells And a Lot Of Coffee 🧠☕… <br />STAY TUNED  For The Next Big Drop!
-                              </p>
-                            </div>
-                        </CrystalCard>
+                       <CrystalCard className="verse-rest" padding="p-8 md:p-10">
+    {/* ... background elements ... */}
+    <div className="relative z-10 text-center">
+        <div className="mb-4">
+            {/* Replaced the image/FaRocket with a colorful emoji */}
+            <span
+                role="img"
+                aria-label="Rocket"
+                className="text-5xl md:text-6xl mx-auto animate-float drop-shadow-[0_0_10px_rgba(0,255,255,0.6)] leading-none" // leading-none helps prevent extra line height
+            >
+                🚀
+            </span>
+        </div>
+        <h3 className="font-heading text-3xl md:text-4xl text-white drop-shadow-lg">
+            Did You Think This Was The Limit?
+        </h3>
+        <p className="text-gray-200 mt-3 md:mt-4 text-base md:text-lg font-body max-w-md mx-auto">
+            We didn't. We shattered the boundaries. <br /> Stay tuned until next big drop!
+        </p>
+    </div>
+</CrystalCard>
                     </div>
                 </div>
             </section>
