@@ -39,86 +39,114 @@ const ChizelEcosystemSection = () => {
   const containerRef = useRef(null);
 
   useGSAP(() => {
-    // Entrance animation timeline
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: "top 60%",
-        toggleActions: "play none none reverse",
-      }
-    });
+    let mm = gsap.matchMedia();
 
-    // --- OPTIMIZED ANIMATION: Staggers and delays removed ---
-    tl.from(".vision-title-container > *, .planet", {
-      opacity: 0, 
-      y: 30, 
-      duration: 0.8, 
-      ease: "power3.out",
-    })
-    .from(".orbital-sun", {
-      scale: 0.5, 
-      opacity: 0, 
-      duration: 1, 
-      ease: "elastic.out(1, 0.5)",
-    }, 0); // Start at the same time
-
-
-    // NEW: Simple, continuous glow effect for the sun
-    gsap.to(".orbital-sun", {
-        boxShadow: "0 0 50px 10px var(--color-primary-alpha)",
-        repeat: -1,
-        yoyo: true,
-        duration: 3,
-        ease: "sine.inOut"
-    });
-
-    // Single, smooth orbital revolution for the main container
-    const mainOrbitAnim = gsap.to("#main-orbit", {
-      rotation: 360,
-      repeat: -1,
-      duration: 40, // Slower, more graceful rotation
-      ease: "none",
-    });
-
-    // Counter-rotates the planet icons to keep them upright
-    gsap.to(".planet-icon-inner", {
-      rotation: -360,
-      repeat: -1,
-      duration: 40, // Must match the orbit duration
-      ease: "none",
-    });
-
-    // FIXED: Consistent hover interactions for ALL planets
-    gsap.utils.toArray(".planet").forEach((planetEl) => {
-      const planetLabel = planetEl.querySelector(".planet-label");
-      
-      planetEl.addEventListener("mouseenter", () => {
-        gsap.to(planetEl, { 
-            scale: 1.25, zIndex: 20, duration: 0.3, ease: "power2.out",
-            boxShadow: "0 0 30px 5px var(--color-primary-alpha)"
+    // --- DESKTOP ANIMATIONS (Interactive & Complex) ---
+    mm.add("(min-width: 768px)", () => {
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top 60%",
+                toggleActions: "play none none reverse",
+            }
         });
-        gsap.to(planetLabel, { opacity: 1, y: 0, duration: 0.3 });
-        mainOrbitAnim.pause();
-      });
 
-      planetEl.addEventListener("mouseleave", () => {
-        gsap.to(planetEl, { 
-            scale: 1, zIndex: 10, duration: 0.3, ease: "power2.out",
-            boxShadow: "0 0 0px 0px var(--color-primary-alpha)"
+        tl.from(".vision-title-container > *, .planet", {
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            ease: "power3.out",
+        })
+        .from(".orbital-sun", {
+            scale: 0.5,
+            opacity: 0,
+            duration: 1,
+            ease: "elastic.out(1, 0.5)",
+        }, 0);
+
+        gsap.to(".orbital-sun", {
+            boxShadow: "0 0 50px 10px var(--color-primary-alpha)",
+            repeat: -1,
+            yoyo: true,
+            duration: 3,
+            ease: "sine.inOut"
         });
-        gsap.to(planetLabel, { opacity: 0, y: 10, duration: 0.3 });
-        mainOrbitAnim.play();
-      });
+
+        const mainOrbitAnim = gsap.to("#main-orbit", {
+            rotation: 360,
+            repeat: -1,
+            duration: 40,
+            ease: "none",
+        });
+
+        gsap.to(".planet-icon-inner", {
+            rotation: -360,
+            repeat: -1,
+            duration: 40,
+            ease: "none",
+        });
+
+        gsap.utils.toArray(".planet").forEach((planetEl) => {
+            const planetLabel = planetEl.querySelector(".planet-label");
+            
+            planetEl.addEventListener("mouseenter", () => {
+                gsap.to(planetEl, { 
+                    scale: 1.25, zIndex: 20, duration: 0.3, ease: "power2.out",
+                    boxShadow: "0 0 30px 5px var(--color-primary-alpha)"
+                });
+                gsap.to(planetLabel, { opacity: 1, y: 0, duration: 0.3 });
+                mainOrbitAnim.pause();
+            });
+
+            planetEl.addEventListener("mouseleave", () => {
+                gsap.to(planetEl, { 
+                    scale: 1, zIndex: 10, duration: 0.3, ease: "power2.out",
+                    boxShadow: "0 0 0px 0px var(--color-primary-alpha)"
+                });
+                gsap.to(planetLabel, { opacity: 0, y: 10, duration: 0.3 });
+                mainOrbitAnim.play();
+            });
+        });
+
+        gsap.to(".star-parallax", {
+            y: (i) => (i % 2 === 0 ? 100 : -100) * (gsap.utils.random(0.5, 1.5)),
+            ease: "none",
+            scrollTrigger: {
+                trigger: containerRef.current,
+                start: "top bottom", end: "bottom top", scrub: 1.5,
+            },
+        });
     });
 
-    // Parallax stars
-    gsap.to(".star-parallax", {
-      y: (i) => (i % 2 === 0 ? 100 : -100) * (gsap.utils.random(0.5, 1.5)),
-      ease: "none",
-      scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top bottom", end: "bottom top", scrub: 1.5,
-      },
+    // --- MOBILE ANIMATIONS (Simplified & Performant) ---
+    mm.add("(max-width: 767px)", () => {
+        gsap.from(".vision-title-container > *, .planet, .orbital-sun", {
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+            opacity: 0,
+            y: 20,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: "power3.out",
+        });
+
+        // Simple rotation, no hover effects or complex interactions
+        gsap.to("#main-orbit", {
+            rotation: 360,
+            repeat: -1,
+            duration: 60, // Slower rotation on mobile
+            ease: "none",
+        });
+
+        gsap.to(".planet-icon-inner", {
+            rotation: -360,
+            repeat: -1,
+            duration: 60,
+            ease: "none",
+        });
     });
 
   }, { scope: containerRef });
