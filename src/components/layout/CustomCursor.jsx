@@ -5,16 +5,20 @@ import gsap from "gsap";
 
 const CustomCursor = () => {
   const [isHovering, setIsHovering] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  // An improved, more reliable check for touch devices
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    const checkIsTouch = () => {
+      // This is a more robust way to detect touch capabilities
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsTouchDevice(hasTouch);
     };
-    checkIsMobile();
-    window.addEventListener("resize", checkIsMobile);
-    return () => window.removeEventListener("resize", checkIsMobile);
+    checkIsTouch();
+    window.addEventListener("resize", checkIsTouch);
+    return () => window.removeEventListener("resize", checkIsTouch);
   }, []);
+
 
   const cursorRingRef = useRef(null);
   const cursorDotRef = useRef(null);
@@ -22,7 +26,8 @@ const CustomCursor = () => {
   const { contextSafe } = useGSAP({ scope: document.body });
 
   useEffect(() => {
-    if (isMobile) {
+    // If it's a touch device, do nothing.
+    if (isTouchDevice) {
       document.body.style.cursor = "auto";
       return;
     }
@@ -30,7 +35,7 @@ const CustomCursor = () => {
     document.body.style.cursor = "none";
 
     const moveCursor = contextSafe((e) => {
-      const { clientX, clientY } = e.touches ? e.touches[0] : e;
+      const { clientX, clientY } = e;
       gsap.to(cursorRingRef.current, {
         x: clientX,
         y: clientY,
@@ -53,20 +58,18 @@ const CustomCursor = () => {
     };
 
     document.addEventListener("mousemove", moveCursor);
-    document.addEventListener("touchmove", moveCursor);
     document.addEventListener("mouseover", handleMouseOver);
 
     return () => {
       document.body.style.cursor = "auto";
       document.removeEventListener("mousemove", moveCursor);
-      document.removeEventListener("touchmove", moveCursor);
       document.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [isMobile, contextSafe]);
+  }, [isTouchDevice, contextSafe]);
 
   // GSAP: Animate cursor based on hover state
   useGSAP(() => {
-    if (isMobile) return;
+    if (isTouchDevice) return;
 
     gsap.to(cursorRingRef.current, {
       scale: isHovering ? 1.8 : 1,
@@ -79,9 +82,9 @@ const CustomCursor = () => {
       duration: 0.3,
       ease: "power2.out",
     });
-  }, [isHovering, isMobile]);
+  }, [isHovering, isTouchDevice]);
 
-  if (isMobile) {
+  if (isTouchDevice) {
     return null;
   }
 
@@ -93,7 +96,6 @@ const CustomCursor = () => {
         className="fixed top-0 left-0 w-8 h-8 pointer-events-none z-[9999]"
         style={{ transform: "translate(-50%, -50%)" }}
       >
-        {/* Using border-accent directly from Tailwind theme */}
         <div className="w-full h-full border-2 rounded-full border-accent" />
       </div>
 
@@ -103,7 +105,6 @@ const CustomCursor = () => {
         className="fixed top-0 left-0 w-2 h-2 pointer-events-none z-[9999]"
         style={{ transform: "translate(-50%, -50%)" }}
       >
-        {/* Using bg-text directly from Tailwind theme */}
         <div className="w-full h-full rounded-full bg-text" />
       </div>
     </>
