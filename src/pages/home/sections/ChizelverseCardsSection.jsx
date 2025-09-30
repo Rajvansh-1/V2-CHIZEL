@@ -429,6 +429,7 @@ const ChizelverseCardsSection = () => {
                 .crystal-card-base {
                     background: #090e20;
                     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 20px 50px rgba(0,0,0,0.5);
+                    will-change: transform;
                 }
                 .crystal-card-inner {
                     background: rgba(15, 23, 42, 0.6);
@@ -448,6 +449,7 @@ const ChizelverseCardsSection = () => {
                     opacity: var(--opacity);
                     transition: opacity 0.4s ease-out;
                     z-index: -1;
+                    will-change: background;
                 }
                 .crystal-card-inner::after { /* The inner glow */
                     content: '';
@@ -458,6 +460,7 @@ const ChizelverseCardsSection = () => {
                     opacity: var(--opacity);
                     transition: opacity 0.4s ease-out;
                     z-index: 0;
+                    will-change: background;
                 }
                 @keyframes cv-twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
                 @keyframes float { 0%, 100% { transform: translateY(0px) rotate(-5deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
