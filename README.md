@@ -1,6 +1,6 @@
 # 🚨 DO NOT PROCEED — STRICTLY PROTECTED — READ BEFORE OPENING 🚨
 
-**Owner:** Rajvansh — Founder, Chizel  
+**Owner:** Rajvansh , Chizel  
 **Year:** 2025
 
 THIS REPOSITORY IS CONFIDENTIAL, PROPRIETARY, AND UNDER ACTIVE PROTECTION.
@@ -19,6 +19,6 @@ We will use technical logs, platform reports, and legal channels to identify and
 - Civil lawsuit for damages, injunctive relief, and recovery of legal costs.  
 - Criminal prosecution where applicable.
 
-If you have a legitimate business need to access this repository, **DO NOT clone it** — contact: **security@chizel.com** and request formal access (NDA and written approval required).
+If you have a legitimate business need to access this repository, **DO NOT clone it** — contact: **chizelconnect@gmail.com** and request formal access.
 
 **Play with this repo without permission and you accept full responsibility for the legal consequences.**
