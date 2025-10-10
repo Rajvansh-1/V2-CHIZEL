@@ -614,3 +614,270 @@ body::-webkit-scrollbar {
   color: var(--color-secondary-text);
   line-height: 1.7;
 }
+
+/* === V4 - REVISED & ALIGNED ABOUT US STYLES === */
+.about-us-v4-container {
+  --spotlight-opacity: 0;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  
+  width: 100%;
+  padding: 6rem 1rem 4rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  overflow-x: hidden;
+
+  /* Subtle background pattern */
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* This is the new wrapper for consistent centering */
+.v4-content-wrapper {
+  width: 100%;
+  max-width: 900px; /* Adjust this to control the main content width */
+  margin: 0 auto 6rem;
+  text-align: center;
+}
+
+.v4-header {
+  margin-bottom: 0; /* Margin is now on the wrapper */
+}
+
+.v4-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.v4-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--color-secondary-text);
+  line-height: 1.7;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.v4-founders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.founder-spotlight-card {
+  position: relative;
+  background: rgba(22, 33, 62, 0.7); /* --color-card with opacity */
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.founder-spotlight-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.founder-spotlight-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    300px circle at var(--mouse-x) var(--mouse-y),
+    rgba(31, 111, 235, 0.2), /* --color-primary-alpha */
+    transparent 80%
+  );
+  opacity: var(--spotlight-opacity);
+  transition: opacity 0.4s ease-out;
+}
+
+.card-content {
+  position: relative;
+  text-align: center;
+}
+
+.founder-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--color-primary);
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 0 20px var(--color-primary-alpha);
+}
+
+.founder-name {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  color: var(--color-text);
+}
+
+.founder-title {
+  color: var(--color-primary);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.founder-socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.founder-socials a {
+  font-size: 1.5rem;
+  color: var(--color-secondary-text);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.founder-socials a:hover {
+  color: var(--color-primary);
+  transform: scale(1.2);
+}
+
+.v4-mission-quote, .v4-philosophy, .v4-cta {
+  margin-bottom: 0; /* Margin is now on the wrapper */
+}
+
+.v4-mission-quote .quote-icon {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.v4-mission-quote blockquote {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.v4-mission-quote cite {
+  display: block;
+  margin-top: 1rem;
+  font-style: normal;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 3rem;
+  color: var(--color-text);
+}
+
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.philosophy-item {
+  padding: 2rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.philosophy-item:hover {
+  transform: translateY(-5px);
+  background: rgba(31, 111, 235, 0.1); /* --color-primary at 10% */
+}
+
+.philosophy-icon {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin: 0 auto 1rem;
+}
+
+.philosophy-item h3 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.philosophy-item p {
+  color: var(--color-secondary-text);
+  font-size: 0.9rem;
+}
+
+.v4-cta p {
+  color: var(--color-secondary-text);
+  line-height: 1.7;
+}
+
+/* === V8 - FAST, PROFESSIONAL LOGO MARQUEE === */
+.v4-impact {
+    padding: 4rem 0;
+    overflow: hidden;
+    margin-bottom: 6rem;
+}
+
+.logo-marquee {
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.marquee-content {
+    display: flex;
+    width: max-content;
+    animation: scroll-v8 linear infinite;
+}
+
+.logo-marquee[data-direction="right"] .marquee-content {
+    animation-direction: reverse;
+}
+
+.logo-marquee:hover .marquee-content {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-v8 {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
+
+.marquee-item {
+    flex-shrink: 0;
+    width: 400px; /* Big boxes */
+    height: 250px; /* Big boxes */
+    padding: 0 1rem; /* Space between boxes */
+    list-style: none;
+}
+
+.marquee-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem; /* More rounded corners */
+    border: 1px solid var(--color-border);
+    opacity: 0.7; /* Slightly faded for a softer look */
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.marquee-item:hover img {
+    opacity: 1;
+    transform: scale(1.05); /* Subtle zoom */
+    border-color: var(--color-primary);
+    box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
+}
