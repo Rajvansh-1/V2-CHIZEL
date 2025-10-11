@@ -108,8 +108,8 @@ const AboutUsPage = () => {
             <p className="v4-subtitle">A glimpse into the vibrant, engaging world we're building for the next generation of learners and creators.</p>
         </div>
         <div className="flex flex-col gap-6 mt-12">
-            <LogoMarquee images={portfolioImages} speed={25} direction="left" />
-            <LogoMarquee images={portfolioImages} speed={25} direction="right" />
+            <LogoMarquee images={portfolioImages} speed={18} direction="left" />
+            <LogoMarquee images={portfolioImages} speed={18} direction="right" />
         </div>
       </div>
 
