@@ -18,11 +18,16 @@ const AboutUsPage = () => {
   ];
   
   const portfolioImages = [
-    "/images/about-image.webp",
-    "/images/ecosystem-image.webp",
-    "/images/vision-image.webp",
-    "/images/hero-poster.png",
-    "/images/Chizel-verse-bg.jpg",
+    "/images/slider/i1.jpg",
+    "/images/slider/i2.jpg",
+    "/images/slider/i3.jpg",
+    "/images/slider/i4.jpg",
+    "/images/slider/i5.jpg",
+    // "/images/slider/i6.png",
+    "/images/slider/i7.png",
+    "/images/slider/i8.png",
+
+
   ];
 
   useGSAP(() => {
