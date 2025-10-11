@@ -5,19 +5,28 @@ import MainLayout from "@components/layout/MainLayout";
 import { trackPageview } from "@/utils/analytics";
 
 // Lazy load the page components
+const ProfessionalPage = lazy(() => import("@/pages/ProfessionalPage"));
 const HomePage = lazy(() => import("@/pages/home"));
 const ChizelWebPage = lazy(() => import("@/pages/chizel-web"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
-// v-- THIS IS THE CORRECTED LINE --v
 const AboutUsPage = lazy(() => import("@/pages/AboutUs"));
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
     children: [
        {
-        index: true,
+        index: true, // ProfessionalPage is now the default route
+        element: (
+          <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
+            <ProfessionalPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "home", // The original homepage is now at /home
         element: (
           <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <HomePage />
@@ -49,7 +58,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "about-us", // This path stays the same
+        path: "about-us",
         element: (
           <Suspense fallback={<div style={{ height: '100vh' }}></div>}>
             <AboutUsPage />

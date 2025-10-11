@@ -52,11 +52,11 @@ const Navbar = () => {
     // --- CALLBACKS ---
     const updateIndicator = useCallback(() => {
         const indicatorEl = gsap.utils.toArray(".active-indicator")[0];
-        if (location.pathname !== '/') {
+        if (location.pathname !== '/home') {
             gsap.to(indicatorEl, { width: 0, duration: 0.3 });
             return;
         }
-        const activeLink = navLinksRef.current.find(link => link?.getAttribute("href") === activeSection);
+        const activeLink = navLinksRef.current.find(link => link?.getAttribute("href") === `/home${activeSection}`);
         if (activeLink) {
             gsap.to(indicatorEl, {
                 x: activeLink.offsetLeft,
@@ -70,17 +70,25 @@ const Navbar = () => {
     const handleLinkClick = (href) => {
         setIsMenuOpen(false);
 
-        if (href.startsWith("/")) {
+        // If it's an internal page link, just navigate
+        if (href.startsWith("/") && !href.includes("#")) {
             navigate(href);
             window.scrollTo(0, 0);
             return;
         }
+        
+        // If on a different page, navigate to home first, then scroll
+        if (location.pathname !== '/home') {
+            navigate('/home' + href);
+            return;
+        }
 
-        const targetElement = document.querySelector(href);
+        const targetId = href.split('#')[1];
+        const targetElement = document.getElementById(targetId);
         if (!targetElement) return;
 
         isClickScrolling.current = true;
-        setActiveSection(href);
+        setActiveSection(`#${targetId}`);
         
         targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -110,7 +118,7 @@ const Navbar = () => {
     }, [updateIndicator]);
 
     useEffect(() => {
-        if (location.pathname !== "/") {
+        if (location.pathname !== "/home") {
             setActiveSection("");
             return;
         }
@@ -141,7 +149,7 @@ const Navbar = () => {
                 className="fixed top-3 left-1/2 -translate-x-1/2 w-[92%] max-w-5xl z-50 bg-card/70 backdrop-blur-md rounded-full border border-white/10 shadow-lg invisible"
             >
                 <div className="px-4 py-2 flex items-center justify-between">
-                    <Link to="/" onClick={() => handleLinkClick("#home")} className="flex items-center gap-2 group cursor-pointer">
+                    <Link to="/home" onClick={(e) => { e.preventDefault(); handleLinkClick('#home'); }} className="flex items-center gap-2 group cursor-pointer">
                         <img src="/images/logo.png" alt="Chizel Logo" className="w-8 h-8 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6" />
                         <span className="text-base sm:text-lg font-heading font-bold text-text">CHIZEL</span>
                     </Link>
@@ -152,11 +160,11 @@ const Navbar = () => {
                             <a
                                 key={item.name}
                                 ref={(el) => (navLinksRef.current[index] = el)}
-                                href={item.href}
+                                href={`/home${item.href}`}
                                 onClick={(e) => { e.preventDefault(); handleLinkClick(item.href); }}
                                 className={clsx(
                                     "relative px-4 py-2 rounded-full text-sm font-ui font-medium transition-colors duration-300 z-10",
-                                    activeSection === item.href && location.pathname === "/" ? "text-text" : "text-secondary-text hover:text-text"
+                                    activeSection === item.href && location.pathname === "/home" ? "text-text" : "text-secondary-text hover:text-text"
                                 )}
                             >
                                 {item.name}
@@ -182,7 +190,7 @@ const Navbar = () => {
                     {navItems.map((item) => (
                         <div key={item.name} className="menu-item opacity-0">
                             <a
-                                href={item.href}
+                                href={`/home${item.href}`}
                                 onClick={(e) => { e.preventDefault(); handleLinkClick(item.href); }}
                                 className="block text-2xl font-heading uppercase tracking-wide relative group cursor-pointer hover:text-primary transition-colors duration-300"
                             >

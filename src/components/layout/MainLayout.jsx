@@ -1,5 +1,5 @@
 // src/components/layout/MainLayout.jsx
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom"; // Import useLocation
 import CustomCursor from "@components/layout/CustomCursor";
 import useLenisScroll from "@hooks/useLenisScroll";
 import Navbar from "@/components/layout/Navbar";
@@ -9,11 +9,15 @@ import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloati
 const MainLayout = () => {
   // Call the hook directly. It manages its own effects.
   useLenisScroll();
+  const location = useLocation();
+  
+  // Conditionally render the Navbar based on the route
+  const showNavbar = location.pathname !== '/';
 
   return (
     <>
       <CustomCursor />
-      <Navbar />
+      {showNavbar && <Navbar />} {/* This is the corrected conditional rendering */}
       <main className="relative w-full min-h-screen bg-background">
         <Outlet />
       </main>
