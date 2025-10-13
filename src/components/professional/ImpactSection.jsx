@@ -3,8 +3,13 @@ import LogoMarquee from "@/components/common/LogoMarquee";
 
 const ImpactSection = () => {
   const portfolioImages = [
-    "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
-    "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i7.png",
+    "/images/slider/i1.jpg",
+    "/images/slider/i2.jpg",
+    "/images/slider/i3.jpg",
+    "/images/slider/i4.jpg",
+    "/images/slider/i5.jpg",
+    // "/images/slider/i6.png",
+    "/images/slider/i7.png",
     "/images/slider/i8.png",
     "/images/slider/i9.jpg",
     "/images/slider/i10.jpg",
