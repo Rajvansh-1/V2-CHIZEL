@@ -89,7 +89,7 @@ const ProfessionalPage = () => {
         <div className="relative z-20 flex flex-col items-center">
           <img src="/images/logo.png" alt="Chizel Logo" className="hero-anim-element w-24 h-24 md:w-32 md:h-32 mb-4 drop-shadow-[0_0_20px_rgba(31,111,235,0.5)]" />
           <h1 className="hero-anim-element font-heading text-4xl sm:text-5xl md:text-7xl font-bold uppercase drop-shadow-lg">
-            From <span className="text-red-500">Brainrot</span> to <span className="animated-gradient-heading">Brilliance</span>
+            Have you ever <span className="text-red-500">Dreamt</span> of being  <span className="animated-gradient-heading">Successfull?</span>
           </h1>
           <p className="hero-anim-element max-w-3xl mx-auto mt-6 text-base sm:text-lg md:text-xl text-secondary-text">
             Chizel is not just another app; it's a revolution. We're on a mission to transform every moment of screen time into a powerful step toward a child's greatness.
