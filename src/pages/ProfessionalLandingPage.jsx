@@ -3,17 +3,16 @@ import { useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin'; // Import ScrollToPlugin
+// import { ScrollToPlugin } from 'gsap/ScrollToPlugin'; // <-- REMOVED
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button'; // Assuming Button component handles styles
-// Footer is removed as it's handled by MainLayout
 import LogoMarquee from '@/components/common/LogoMarquee'; // Import LogoMarquee
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
     FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends
 } from 'react-icons/fa';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin); // Register ScrollToPlugin
+gsap.registerPlugin(ScrollTrigger); // <-- REMOVED ScrollToPlugin
 
 // --- Starfield Component (Reusable) ---
 const Starfield = ({ count = 100 }) => (
@@ -59,11 +58,20 @@ const ObstacleCard = ({ icon, title, description, delay }) => {
         tl.to(cardRef.current, {
             y: -8,
             scale: 1.03,
-            boxShadow: '0 15px 35px rgba(var(--color-primary-rgb, 31, 111, 235), 0.3)',
-            borderColor: 'var(--color-primary)',
+            boxShadow: '0 15px 35px rgba(239, 68, 68, 0.3)', // Red shadow
+            borderColor: 'rgb(239, 68, 68)', // Red border
             duration: 0.4,
             ease: 'power2.out',
         });
+        
+        // Icon Animation on Hover
+        tl.to(cardRef.current.querySelector('.obstacle-icon-wrapper'), {
+            scale: 1.15,
+            y: -5,
+            rotate: -8,
+            duration: 0.4,
+            ease: 'power2.out'
+        }, 0); 
 
         cardRef.current.addEventListener('mouseenter', () => tl.play());
         cardRef.current.addEventListener('mouseleave', () => tl.reverse());
@@ -71,12 +79,10 @@ const ObstacleCard = ({ icon, title, description, delay }) => {
     }, { scope: cardRef });
 
     return (
-        <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-xl transform-gpu transition-colors duration-300 relative overflow-hidden"> {/* Added group, relative, overflow */}
-             {/* Added an inner glow effect div */}
-             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-             {/* Icon with background */}
-            <div className="relative inline-block mb-4 p-3 bg-primary/20 rounded-full border border-primary/30 transition-transform duration-300 group-hover:scale-110">
-                 <div className="text-primary text-3xl">{icon}</div>
+        <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-xl transform-gpu transition-colors duration-300 relative overflow-hidden"> 
+             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/15 via-transparent to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+            <div className="obstacle-icon-wrapper relative inline-block mb-4 p-3 bg-red-500/20 rounded-full border border-red-500/30 transition-colors duration-300">
+                 <div className="text-red-500 text-3xl">{icon}</div> 
             </div>
              <h3 className="font-heading text-xl text-text mb-2">{title}</h3>
              <p className="text-secondary-text text-sm leading-relaxed">{description}</p>
@@ -134,7 +140,7 @@ const ImpactCard = ({ icon, title, description, buttonText, onClick, gradientCla
                     onClick={onClick}
                     className="impact-button mt-auto relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition duration-300 ease-out border-2 border-white/30 rounded-full group w-full hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-white/50" // Added focus styles
                 >
-                    <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-gradient-to-r from-primary via-accent to-primary bg-size-200 bg-pos-0 group-hover:translate-x-0 group-hover:bg-pos-100 ease"> {/* Added ease */}
+                    <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-gradient-to-r from-primary via-accent to-primary bg-size-200 bg-pos-0 group-hover:translate-x-0 group-hover:bg-pos-100 ease"> 
                         <FaArrowRight className="text-xl ml-1 transform transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                     <span className="absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease">
@@ -172,68 +178,15 @@ const ProfessionalLandingPage = () => {
     ];
 
     useGSAP(() => {
-        const sections = gsap.utils.toArray('.snap-section');
-        let currentSection = 0;
-        let isScrolling; // Flag to prevent triggering during animation
-
-        const goToSection = (index, duration = 1) => {
-            if (index < 0 || index >= sections.length || isScrolling) return;
-            currentSection = index;
-            isScrolling = true;
-            gsap.to(window, {
-                scrollTo: { y: sections[index], autoKill: false },
-                duration: duration,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    // Use setTimeout to ensure the flag is reset slightly after the scroll completes
-                    setTimeout(() => { isScrolling = false; }, 100);
-                 }
-            });
-        };
-
-        ScrollTrigger.create({
-            trigger: containerRef.current,
-            start: "top top",
-            end: "bottom bottom",
-            markers: false, // Turn true for debugging scroll snap points
-            onUpdate: (self) => {
-                 if (isScrolling || self.isDragging || self.isTweening) return;
-
-                 const velocity = self.getVelocity();
-                 const direction = self.direction;
-                 const progress = self.progress;
-                 const sectionIndex = Math.floor(progress * sections.length);
-
-                 // More sensitive velocity check
-                 const velocityThreshold = 300; // Lower threshold to react sooner
-                 const snapThreshold = 0.1; // Percentage of section height scrolled needed to snap
-
-                 let targetSection = currentSection;
-
-                 if (Math.abs(velocity) > velocityThreshold) {
-                     // Snap based on velocity and direction
-                     targetSection = direction === 1 ? currentSection + 1 : currentSection - 1;
-                 } else {
-                     // Snap based on progress within the current section
-                     const sectionProgress = (progress * sections.length) - sectionIndex;
-                     if (direction === 1 && sectionProgress > snapThreshold) {
-                         targetSection = currentSection + 1;
-                     } else if (direction === -1 && sectionProgress < (1 - snapThreshold)) {
-                         targetSection = currentSection - 1;
-                     }
-                 }
-
-                 targetSection = gsap.utils.clamp(0, sections.length - 1, targetSection);
-
-                 if (targetSection !== currentSection) {
-                     goToSection(targetSection, 0.8); // Adjust snap duration if needed
-                 }
-             },
-        });
+        // --- ALL SCROLL-SNAPPING LOGIC REMOVED ---
 
 
-        // --- Section Entrance Animations ---
+        // --- Section Entrance Animations (These are normal scroll-triggered animations) ---
         gsap.from(".section-1-content > *", { opacity: 0, y: 50, stagger: 0.3, duration: 1, ease: "power3.out", delay: 0.5 });
+        
+        // Animate in the scroll indicator for section 1
+        gsap.from(".section-1 .scroll-indicator", { opacity: 0, y: 20, duration: 1, ease: "power3.out", delay: 1.5 }); // Delay until after text
+
         gsap.from(".section-2-content > *", { scrollTrigger: { trigger: ".section-2", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, y: 50, stagger: 0.15, duration: 0.8, ease: "power3.out" });
         // Obstacle card animation is within its component
         gsap.from(".section-3-content > *", { scrollTrigger: { trigger: ".section-3", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, scale: 0.8, duration: 1.2, ease: "elastic.out(1, 0.7)" });
@@ -246,16 +199,16 @@ const ProfessionalLandingPage = () => {
         // Twinkle animation for stars
          gsap.to(".star", {
            opacity: () => gsap.utils.random(0.3, 0.8),
-           scale: () => gsap.utils.random(0.7, 1.1), // Slightly adjusted scale
-           duration: () => gsap.utils.random(2, 4), // Faster twinkle
+           scale: () => gsap.utils.random(0.7, 1.1), 
+           duration: () => gsap.utils.random(2, 4), 
            repeat: -1,
            yoyo: true,
            ease: "sine.inOut",
            stagger: {
-               each: 0.05, // Slightly faster stagger
+               each: 0.05, 
                from: "random"
            },
-           delay: () => gsap.utils.random(0, 1) // Start twinkling at different times
+           delay: () => gsap.utils.random(0, 1) 
          });
 
     }, { scope: containerRef });
@@ -270,6 +223,7 @@ const ProfessionalLandingPage = () => {
         <div ref={containerRef} className="professional-landing bg-background text-text">
 
             {/* Section 1: Intro Question */}
+            {/* Using snap-section class just for min-height and flex properties now */}
             <section className="snap-section section-1 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
                 <Starfield count={150} />
                 <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-gradient-radial from-primary/15 via-transparent to-transparent rounded-full animate-pulse blur-3xl opacity-70"></div>
@@ -283,6 +237,13 @@ const ProfessionalLandingPage = () => {
                      </p>
                     
                 </div>
+                
+                {/* --- This is the scroll down symbol you requested --- */}
+               {/* --- UPDATED: Scroll Down Indicator for Section 1 --- */}
+<div className="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 text-white/80 animate-bounce flex flex-col items-center gap-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"> {/* <-- REMOVED opacity-0 and ADDED styles */}
+    <span className="text-sm tracking-wider font-light">Scroll Down</span>
+    <FaAngleDoubleDown className="text-lg" />
+</div>
             </section>
 
             {/* Section 2: Obstacles */}
@@ -290,9 +251,9 @@ const ProfessionalLandingPage = () => {
                  <Starfield count={100} />
                  <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-radial from-red-500/10 via-transparent to-transparent rounded-full blur-3xl opacity-60 animate-pulse animation-delay-1000"></div>
                  <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-radial from-orange-500/10 via-transparent to-transparent rounded-full blur-3xl opacity-60 animate-pulse animation-delay-3000"></div>
-                <div className="section-2-content relative z-10 w-full max-w-5xl text-center">
+                 <div className="section-2-content relative z-10 w-full max-w-5xl text-center">
                     <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-16">
-                        What's <span className="text-red-500">Holding</span> Us Back?
+                        What's <span className="text-red-500">Holding</span> You Back?
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {obstacles.map((obstacle, index) => (
@@ -306,6 +267,7 @@ const ProfessionalLandingPage = () => {
                         ))}
                     </div>
                  </div>
+                 {/* This is the other scroll indicator, you can keep or remove it */}
                  <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-secondary-text animate-bounce flex flex-col items-center gap-1 opacity-70">
                      <span>Continue Journey</span>
                      <FaAngleDoubleDown />
@@ -320,7 +282,7 @@ const ProfessionalLandingPage = () => {
                  </div>
                  <div className="section-3-content relative z-10 flex flex-col items-center">
                      <div className="relative mb-8 p-2 border-2 border-primary/30 rounded-full shadow-[0_0_30px_rgba(var(--color-primary-rgb,31,111,235),0.4)]">
-                        <img src="/images/logo.png" alt="Chizel Logo" className="w-24 h-24 md:w-32 md:h-32 drop-shadow-lg"/>
+                         <img src="/images/logo.png" alt="Chizel Logo" className="w-24 h-24 md:w-32 md:h-32 drop-shadow-lg"/>
                      </div>
                     <h2 className="font-heading text-4xl md:text-6xl font-bold text-text mb-4 drop-shadow-md">
                         That's Where <span className="animated-gradient-heading">Chizel</span> Was Born.
@@ -383,14 +345,14 @@ const ProfessionalLandingPage = () => {
                          />
                      </div>
 
-                    {/* Logo Marquee remains */}
-                    <h3 className="font-heading text-3xl md:text-4xl text-text mb-8 mt-16 opacity-80">Our Journey & Milestones</h3>
-                     <div className="v4-impact">
-                         <div className="flex flex-col gap-6">
-                              <LogoMarquee images={portfolioImages} speed={25} direction="left" />
-                              <LogoMarquee images={[...portfolioImages].reverse()} speed={25} direction="right" />
-                         </div>
-                     </div>
+                     {/* Logo Marquee remains */}
+                     <h3 className="font-heading text-3xl md:text-4xl text-text mb-8 mt-16 opacity-80">Our Journey & Milestones</h3>
+                      <div className="v4-impact">
+                          <div className="flex flex-col gap-6">
+                               <LogoMarquee images={portfolioImages} speed={25} direction="left" />
+                               <LogoMarquee images={[...portfolioImages].reverse()} speed={25} direction="right" />
+                          </div>
+                      </div>
                  </div>
                  <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-secondary-text animate-bounce flex flex-col items-center gap-1 opacity-70">
                      <span>Join the Mission</span>
@@ -399,7 +361,7 @@ const ProfessionalLandingPage = () => {
              </section>
 
              {/* Section 5: CTA */}
-             <section className="snap-section section-5 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
+              <section className="snap-section section-5 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
                  <Starfield count={200} />
                  <div className="absolute inset-0 flex items-center justify-center z-0 opacity-60">
                      <div className="w-[60vmin] h-[60vmin] bg-gradient-radial from-primary/30 via-accent/15 to-transparent rounded-full animate-pulse blur-3xl"></div>
@@ -442,9 +404,9 @@ const ProfessionalLandingPage = () => {
                 }
                  /* Define RGB color variables */
                  :root {
-                    --color-primary-rgb: 31, 111, 235;
-                    --color-accent-rgb: 93, 63, 211;
-                    --color-badge-bg-rgb: 255, 179, 71; /* Assuming badge color */
+                     --color-primary-rgb: 31, 111, 235;
+                     --color-accent-rgb: 93, 63, 211;
+                     --color-badge-bg-rgb: 255, 179, 71; /* Assuming badge color */
                  }
 
                  /* New Impact Card Button Styles */
@@ -452,39 +414,29 @@ const ProfessionalLandingPage = () => {
                 .impact-button .bg-pos-0 { background-position: 0% center; }
                 .impact-button .bg-pos-100 { background-position: 100% center; }
 
-                 body {
-                    /* Prevent default browser scrollbar bounce/overscroll effects */
-                   overscroll-behavior-y: none;
-                   /* Hide scrollbar visually - note: functionality remains */
-                   scrollbar-width: none; /* Firefox */
-                   -ms-overflow-style: none; /* IE and Edge */
-                 }
-                  body::-webkit-scrollbar {
-                    display: none; /* Safari and Chrome */
-                  }
-
+                 /* --- REMOVED CSS THAT HIDES SCROLLBAR --- */
+                 
                  .snap-section {
-                   min-height: 100vh;
-                   /* Ensure sections always take at least full viewport height */
-                   /* Using flex to center content vertically and horizontally */
-                   display: flex;
-                   flex-direction: column; /* Stack content vertically */
-                   align-items: center;
-                   justify-content: center;
-                   position: relative; /* Crucial for absolute positioning inside */
-                   width: 100%; /* Ensure full width */
-                   overflow: hidden; /* Prevent content overflow issues */
+                    min-height: 100vh;
+                     /* This class is just used for min-height and flex centering now */
+                    display: flex;
+                    flex-direction: column; /* Stack content vertically */
+                    align-items: center;
+                    justify-content: center;
+                    position: relative; /* Crucial for absolute positioning inside */
+                    width: 100%; /* Ensure full width */
+                    overflow: hidden; /* Prevent content overflow issues */
                  }
 
                  /* Animated Gradient Heading - Ensure this is defined */
                  .animated-gradient-heading {
-                     color: transparent;
-                     background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-badge-bg), var(--color-primary));
-                     background-clip: text;
-                     -webkit-background-clip: text;
-                     background-size: 200% auto;
-                     animation: gradient-animation 6s linear infinite; /* Adjust speed if needed */
-                     font-weight: 800;
+                      color: transparent;
+                      background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-badge-bg), var(--color-primary));
+                      background-clip: text;
+                      -webkit-background-clip: text;
+                      background-size: 200% auto;
+                      animation: gradient-animation 6s linear infinite; /* Adjust speed if needed */
+                      font-weight: 800;
                  }
 
                  @keyframes gradient-animation {
