@@ -23,9 +23,14 @@ const AboutUsPage = () => {
     "/images/slider/i3.jpg",
     "/images/slider/i4.jpg",
     "/images/slider/i5.jpg",
+    "public/images/slider/i10.png",
     // "/images/slider/i6.png",
-    "/images/slider/i7.png",
+    
     "/images/slider/i8.png",
+    "public/images/slider/i9.png",
+    "/images/slider/i7.png",
+    "public/images/slider/i11.png"
+
 
 
   ];
