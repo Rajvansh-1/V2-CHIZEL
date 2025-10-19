@@ -4,8 +4,8 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
-import Button from '@/components/ui/Button'; // Assuming Button component handles styles
-import LogoMarquee from '@/components/common/LogoMarquee'; // Import LogoMarquee
+import Button from '@/components/ui/Button';
+import LogoMarquee from '@/components/common/LogoMarquee';
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
     FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends
@@ -13,26 +13,118 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- Starfield Component (Reusable) ---
-const Starfield = ({ count = 100 }) => (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-50" aria-hidden="true">
-        {Array.from({ length: count }).map((_, i) => (
-            <div
-                key={`star-${i}`}
-                className="star absolute w-px h-px bg-white rounded-full" // Added 'star' class for GSAP twinkle
-                style={{
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                    // Animation handled by GSAP now for better control
-                    opacity: 0 // Start hidden for GSAP animation
-                }}
-            />
-        ))}
-    </div>
-);
+// --- UPDATED Realistic Starfield Component ---
+const RealisticStarfield = ({
+    starCount = 150, // Reduced star count significantly
+    layerCount = 3,
+    baseSpeed = 0.05
+}) => {
+    const starfieldRef = useRef(null); // Ref for GSAP context
+    const layers = [];
+    for (let i = 0; i < layerCount; i++) {
+        const count = Math.floor(starCount / Math.pow(i + 1, 1.5)); // Fewer stars on farther layers
+        const speedFactor = baseSpeed * (i + 1);
+        const opacity = 1 - i * 0.3; // Make farther layers dimmer
+        const stars = [];
+        for (let j = 0; j < count; j++) {
+            stars.push({
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                size: `${Math.random() * 1.2 + 0.3}px`, // Slightly smaller stars
+                animationDuration: `${Math.random() * 4 + 4}s`, // Slower twinkle
+                animationDelay: `${Math.random() * 6}s`
+            });
+        }
+        // Deeper negative z-index to ensure it's behind everything
+        layers.push({ stars, speedFactor, opacity, zIndex: -50 - i });
+    }
+
+    // GSAP for Parallax and Initial Fade-in/Twinkle
+    useGSAP(() => {
+        // Parallax effect
+        gsap.utils.toArray('.star-layer').forEach((layer, i) => {
+            const speed = layer.dataset.speed;
+            gsap.to(layer, {
+                yPercent: -20 * speed, // Increased parallax intensity slightly
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 2 // Slightly slower scrub for smoothness
+                }
+            });
+        });
+
+        // Initial fade-in and start twinkle animation via GSAP
+        gsap.fromTo(".realistic-star",
+           { opacity: 0, scale: 0.5 }, // Start invisible and small
+           {
+             opacity: () => gsap.utils.random(0.4, 0.9), // Fade to random opacity
+             scale: 1, // Scale to normal size
+             duration: 1.5,
+             stagger: {
+                each: 0.01,
+                from: "random"
+             },
+             ease: "power2.out",
+             // Start twinkle animation *after* fade-in
+             onComplete: function() {
+                gsap.to(this.targets(), { // `this.targets()` refers to the stars
+                    opacity: () => gsap.utils.random(0.3, 0.7), // Twinkle opacity range
+                    scale: () => gsap.utils.random(0.8, 1.2), // Subtle size change
+                    duration: () => gsap.utils.random(3, 6), // Twinkle duration
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                    delay: () => gsap.utils.random(0, 3) // Random start delay for twinkle
+                });
+             }
+           }
+        );
+
+    }, { scope: starfieldRef }); // Scope animations to this component
+
+    return (
+        // Added ref here
+        <div ref={starfieldRef} className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010]">
+            {/* Subtle Nebula Effect */}
+            <div className="absolute inset-0 opacity-25 mix-blend-soft-light"> {/* Adjusted blend mode and opacity */}
+                <div className="absolute top-[-30%] left-[-20%] w-[70vw] h-[70vh] bg-gradient-radial from-primary/20 via-transparent to-transparent rounded-full animate-pulse blur-3xl animation-delay-1000"></div>
+                <div className="absolute bottom-[-25%] right-[-25%] w-[80vw] h-[80vh] bg-gradient-radial from-accent/15 via-transparent to-transparent rounded-full animate-pulse blur-3xl animation-delay-3000"></div>
+            </div>
+
+            {/* Star Layers */}
+            {layers.map((layer, i) => (
+                <div
+                    key={`layer-${i}`}
+                    className="star-layer absolute inset-0"
+                    data-speed={layer.speedFactor}
+                    style={{ zIndex: layer.zIndex, opacity: layer.opacity }}
+                >
+                    {layer.stars.map((star, j) => (
+                        <div
+                            key={`star-${i}-${j}`}
+                            // REMOVED CSS animation class, now handled by GSAP
+                            className="realistic-star absolute rounded-full bg-white opacity-0" // Start with opacity 0
+                            style={{
+                                top: star.top,
+                                left: star.left,
+                                width: star.size,
+                                height: star.size,
+                            }}
+                        />
+                    ))}
+                </div>
+            ))}
+             {/* REMOVED style tag with CSS animation */}
+        </div>
+    );
+};
 
 
 // --- Enhanced Obstacle Card Component ---
+// ... (ObstacleCard component remains the same) ...
 const ObstacleCard = ({ icon, title, description, delay }) => {
     const cardRef = useRef(null);
 
@@ -91,6 +183,7 @@ const ObstacleCard = ({ icon, title, description, delay }) => {
 
 
 // --- NEW Impact Card Component ---
+// ... (ImpactCard component remains the same) ...
 const ImpactCard = ({ icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
     const cardRef = useRef(null);
 
@@ -179,36 +272,33 @@ const ProfessionalLandingPage = () => {
     useGSAP(() => {
         // --- ALL SCROLL-SNAPPING LOGIC REMOVED ---
 
+        // --- Section Entrance Animations ---
+        gsap.from(".section-1 .animated-element", { opacity: 0, y: 50, stagger: 0.2, duration: 1, ease: "power3.out", delay: 0.5 });
+        gsap.from(".section-1 .scroll-indicator", { opacity: 0, y: 20, duration: 1, ease: "power3.out", delay: 1.5 });
 
-        // --- Section Entrance Animations (These are normal scroll-triggered animations) ---
-        gsap.from(".section-1-content > *", { opacity: 0, y: 50, stagger: 0.3, duration: 1, ease: "power3.out", delay: 0.5 });
+        gsap.from(".section-2 .animated-element", {
+            scrollTrigger: { trigger: ".section-2", start: "top 75%", toggleActions: 'play none none reverse' },
+            opacity: 0, y: 50, stagger: 0.1, duration: 0.8, ease: "power3.out"
+        });
 
-        // Animate in the scroll indicator for section 1
-        gsap.from(".section-1 .scroll-indicator", { opacity: 0, y: 20, duration: 1, ease: "power3.out", delay: 1.5 }); // Delay until after text
+        gsap.from(".section-3 .animated-element", {
+            scrollTrigger: { trigger: ".section-3", start: "top 75%", toggleActions: 'play none none reverse' },
+            opacity: 0, scale: 0.8, stagger: 0.15, duration: 1, ease: "elastic.out(1, 0.7)"
+        });
 
-        gsap.from(".section-2-content > *", { scrollTrigger: { trigger: ".section-2", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, y: 50, stagger: 0.15, duration: 0.8, ease: "power3.out" });
-        // Obstacle card animation is within its component
-        gsap.from(".section-3-content > *", { scrollTrigger: { trigger: ".section-3", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, scale: 0.8, duration: 1.2, ease: "elastic.out(1, 0.7)" });
-        // Section 4 animation targets the container for the impact cards
-        gsap.from(".impact-card-container", { scrollTrigger: { trigger: ".section-4", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, y: 50, duration: 0.8, ease: "power3.out" });
-        // Animate marquee section separately - Adjusted trigger timing slightly
-        gsap.from(".section-4 .v4-impact", { scrollTrigger: { trigger: ".section-4", start: "top 70%", toggleActions: 'play none none reverse' }, opacity: 0, y: 50, duration: 0.8, ease: "power3.out" });
-        gsap.from(".section-5-content > *", { scrollTrigger: { trigger: ".section-5", start: "top 75%", toggleActions: 'play none none reverse' }, opacity: 0, y: 50, stagger: 0.15, duration: 0.8, ease: "power3.out" });
+        gsap.from(".section-4-intro > *", {
+            scrollTrigger: { trigger: ".section-4-intro", start: "top 75%", toggleActions: 'play none none reverse' },
+            opacity: 0, y: 50, stagger: 0.1, duration: 0.8, ease: "power3.out"
+        });
+        gsap.from(".section-4 .v4-impact", {
+            scrollTrigger: { trigger: ".section-4 .v4-impact", start: "top 80%", toggleActions: 'play none none reverse' },
+            opacity: 0, y: 50, duration: 0.8, ease: "power3.out"
+        });
 
-        // Twinkle animation for stars
-         gsap.to(".star", {
-           opacity: () => gsap.utils.random(0.3, 0.8),
-           scale: () => gsap.utils.random(0.7, 1.1),
-           duration: () => gsap.utils.random(2, 4),
-           repeat: -1,
-           yoyo: true,
-           ease: "sine.inOut",
-           stagger: {
-               each: 0.05,
-               from: "random"
-           },
-           delay: () => gsap.utils.random(0, 1)
-         });
+        gsap.from(".section-5 .animated-element", {
+            scrollTrigger: { trigger: ".section-5", start: "top 75%", toggleActions: 'play none none reverse' },
+            opacity: 0, y: 50, stagger: 0.15, duration: 0.8, ease: "power3.out"
+        });
 
     }, { scope: containerRef });
 
@@ -219,37 +309,35 @@ const ProfessionalLandingPage = () => {
 
 
     return (
-        <div ref={containerRef} className="professional-landing bg-background text-text">
+        <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10">
+            {/* Render the RealisticStarfield ONCE, fixed behind everything */}
+            <RealisticStarfield starCount={200} layerCount={3} baseSpeed={0.04} /> {/* Adjusted props */}
 
             {/* Section 1: Intro Question */}
             <section className="snap-section section-1 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                <Starfield count={150} /> {/* Added Starfield */}
-                <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-gradient-radial from-primary/15 via-transparent to-transparent rounded-full animate-pulse blur-3xl opacity-70"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-radial from-accent/15 via-transparent to-transparent rounded-full animate-pulse animation-delay-2000 blur-3xl opacity-70"></div>
+                {/* No background elements needed here anymore */}
                 <div className="section-1-content relative z-10">
-                    <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] leading-tight md:leading-tight">
-                        Ever Dreamt of <br className="hidden md:inline" /> Being Successful? {/* Updated Heading */}
+                    <h1 className="animated-element font-heading text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] leading-tight md:leading-tight">
+                        Ever Dreamt of <br className="hidden md:inline" /> Being Successful?
                     </h1>
-                     <p className="text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
+                     <p className="animated-element text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
                          Unlocking potential in a universe saturated with digital noise.
                      </p>
                 </div>
-                <div className="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 text-white/80 animate-bounce flex flex-col items-center gap-2 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                    <span className="text-sm tracking-wider font-light">Scroll Down</span>
-                    <FaAngleDoubleDown className="text-lg" />
-                </div>
+               <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-secondary-text animate-bounce flex flex-col items-center gap-1 opacity-70">
+                     <span>Scroll Down</span>
+                     <FaAngleDoubleDown />
+                 </div>
             </section>
 
             {/* Section 2: Obstacles */}
             <section className="snap-section section-2 min-h-screen flex flex-col items-center justify-center p-6 md:p-12 relative overflow-hidden">
-                 <Starfield count={100} /> {/* Added Starfield */}
-                 <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-radial from-red-500/10 via-transparent to-transparent rounded-full blur-3xl opacity-60 animate-pulse animation-delay-1000"></div>
-                 <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-radial from-orange-500/10 via-transparent to-transparent rounded-full blur-3xl opacity-60 animate-pulse animation-delay-3000"></div>
+                 {/* No background elements needed here anymore */}
                  <div className="section-2-content relative z-10 w-full max-w-5xl text-center">
-                    <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-16">
+                    <h2 className="animated-element font-heading text-4xl md:text-5xl font-bold text-text mb-16">
                         What's <span className="text-red-500">Holding</span> You Back?
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="animated-element grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {obstacles.map((obstacle, index) => (
                             <ObstacleCard
                                 key={obstacle.title}
@@ -269,18 +357,15 @@ const ProfessionalLandingPage = () => {
 
             {/* Section 3: Chizel Born */}
             <section className="snap-section section-3 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                 <Starfield count={150} /> {/* Added Starfield */}
-                 <div className="absolute inset-0 flex items-center justify-center z-0 opacity-40">
-                     <div className="w-[50vmin] h-[50vmin] bg-gradient-radial from-primary/25 via-transparent to-transparent rounded-full animate-pulse blur-3xl"></div>
-                 </div>
+                 {/* No background elements needed here anymore */}
                  <div className="section-3-content relative z-10 flex flex-col items-center">
-                     <div className="relative mb-8 p-2 border-2 border-primary/30 rounded-full shadow-[0_0_30px_rgba(var(--color-primary-rgb,31,111,235),0.4)]">
+                     <div className="animated-element relative mb-8 p-2 border-2 border-primary/30 rounded-full shadow-[0_0_30px_rgba(var(--color-primary-rgb,31,111,235),0.4)]">
                          <img src="/images/logo.png" alt="Chizel Logo" className="w-24 h-24 md:w-32 md:h-32 drop-shadow-lg"/>
                      </div>
-                    <h2 className="font-heading text-4xl md:text-6xl font-bold text-text mb-4 drop-shadow-md">
+                    <h2 className="animated-element font-heading text-4xl md:text-6xl font-bold text-text mb-4 drop-shadow-md">
                         That's Where <span className="animated-gradient-heading">Chizel</span> Was Born.
                     </h2>
-                    <p className="text-secondary-text text-lg md:text-xl max-w-xl leading-relaxed">
+                    <p className="animated-element text-secondary-text text-lg md:text-xl max-w-xl leading-relaxed">
                         Forged from the need to transform passive screen time into an active launchpad for brilliance and real-world skills.
                     </p>
                  </div>
@@ -292,17 +377,15 @@ const ProfessionalLandingPage = () => {
 
             {/* Section 4: Our Impact & Milestones */}
              <section className="snap-section section-4 min-h-screen flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center relative overflow-hidden">
-                 <Starfield count={120} /> {/* Added Starfield */}
-                 <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-accent/10 to-transparent blur-3xl opacity-50"></div>
-                 <div className="absolute bottom-0 right-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent blur-3xl opacity-50"></div>
-
+                 {/* No background elements needed here anymore */}
                  <div className="section-4-content relative z-10 w-full max-w-6xl">
-                     {/* === SWAPPED SECTIONS START === */}
-                     {/* Logo Marquee Section */}
-                     <h3 className="font-heading text-3xl md:text-4xl text-text mb-8 opacity-80 v4-impact">
-                         Our Journey & Milestones
-                     </h3>
-                      <div className="v4-impact mb-16"> {/* Removed heading from here, kept container */}
+                     {/* Swapped Section: Logo Marquee first */}
+                     <div className="section-4-intro">
+                        <h3 className="font-heading text-3xl md:text-4xl text-text mb-8 opacity-80">
+                            Our Journey & Milestones
+                        </h3>
+                     </div>
+                      <div className="v4-impact mb-16">
                           <div className="flex flex-col gap-6">
                                <LogoMarquee images={portfolioImages} speed={25} direction="left" />
                                <LogoMarquee images={[...portfolioImages].reverse()} speed={25} direction="right" />
@@ -310,19 +393,21 @@ const ProfessionalLandingPage = () => {
                       </div>
 
                      {/* Impact Cards Section */}
-                     <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-6 mt-16"> {/* Added margin top */}
-                         Explore the <span className="animated-gradient-heading">Chizel Universe</span>
-                     </h2>
-                     <p className="text-secondary-text text-lg md:text-xl max-w-3xl mx-auto mb-12">
-                         Dive into the core platform or experience tailored journeys designed for kids and parents.
-                     </p>
+                     <div className="section-4-intro mt-16">
+                        <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-6">
+                            Explore the <span className="animated-gradient-heading">Chizel Universe</span>
+                        </h2>
+                        <p className="text-secondary-text text-lg md:text-xl max-w-3xl mx-auto mb-12">
+                            Dive into the core platform or experience tailored journeys designed for kids and parents.
+                        </p>
+                     </div>
                      <div className="impact-card-container grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                          <ImpactCard
                              icon={<FaGlobe />}
                              title="Chizel Core"
                              description="Discover the foundation of our learning ecosystem, technology, and vision."
                              buttonText="Explore Core"
-                             onClick={() => handleNavigate('/chizel-core')} // *** CORRECTED onClick ***
+                             onClick={() => handleNavigate('/chizel-core')}
                              gradientClass="bg-gradient-to-br from-blue-900/50 via-card/70 to-blue-900/50 backdrop-blur-lg"
                              iconBgClass="bg-blue-500/30"
                              shadowClass={"rgba(31, 111, 235, 0.4)"}
@@ -348,7 +433,6 @@ const ProfessionalLandingPage = () => {
                              shadowClass={"rgba(255, 179, 71, 0.4)"}
                          />
                      </div>
-                     {/* === SWAPPED SECTIONS END === */}
                  </div>
                  <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-secondary-text animate-bounce flex flex-col items-center gap-1 opacity-70">
                      <span>Join the Mission</span>
@@ -358,18 +442,15 @@ const ProfessionalLandingPage = () => {
 
              {/* Section 5: CTA */}
               <section className="snap-section section-5 h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                 <Starfield count={200} /> {/* Added Starfield */}
-                 <div className="absolute inset-0 flex items-center justify-center z-0 opacity-60">
-                     <div className="w-[60vmin] h-[60vmin] bg-gradient-radial from-primary/30 via-accent/15 to-transparent rounded-full animate-pulse blur-3xl"></div>
-                 </div>
+                 {/* No background elements needed here anymore */}
                  <div className="section-5-content relative z-10 w-full max-w-3xl">
-                     <h2 className="font-heading text-4xl md:text-6xl font-bold text-text mb-6 drop-shadow-md">
+                     <h2 className="animated-element font-heading text-4xl md:text-6xl font-bold text-text mb-6 drop-shadow-md">
                          Ready to Ignite <span className="animated-gradient-heading">Potential?</span>
                      </h2>
-                     <p className="text-secondary-text text-lg md:text-xl mb-10 leading-relaxed">
+                     <p className="animated-element text-secondary-text text-lg md:text-xl mb-10 leading-relaxed">
                          Be among the first explorers. Join the Chizel waitlist today for exclusive early access, special launch rewards, and updates on our mission to reshape learning.
                      </p>
-                     <div className="relative inline-block group">
+                     <div className="animated-element relative inline-block group">
                           <div className="absolute -inset-1.5 bg-gradient-to-r from-primary via-accent to-badge-bg rounded-full blur-lg opacity-60 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
                           <Button
                               title="Secure Your Spot"
@@ -383,19 +464,6 @@ const ProfessionalLandingPage = () => {
 
             {/* Global Styles */}
             <style jsx global>{`
-                /* Starfield twinkle animation */
-                @keyframes twinkle {
-                    0%, 100% { opacity: var(--start-opacity, 0.2); transform: scale(var(--start-scale, 0.8)); }
-                    50% { opacity: 1; transform: scale(1.2); }
-                }
-                .star {
-                    --start-opacity: ${Math.random() * 0.4 + 0.1};
-                    --start-scale: ${Math.random() * 0.3 + 0.7};
-                    animation-name: twinkle;
-                    animation-timing-function: ease-in-out;
-                    animation-iteration-count: infinite;
-                    animation-direction: alternate;
-                }
                  /* Define RGB color variables */
                  :root {
                      --color-primary-rgb: 31, 111, 235;
@@ -410,16 +478,23 @@ const ProfessionalLandingPage = () => {
 
                  /* --- REMOVED CSS THAT HIDES SCROLLBAR --- */
 
+                 /* Use relative positioning for sections to allow fixed background */
                  .snap-section {
                     min-height: 100vh;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    position: relative;
+                    position: relative; /* Keep relative for content flow */
                     width: 100%;
-                    overflow: hidden;
+                    overflow: hidden; /* Prevent content overflow */
+                    z-index: 1; /* Ensure sections are above the fixed background */
+                    background-color: transparent; /* Make section backgrounds transparent */
                  }
+                 .professional-landing {
+                    background-color: transparent; /* Ensure main container is transparent */
+                 }
+
 
                  /* Animated Gradient Heading */
                  .animated-gradient-heading {
