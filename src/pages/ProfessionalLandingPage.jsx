@@ -340,10 +340,12 @@ const ProfessionalLandingPage = () => {
              <section className="snap-section section-4 min-h-screen flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center relative overflow-hidden">
                  <div className="section-4-content relative z-10 w-full max-w-6xl">
                      <div className="section-4-intro">
-                        <h3 className="font-heading text-3xl md:text-4xl text-text mb-8 opacity-80">
-                            Our Impact
-                        </h3>
-                     </div>
+             {/* --- UPDATED H3 --- */}
+             <h3 className="font-heading text-5xl md:text-6xl mb-8 animated-gradient-heading drop-shadow-lg">
+               Our Impact
+             </h3>
+             {/* --- END UPDATED H3 --- */}
+           </div>
                       <div className="v4-impact mb-16">
                           <div className="flex flex-col gap-6">
                                <LogoMarquee images={portfolioImages} speed={25} direction="left" />
