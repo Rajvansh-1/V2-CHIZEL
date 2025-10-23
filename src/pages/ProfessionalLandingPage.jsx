@@ -132,57 +132,87 @@ RealisticStarfield.displayName = 'RealisticStarfield';
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
         setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+        setIsMobile(window.innerWidth < 768);
     }, []);
 
     useGSAP(() => {
-        gsap.from(cardRef.current, {
-            scrollTrigger: {
-                trigger: cardRef.current,
-                start: 'top 85%',
-                toggleActions: 'play none none reverse',
-                once: false
-            },
-            opacity: 0,
-            y: 40,
-            scale: 0.96,
-            duration: 0.7,
-            delay: delay * 0.08,
-            ease: 'power2.out',
-        });
+        // Set initial visible state to prevent hiding
+        gsap.set(cardRef.current, { opacity: 1 });
 
-        if (!isTouchDevice && cardRef.current) {
-            const tl = gsap.timeline({ paused: true });
-            tl.to(cardRef.current, {
-                y: -6,
-                scale: 1.02,
-                boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
-                borderColor: 'rgba(239, 68, 68, 0.7)',
-                duration: 0.25,
+        const mm = gsap.matchMedia();
+
+        // Desktop animation
+        mm.add("(min-width: 768px)", () => {
+            gsap.from(cardRef.current, {
+                scrollTrigger: {
+                    trigger: cardRef.current,
+                    start: 'top 90%', // Trigger earlier
+                    toggleActions: 'play none none reverse',
+                    once: false
+                },
+                opacity: 0,
+                y: 40,
+                scale: 0.96,
+                duration: 0.7,
+                delay: delay * 0.08,
                 ease: 'power2.out',
             });
-            tl.to(cardRef.current.querySelector('.obstacle-icon-wrapper'), {
-                scale: 1.1,
-                duration: 0.25,
-                ease: 'power2.out'
-            }, 0);
 
-            const handleMouseEnter = () => tl.play();
-            const handleMouseLeave = () => tl.reverse();
+            if (!isTouchDevice) {
+                const tl = gsap.timeline({ paused: true });
+                tl.to(cardRef.current, {
+                    y: -6,
+                    scale: 1.02,
+                    boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
+                    borderColor: 'rgba(239, 68, 68, 0.7)',
+                    duration: 0.25,
+                    ease: 'power2.out',
+                });
+                tl.to(cardRef.current.querySelector('.obstacle-icon-wrapper'), {
+                    scale: 1.1,
+                    duration: 0.25,
+                    ease: 'power2.out'
+                }, 0);
 
-            cardRef.current.addEventListener('mouseenter', handleMouseEnter);
-            cardRef.current.addEventListener('mouseleave', handleMouseLeave);
+                const handleMouseEnter = () => tl.play();
+                const handleMouseLeave = () => tl.reverse();
 
-            return () => {
-                if (cardRef.current) {
-                    cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
-                    cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
-                }
-            };
-        }
-    }, { scope: cardRef, dependencies: [isTouchDevice, delay] });
+                cardRef.current.addEventListener('mouseenter', handleMouseEnter);
+                cardRef.current.addEventListener('mouseleave', handleMouseLeave);
+
+                return () => {
+                    if (cardRef.current) {
+                        cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
+                        cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
+                    }
+                };
+            }
+        });
+
+        // Mobile animation - simpler, faster, no stagger delay
+        mm.add("(max-width: 767px)", () => {
+            gsap.from(cardRef.current, {
+                scrollTrigger: {
+                    trigger: cardRef.current,
+                    start: 'top 95%', // Trigger even earlier on mobile
+                    toggleActions: 'play none none reverse',
+                    once: false
+                },
+                opacity: 0,
+                y: 20, // Less movement
+                duration: 0.5, // Faster
+                ease: 'power2.out',
+                // No delay on mobile for instant visibility
+            });
+        });
+
+        return () => mm.revert();
+
+    }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, delay] });
 
     return (
         <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden will-change-transform">
@@ -202,49 +232,78 @@ ObstacleCard.displayName = 'ObstacleCard';
 const ImpactCard = memo(({ icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     useEffect(() => {
         setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+        setIsMobile(window.innerWidth < 768);
     }, []);
 
     useGSAP(() => {
-        gsap.from(cardRef.current, {
-            scrollTrigger: {
-                trigger: cardRef.current,
-                start: 'top 85%',
-                toggleActions: 'play none none reverse',
-                once: false
-            },
-            opacity: 0,
-            y: 35,
-            duration: 0.65,
-            ease: 'power2.out',
-        });
+        // Set initial visible state
+        gsap.set(cardRef.current, { opacity: 1 });
 
-        if (!isTouchDevice && cardRef.current) {
-            const tl = gsap.timeline({ paused: true });
-            tl.to(cardRef.current, {
-                y: -8,
-                scale: 1.02,
-                boxShadow: shadowClass ? `0 15px 30px ${shadowClass.replace('0.25)', '0.2)')}` : 'rgba(0,0,0,0.2)',
-                duration: 0.25,
-                ease: 'power2.out'
+        const mm = gsap.matchMedia();
+
+        // Desktop animation
+        mm.add("(min-width: 768px)", () => {
+            gsap.from(cardRef.current, {
+                scrollTrigger: {
+                    trigger: cardRef.current,
+                    start: 'top 90%',
+                    toggleActions: 'play none none reverse',
+                    once: false
+                },
+                opacity: 0,
+                y: 35,
+                duration: 0.65,
+                ease: 'power2.out',
             });
 
-            const handleMouseEnter = () => tl.play();
-            const handleMouseLeave = () => tl.reverse();
+            if (!isTouchDevice) {
+                const tl = gsap.timeline({ paused: true });
+                tl.to(cardRef.current, {
+                    y: -8,
+                    scale: 1.02,
+                    boxShadow: shadowClass ? `0 15px 30px ${shadowClass.replace('0.25)', '0.2)')}` : 'rgba(0,0,0,0.2)',
+                    duration: 0.25,
+                    ease: 'power2.out'
+                });
 
-            cardRef.current.addEventListener('mouseenter', handleMouseEnter);
-            cardRef.current.addEventListener('mouseleave', handleMouseLeave);
+                const handleMouseEnter = () => tl.play();
+                const handleMouseLeave = () => tl.reverse();
 
-            return () => {
-                if (cardRef.current) {
-                    cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
-                    cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
-                }
-            };
-        }
-    }, { scope: cardRef, dependencies: [isTouchDevice, shadowClass] });
+                cardRef.current.addEventListener('mouseenter', handleMouseEnter);
+                cardRef.current.addEventListener('mouseleave', handleMouseLeave);
+
+                return () => {
+                    if (cardRef.current) {
+                        cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
+                        cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
+                    }
+                };
+            }
+        });
+
+        // Mobile animation - simpler and faster
+        mm.add("(max-width: 767px)", () => {
+            gsap.from(cardRef.current, {
+                scrollTrigger: {
+                    trigger: cardRef.current,
+                    start: 'top 95%',
+                    toggleActions: 'play none none reverse',
+                    once: false
+                },
+                opacity: 0,
+                y: 20,
+                duration: 0.5,
+                ease: 'power2.out',
+            });
+        });
+
+        return () => mm.revert();
+
+    }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, shadowClass] });
 
     return (
         <div ref={cardRef} className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu ${gradientClass || 'bg-card/70 backdrop-blur-lg'} will-change-transform`}>
@@ -303,6 +362,9 @@ const ProfessionalLandingPage = () => {
     ], []);
 
     useGSAP(() => {
+        const mm = gsap.matchMedia();
+
+        // Section 1 animations (same for both)
         gsap.from(".section-1 .animated-element", {
             opacity: 0,
             y: 25,
@@ -320,28 +382,58 @@ const ProfessionalLandingPage = () => {
             delay: 0.8
         });
 
-        const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
+        // Desktop animations for other sections
+        mm.add("(min-width: 768px)", () => {
+            const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
 
-        sectionsToAnimate.forEach(selector => {
-            const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > *`);
-            if (elements.length > 0) {
-                gsap.from(elements, {
-                    scrollTrigger: {
-                        trigger: selector,
-                        start: "top 80%",
-                        toggleActions: 'play none none reverse',
-                        once: false
-                    },
-                    opacity: 0,
-                    y: 25,
-                    stagger: 0.08,
-                    duration: 0.65,
-                    ease: "power2.out"
-                });
-            }
+            sectionsToAnimate.forEach(selector => {
+                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > *:not(.obstacle-card-enhanced):not(.impact-card)`);
+                if (elements.length > 0) {
+                    gsap.from(elements, {
+                        scrollTrigger: {
+                            trigger: selector,
+                            start: "top 85%",
+                            toggleActions: 'play none none reverse',
+                            once: false
+                        },
+                        opacity: 0,
+                        y: 25,
+                        stagger: 0.08,
+                        duration: 0.65,
+                        ease: "power2.out"
+                    });
+                }
+            });
         });
 
-        return () => ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        // Mobile animations - simpler and faster
+        mm.add("(max-width: 767px)", () => {
+            const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
+
+            sectionsToAnimate.forEach(selector => {
+                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > *:not(.obstacle-card-enhanced):not(.impact-card)`);
+                if (elements.length > 0) {
+                    gsap.from(elements, {
+                        scrollTrigger: {
+                            trigger: selector,
+                            start: "top 95%", // Trigger much earlier
+                            toggleActions: 'play none none reverse',
+                            once: false
+                        },
+                        opacity: 0,
+                        y: 15, // Less movement
+                        stagger: 0.05, // Less stagger
+                        duration: 0.5, // Faster
+                        ease: "power2.out"
+                    });
+                }
+            });
+        });
+
+        return () => {
+            mm.revert();
+            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+        };
     }, { scope: containerRef });
 
     const handleExternalLink = useCallback((url) => {
@@ -357,7 +449,7 @@ const ProfessionalLandingPage = () => {
     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
 
     return (
-        <div ref={containerRef} className="professional-landing-wrapper">
+        <div ref={containerRef} className="professional-landing-wrapper relative">
             <div className="professional-landing bg-transparent text-text relative z-10">
                 <RealisticStarfield />
 
@@ -490,124 +582,145 @@ const ProfessionalLandingPage = () => {
                         </div>
                     </div>
                 </section>
+            </div>
+            
+            {/* Footer moved inside wrapper with proper z-index */}
+            <div className="relative z-20 bg-transparent">
+                <Footer />
+            </div>
 
-                {/* Global Styles */}
-                <style jsx global>{`
-                    :root {
-                        --color-primary-rgb: 31, 111, 235;
-                        --color-primary: rgb(31, 111, 235);
-                        --color-accent: rgb(147, 51, 234);
-                        --color-badge-bg: rgb(239, 68, 68);
-                    }
+            {/* Global Styles */}
+            <style jsx global>{`
+                :root {
+                    --color-primary-rgb: 31, 111, 235;
+                    --color-primary: rgb(31, 111, 235);
+                    --color-accent: rgb(147, 51, 234);
+                    --color-badge-bg: rgb(239, 68, 68);
+                }
 
-                    * {
-                        -webkit-font-smoothing: antialiased;
-                        -moz-osx-font-smoothing: grayscale;
-                    }
+                * {
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
 
-                    .impact-button-css .bg-left {
+                .impact-button-css .bg-left {
+                    background-position: 0% center;
+                }
+                .impact-button-css .bg-right {
+                    background-position: 100% center;
+                }
+
+                section {
+                    min-height: 80vh;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    width: 100%;
+                    overflow: hidden;
+                    z-index: 1;
+                    background-color: transparent;
+                    padding-top: 5rem;
+                    padding-bottom: 5rem;
+                }
+
+                .section-1,
+                .section-2,
+                .section-3,
+                .section-4 {
+                    min-height: 100vh;
+                }
+
+                .section-5 {
+                    min-height: auto;
+                }
+
+                .professional-landing {
+                    background-color: transparent;
+                }
+
+                .animated-gradient-heading {
+                    color: transparent;
+                    background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-badge-bg), var(--color-primary));
+                    background-clip: text;
+                    -webkit-background-clip: text;
+                    background-size: 200% auto;
+                    animation: gradient-animation 6s linear infinite;
+                    font-weight: 800;
+                }
+
+                @keyframes gradient-animation {
+                    0% {
                         background-position: 0% center;
                     }
-                    .impact-button-css .bg-right {
-                        background-position: 100% center;
+                    100% {
+                        background-position: 200% center;
                     }
+                }
 
-                    section {
-                        min-height: 80vh;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        position: relative;
-                        width: 100%;
-                        overflow: hidden;
-                        z-index: 1;
-                        background-color: transparent;
-                        padding-top: 5rem;
-                        padding-bottom: 5rem;
+                @keyframes twinkle {
+                    0% {
+                        opacity: 0.3;
+                        transform: scale(0.8);
                     }
-
-                    .section-1,
-                    .section-2,
-                    .section-3,
-                    .section-4 {
-                        min-height: 100vh;
+                    100% {
+                        opacity: 0.8;
+                        transform: scale(1.1);
                     }
+                }
 
-                    .section-5 {
-                        min-height: auto;
+                @keyframes pulse {
+                    0%,
+                    100% {
+                        opacity: 1;
                     }
-
-                    .professional-landing {
-                        background-color: transparent;
+                    50% {
+                        opacity: 0.5;
                     }
+                }
 
-                    .animated-gradient-heading {
-                        color: transparent;
-                        background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-badge-bg), var(--color-primary));
-                        background-clip: text;
-                        -webkit-background-clip: text;
-                        background-size: 200% auto;
-                        animation: gradient-animation 6s linear infinite;
-                        font-weight: 800;
+                .animate-bounce {
+                    animation: bounce 2s infinite;
+                }
+
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
                     }
-
-                    @keyframes gradient-animation {
-                        0% {
-                            background-position: 0% center;
-                        }
-                        100% {
-                            background-position: 200% center;
-                        }
+                    50% {
+                        transform: translateY(-10px);
                     }
+                }
 
-                    @keyframes twinkle {
-                        0% {
-                            opacity: 0.3;
-                            transform: scale(0.8);
-                        }
-                        100% {
-                            opacity: 0.8;
-                            transform: scale(1.1);
-                        }
-                    }
+                .animated-element,
+                .obstacle-card-enhanced,
+                .impact-card {
+                    will-change: opacity, transform;
+                }
 
-                    @keyframes pulse {
-                        0%,
-                        100% {
-                            opacity: 1;
-                        }
-                        50% {
-                            opacity: 0.5;
-                        }
-                    }
-
-                    .animate-pulse {
-                        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                    }
-
-                    .animated-element,
+                /* Ensure cards are visible by default on mobile */
+                @media (max-width: 767px) {
                     .obstacle-card-enhanced,
                     .impact-card {
-                        will-change: opacity, transform;
+                        opacity: 1 !important;
                     }
+                }
 
-                    @media (prefers-reduced-motion: reduce) {
-                        *,
-                        *::before,
-                        *::after {
-                            animation-duration: 0.01ms !important;
-                            animation-iteration-count: 1 !important;
-                            transition-duration: 0.01ms !important;
-                        }
+                @media (prefers-reduced-motion: reduce) {
+                    *,
+                    *::before,
+                    *::after {
+                        animation-duration: 0.01ms !important;
+                        animation-iteration-count: 1 !important;
+                        transition-duration: 0.01ms !important;
                     }
+                }
 
-                    img {
-                        content-visibility: auto;
-                    }
-                `}</style>
-            </div>
-            <Footer />
+                img {
+                    content-visibility: auto;
+                }
+            `}</style>
         </div>
     );
 };
