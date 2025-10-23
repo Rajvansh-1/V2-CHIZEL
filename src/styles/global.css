@@ -881,3 +881,46 @@ body::-webkit-scrollbar {
     border-color: var(--color-primary);
     box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
 }
+
+
+
+/* === V8 - FAST, PROFESSIONAL LOGO MARQUEE === */
+/* ... (existing logo-marquee styles) ... */
+
+.marquee-item {
+    flex-shrink: 0;
+    /* Mobile First: Define smaller size for mobile */
+    width: 250px; /* Adjust as needed for mobile */
+    height: 160px; /* Adjust height proportionally or as needed */
+    padding: 0 0.75rem; /* Adjust padding if needed */
+    list-style: none;
+}
+
+/* Apply larger size for medium screens and up */
+@media (min-width: 768px) { /* Corresponds to Tailwind's 'md' breakpoint */
+  .marquee-item {
+    width: 400px;
+    height: 250px;
+    padding: 0 1rem;
+  }
+}
+
+.marquee-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    opacity: 0.7;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.marquee-item:hover img {
+    opacity: 1;
+    transform: scale(1.05);
+    border-color: var(--color-primary);
+    box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
+}
+
+
+
