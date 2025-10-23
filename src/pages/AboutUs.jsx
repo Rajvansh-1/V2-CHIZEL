@@ -16,19 +16,29 @@ const AboutUsPage = () => {
     { name: "Shamiq Khan", imageUrl: "/images/f1.png", title: "The Visionary Architect", socials: [ { name: 'LinkedIn', url: 'https://www.linkedin.com/in/shamiqkhan/', icon: <FaLinkedin /> }, { name: 'WhatsApp', url: 'https://wa.me/918955986358', icon: <FaWhatsapp /> }, { name: 'Email', url: 'mailto:shamiqkhan4@gmail.com', icon: <FaEnvelope /> } ] },
     { name: "Rajvansh", imageUrl: "/images/f2.jpg", title: "The Master Builder", socials: [ { name: 'LinkedIn', url: 'https://www.linkedin.com/in/rajvansh-25abcdee/', icon: <FaLinkedin /> }, { name: 'WhatsApp', url: 'https://wa.me/917426810155', icon: <FaWhatsapp /> }, { name: 'Email', url: 'mailto:rajvansh2525@gmail.com', icon: <FaEnvelope /> } ] },
   ];
-  
-  const portfolioImages = [
+
+  // --- UPDATED Marquee Image Logic ---
+  const allPortfolioImages = [
     "/images/slider/i1.jpg",
     "/images/slider/i2.jpg",
     "/images/slider/i3.jpg",
     "/images/slider/i4.jpg",
     "/images/slider/i5.jpg",
-    // "/images/slider/i6.png",
-    "/images/slider/i7.png",
+    "/images/slider/i10.png", // Corrected path assuming it's in public/images/slider
     "/images/slider/i8.png",
-
-
+    "/images/slider/i9.png", // Corrected path assuming it's in public/images/slider
+    "/images/slider/i7.png",
+    "/images/slider/i11.png" // Corrected path assuming it's in public/images/slider
   ];
+
+  // Shuffle the array
+  const shuffledImages = [...allPortfolioImages].sort(() => Math.random() - 0.5);
+
+  // Split the shuffled array into two halves
+  const midpoint = Math.ceil(shuffledImages.length / 2);
+  const marqueeImages1 = shuffledImages.slice(0, midpoint);
+  const marqueeImages2 = shuffledImages.slice(midpoint);
+  // --- END UPDATED Marquee Image Logic ---
 
   useGSAP(() => {
     gsap.utils.toArray('.animate-section').forEach(section => {
@@ -91,7 +101,7 @@ const AboutUsPage = () => {
                 <p className="founder-title">{founder.title}</p>
                 <div className="founder-socials">
                   {founder.socials.map((social) => (
-                    <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer">
+                    <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" aria-label={`Contact ${founder.name} via ${social.name}`}>
                       {social.icon}
                     </a>
                   ))}
@@ -101,15 +111,17 @@ const AboutUsPage = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="v4-impact animate-section">
         <div className="v4-content-wrapper">
             <h2 className="section-title">Our Impact in Pixels</h2>
             <p className="v4-subtitle">A glimpse into the vibrant, engaging world we're building for the next generation of learners and creators.</p>
         </div>
         <div className="flex flex-col gap-6 mt-12">
-            <LogoMarquee images={portfolioImages} speed={18} direction="left" />
-            <LogoMarquee images={portfolioImages} speed={18} direction="right" />
+            {/* --- Pass the split arrays --- */}
+            <LogoMarquee images={marqueeImages1} speed={18} direction="left" />
+            <LogoMarquee images={marqueeImages2} speed={18} direction="right" />
+            {/* --- --- */}
         </div>
       </div>
 
@@ -120,7 +132,7 @@ const AboutUsPage = () => {
           <cite>- The Chizel Founders</cite>
         </div>
       </div>
-      
+
       <div className="v4-content-wrapper animate-section">
         <div className="v4-philosophy">
           <h2 className="section-title">Our Core Philosophy</h2>
