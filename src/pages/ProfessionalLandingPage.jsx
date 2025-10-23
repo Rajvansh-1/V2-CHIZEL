@@ -3,11 +3,13 @@
 import { useRef, useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import Navbar from '@/components/layout/Navbar';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
 import Footer from '@/components/layout/Footer';
+
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
     FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends
@@ -15,10 +17,10 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- Optimized RealisticStarfield Component ---
+// --- Ultra-Optimized RealisticStarfield Component ---
 const RealisticStarfield = memo(({
     starCountDesktop = 40,
-    starCountMobile = 20,
+    starCountMobile = 15,
     layerCount = 3,
     baseSpeed = 0.05
 }) => {
@@ -29,7 +31,7 @@ const RealisticStarfield = memo(({
         let timeoutId;
         const checkMobile = () => {
             clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => setIsMobile(window.innerWidth < 768), 150);
+            timeoutId = setTimeout(() => setIsMobile(window.innerWidth < 768), 200);
         };
         window.addEventListener('resize', checkMobile, { passive: true });
         return () => {
@@ -72,7 +74,7 @@ const RealisticStarfield = memo(({
                         trigger: "body",
                         start: "top top",
                         end: "bottom top",
-                        scrub: 3 + i,
+                        scrub: 4 + i,
                         invalidateOnRefresh: false
                     }
                 });
@@ -95,13 +97,13 @@ const RealisticStarfield = memo(({
     return (
         <div ref={starfieldRef} className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010]">
             <div className="absolute inset-0 opacity-20 mix-blend-soft-light pointer-events-none">
-                <div className="absolute top-[-20%] left-[-15%] w-[60vw] h-[60vh] bg-gradient-radial from-primary/15 via-transparent to-transparent rounded-full blur-3xl will-change-transform" style={{ animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
-                <div className="absolute bottom-[-20%] right-[-20%] w-[70vw] h-[70vh] bg-gradient-radial from-accent/10 via-transparent to-transparent rounded-full blur-3xl will-change-transform" style={{ animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite 2s' }}></div>
+                <div className="absolute top-[-20%] left-[-15%] w-[60vw] h-[60vh] bg-gradient-radial from-primary/15 via-transparent to-transparent rounded-full blur-3xl" style={{ animation: isMobile ? 'none' : 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                <div className="absolute bottom-[-20%] right-[-20%] w-[70vw] h-[70vh] bg-gradient-radial from-accent/10 via-transparent to-transparent rounded-full blur-3xl" style={{ animation: isMobile ? 'none' : 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite 2s' }}></div>
             </div>
             {layers.map((layer, i) => (
                 <div
                     key={`layer-${i}`}
-                    className="star-layer absolute inset-0 will-change-transform"
+                    className="star-layer absolute inset-0"
                     data-speed={layer.speedFactor}
                     style={{ zIndex: layer.zIndex, opacity: layer.opacity }}
                 >
@@ -115,8 +117,7 @@ const RealisticStarfield = memo(({
                                 width: star.size,
                                 height: star.size,
                                 animation: isMobile ? 'none' : `twinkle ${star.duration} infinite ease-in-out alternate`,
-                                animationDelay: star.delay,
-                                willChange: 'opacity, transform'
+                                animationDelay: star.delay
                             }}
                         />
                     ))}
@@ -128,7 +129,8 @@ const RealisticStarfield = memo(({
 
 RealisticStarfield.displayName = 'RealisticStarfield';
 
-// --- Optimized ObstacleCard ---
+
+// --- Ultra-Optimized ObstacleCard ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -140,27 +142,28 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
     }, []);
 
     useGSAP(() => {
-        // Set initial visible state to prevent hiding
-        gsap.set(cardRef.current, { opacity: 1 });
+        if (!cardRef.current) return;
 
         const mm = gsap.matchMedia();
 
-        // Desktop animation
         mm.add("(min-width: 768px)", () => {
-            gsap.from(cardRef.current, {
-                scrollTrigger: {
-                    trigger: cardRef.current,
-                    start: 'top 90%', // Trigger earlier
-                    toggleActions: 'play none none reverse',
-                    once: false
-                },
-                opacity: 0,
-                y: 40,
-                scale: 0.96,
-                duration: 0.7,
-                delay: delay * 0.08,
-                ease: 'power2.out',
-            });
+            gsap.fromTo(cardRef.current,
+                { opacity: 0, y: 40, scale: 0.96 },
+                {
+                    scrollTrigger: {
+                        trigger: cardRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none reverse',
+                        fastScrollEnd: true
+                    },
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.6,
+                    delay: delay * 0.06,
+                    ease: 'power2.out',
+                }
+            );
 
             if (!isTouchDevice) {
                 const tl = gsap.timeline({ paused: true });
@@ -172,11 +175,6 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                     duration: 0.25,
                     ease: 'power2.out',
                 });
-                tl.to(cardRef.current.querySelector('.obstacle-icon-wrapper'), {
-                    scale: 1.1,
-                    duration: 0.25,
-                    ease: 'power2.out'
-                }, 0);
 
                 const handleMouseEnter = () => tl.play();
                 const handleMouseLeave = () => tl.reverse();
@@ -193,21 +191,23 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
             }
         });
 
-        // Mobile animation - simpler, faster, no stagger delay
         mm.add("(max-width: 767px)", () => {
-            gsap.from(cardRef.current, {
-                scrollTrigger: {
-                    trigger: cardRef.current,
-                    start: 'top 95%', // Trigger even earlier on mobile
-                    toggleActions: 'play none none reverse',
-                    once: false
-                },
-                opacity: 0,
-                y: 20, // Less movement
-                duration: 0.5, // Faster
-                ease: 'power2.out',
-                // No delay on mobile for instant visibility
-            });
+            gsap.fromTo(cardRef.current,
+                { opacity: 0, y: 15 },
+                {
+                    scrollTrigger: {
+                        trigger: cardRef.current,
+                        start: 'top 98%',
+                        toggleActions: 'play none none none',
+                        fastScrollEnd: true,
+                        once: true
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: 'power1.out',
+                }
+            );
         });
 
         return () => mm.revert();
@@ -215,9 +215,9 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
     }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, delay] });
 
     return (
-        <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden will-change-transform">
+        <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden" style={{ opacity: 1 }}>
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/10 via-transparent to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
-            <div className="obstacle-icon-wrapper relative inline-block mb-4 p-3 bg-red-500/15 rounded-full border border-red-500/25 transition-transform duration-300 will-change-transform">
+            <div className="obstacle-icon-wrapper relative inline-block mb-4 p-3 bg-red-500/15 rounded-full border border-red-500/25 transition-transform duration-300">
                 <div className="text-red-500 text-3xl">{icon}</div>
             </div>
             <h3 className="font-heading text-xl text-text mb-2">{title}</h3>
@@ -228,7 +228,7 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
 
 ObstacleCard.displayName = 'ObstacleCard';
 
-// --- Optimized ImpactCard ---
+// --- Ultra-Optimized ImpactCard ---
 const ImpactCard = memo(({ icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -240,25 +240,26 @@ const ImpactCard = memo(({ icon, title, description, buttonText, onClick, gradie
     }, []);
 
     useGSAP(() => {
-        // Set initial visible state
-        gsap.set(cardRef.current, { opacity: 1 });
+        if (!cardRef.current) return;
 
         const mm = gsap.matchMedia();
 
-        // Desktop animation
         mm.add("(min-width: 768px)", () => {
-            gsap.from(cardRef.current, {
-                scrollTrigger: {
-                    trigger: cardRef.current,
-                    start: 'top 90%',
-                    toggleActions: 'play none none reverse',
-                    once: false
-                },
-                opacity: 0,
-                y: 35,
-                duration: 0.65,
-                ease: 'power2.out',
-            });
+            gsap.fromTo(cardRef.current,
+                { opacity: 0, y: 35 },
+                {
+                    scrollTrigger: {
+                        trigger: cardRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none reverse',
+                        fastScrollEnd: true
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                }
+            );
 
             if (!isTouchDevice) {
                 const tl = gsap.timeline({ paused: true });
@@ -285,20 +286,23 @@ const ImpactCard = memo(({ icon, title, description, buttonText, onClick, gradie
             }
         });
 
-        // Mobile animation - simpler and faster
         mm.add("(max-width: 767px)", () => {
-            gsap.from(cardRef.current, {
-                scrollTrigger: {
-                    trigger: cardRef.current,
-                    start: 'top 95%',
-                    toggleActions: 'play none none reverse',
-                    once: false
-                },
-                opacity: 0,
-                y: 20,
-                duration: 0.5,
-                ease: 'power2.out',
-            });
+            gsap.fromTo(cardRef.current,
+                { opacity: 0, y: 15 },
+                {
+                    scrollTrigger: {
+                        trigger: cardRef.current,
+                        start: 'top 98%',
+                        toggleActions: 'play none none none',
+                        fastScrollEnd: true,
+                        once: true
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: 'power1.out',
+                }
+            );
         });
 
         return () => mm.revert();
@@ -306,17 +310,17 @@ const ImpactCard = memo(({ icon, title, description, buttonText, onClick, gradie
     }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, shadowClass] });
 
     return (
-        <div ref={cardRef} className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu ${gradientClass || 'bg-card/70 backdrop-blur-lg'} will-change-transform`}>
+        <div ref={cardRef} className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu ${gradientClass || 'bg-card/70 backdrop-blur-lg'}`} style={{ opacity: 1 }}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-center h-full">
-                <div className={`p-4 rounded-full border border-white/15 mb-5 inline-block transition-transform duration-300 group-hover:scale-110 will-change-transform ${iconBgClass || 'bg-primary/15'}`}>
+                <div className={`p-4 rounded-full border border-white/15 mb-5 inline-block transition-transform duration-300 group-hover:scale-110 ${iconBgClass || 'bg-primary/15'}`}>
                     <div className="text-3xl text-white">{icon}</div>
                 </div>
                 <h3 className="font-heading text-2xl text-text mb-3">{title}</h3>
                 <p className="text-secondary-text text-sm mb-6 flex-grow leading-relaxed">{description}</p>
                 <button
                     onClick={onClick}
-                    className="impact-button-css mt-auto relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition duration-300 ease-out border-2 border-white/20 rounded-full group w-full hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-white/50 will-change-transform"
+                    className="impact-button-css mt-auto relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition duration-300 ease-out border-2 border-white/20 rounded-full group w-full hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-white/50"
                 >
                     <span className="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 transform -translate-x-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] bg-left group-hover:translate-x-0 group-hover:bg-right ease">
                         <FaArrowRight className="text-xl ml-1 transition-transform duration-300 group-hover:translate-x-1" />
@@ -337,6 +341,14 @@ ImpactCard.displayName = 'ImpactCard';
 const ProfessionalLandingPage = () => {
     const containerRef = useRef(null);
     const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile, { passive: true });
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const allPortfolioImages = useMemo(() => [
         "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
@@ -345,12 +357,13 @@ const ProfessionalLandingPage = () => {
         "/images/slider/i11.png"
     ], []);
 
-    const { marqueeImages1, marqueeImages2 } = useMemo(() => {
+    const { marqueeImages1, marqueeImages2, marqueeImagesMobile } = useMemo(() => {
         const shuffled = [...allPortfolioImages].sort(() => Math.random() - 0.5);
         const midpoint = Math.ceil(shuffled.length / 2);
         return {
             marqueeImages1: shuffled.slice(0, midpoint),
-            marqueeImages2: shuffled.slice(midpoint)
+            marqueeImages2: shuffled.slice(midpoint),
+            marqueeImagesMobile: shuffled // All images in one marquee for mobile
         };
     }, [allPortfolioImages]);
 
@@ -364,68 +377,81 @@ const ProfessionalLandingPage = () => {
     useGSAP(() => {
         const mm = gsap.matchMedia();
 
-        // Section 1 animations (same for both)
-        gsap.from(".section-1 .animated-element", {
-            opacity: 0,
-            y: 25,
-            stagger: 0.12,
-            duration: 0.7,
-            ease: "power2.out",
-            delay: 0.2
-        });
+        // Section 1 animations
+        gsap.fromTo(".section-1 .animated-element",
+            { opacity: 0, y: 20 },
+            {
+                opacity: 1,
+                y: 0,
+                stagger: 0.1,
+                duration: isMobile ? 0.4 : 0.6,
+                ease: "power2.out",
+                delay: 0.15
+            }
+        );
 
-        gsap.from(".section-1 .scroll-indicator", {
-            opacity: 0,
-            y: 12,
-            duration: 0.7,
-            ease: "power2.out",
-            delay: 0.8
-        });
+        gsap.fromTo(".section-1 .scroll-indicator",
+            { opacity: 0, y: 10 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: isMobile ? 0.3 : 0.5,
+                ease: "power2.out",
+                delay: 0.6
+            }
+        );
 
         // Desktop animations for other sections
         mm.add("(min-width: 768px)", () => {
             const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
 
             sectionsToAnimate.forEach(selector => {
-                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > *:not(.obstacle-card-enhanced):not(.impact-card)`);
+                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p`);
                 if (elements.length > 0) {
-                    gsap.from(elements, {
-                        scrollTrigger: {
-                            trigger: selector,
-                            start: "top 85%",
-                            toggleActions: 'play none none reverse',
-                            once: false
-                        },
-                        opacity: 0,
-                        y: 25,
-                        stagger: 0.08,
-                        duration: 0.65,
-                        ease: "power2.out"
-                    });
+                    gsap.fromTo(elements,
+                        { opacity: 0, y: 20 },
+                        {
+                            scrollTrigger: {
+                                trigger: selector,
+                                start: "top 85%",
+                                toggleActions: 'play none none reverse',
+                                fastScrollEnd: true
+                            },
+                            opacity: 1,
+                            y: 0,
+                            stagger: 0.07,
+                            duration: 0.6,
+                            ease: "power2.out"
+                        }
+                    );
                 }
             });
         });
 
-        // Mobile animations - simpler and faster
+        // Mobile animations - ultra minimal
         mm.add("(max-width: 767px)", () => {
             const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
 
             sectionsToAnimate.forEach(selector => {
-                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > *:not(.obstacle-card-enhanced):not(.impact-card)`);
+                const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p`);
                 if (elements.length > 0) {
-                    gsap.from(elements, {
-                        scrollTrigger: {
-                            trigger: selector,
-                            start: "top 95%", // Trigger much earlier
-                            toggleActions: 'play none none reverse',
-                            once: false
-                        },
-                        opacity: 0,
-                        y: 15, // Less movement
-                        stagger: 0.05, // Less stagger
-                        duration: 0.5, // Faster
-                        ease: "power2.out"
-                    });
+                    gsap.fromTo(elements,
+                        { opacity: 0, y: 10 },
+                        {
+                            scrollTrigger: {
+                                trigger: selector,
+                                start: "top 98%",
+                                toggleActions: 'play none none none',
+                                fastScrollEnd: true,
+                                once: true
+                            },
+                            opacity: 1,
+                            y: 0,
+                            stagger: 0.03,
+                            duration: 0.3,
+                            ease: "power1.out"
+                        }
+                    );
                 }
             });
         });
@@ -434,7 +460,7 @@ const ProfessionalLandingPage = () => {
             mm.revert();
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
         };
-    }, { scope: containerRef });
+    }, { scope: containerRef, dependencies: [isMobile] });
 
     const handleExternalLink = useCallback((url) => {
         window.open(url, '_blank', 'noopener,noreferrer');
@@ -449,9 +475,17 @@ const ProfessionalLandingPage = () => {
     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
 
     return (
-        <div ref={containerRef} className="professional-landing-wrapper relative">
-            <div className="professional-landing bg-transparent text-text relative z-10">
-                <RealisticStarfield />
+    <div ref={containerRef} className="professional-landing-wrapper relative">
+        {/* Navbar with fixed positioning */}
+        <div className="fixed top-0 left-0 right-0 z-50">
+            <Navbar />
+        </div>
+
+        <div className="professional-landing bg-transparent text-text relative z-10">
+            <RealisticStarfield />
+
+            {/* Section 1: Intro */}
+
 
                 {/* Section 1: Intro */}
                 <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
@@ -514,10 +548,17 @@ const ProfessionalLandingPage = () => {
                             </h3>
                         </div>
                         <div className="v4-impact mb-16 md:mb-20">
-                            <div className="flex flex-col gap-5 md:gap-6">
-                                <LogoMarquee images={marqueeImages1} speed={10} direction="left" />
-                                <LogoMarquee images={marqueeImages2} speed={10} direction="right" />
-                            </div>
+                            {/* Conditional rendering: 1 marquee on mobile, 2 on desktop */}
+                            {isMobile ? (
+                                <div className="flex flex-col">
+                                    <LogoMarquee images={marqueeImagesMobile} speed={15} direction="left" />
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-5 md:gap-6">
+                                    <LogoMarquee images={marqueeImages1} speed={10} direction="left" />
+                                    <LogoMarquee images={marqueeImages2} speed={10} direction="right" />
+                                </div>
+                            )}
                         </div>
                         <div className="section-4-intro mt-16 md:mt-20">
                             <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-5 md:mb-6">
@@ -572,22 +613,19 @@ const ProfessionalLandingPage = () => {
                             Be among the first explorers. Join the Chizel waitlist today for exclusive early access, special launch rewards, and updates on our mission to reshape learning.
                         </p>
                         <div className="animated-element relative inline-block group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-badge-bg rounded-full blur-md opacity-50 group-hover:opacity-75 transition duration-300 pointer-events-none will-change-transform" style={{ animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                            <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-badge-bg rounded-full blur-md opacity-50 group-hover:opacity-75 transition duration-300 pointer-events-none" style={{ animation: isMobile ? 'none' : 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                             <Button
                                 title="Secure Your Spot"
                                 onClick={handleWaitlist}
                                 rightIcon={<FaArrowRight />}
-                                containerClass="relative !text-base md:!text-lg !py-3 !px-8 md:!py-4 md:!px-10 !bg-gradient-to-r !from-primary !to-accent hover:!shadow-[0_0_20px_rgba(31,111,235,0.5)] will-change-transform"
+                                containerClass="relative !text-base md:!text-lg !py-3 !px-8 md:!py-4 md:!px-10 !bg-gradient-to-r !from-primary !to-accent hover:!shadow-[0_0_20px_rgba(31,111,235,0.5)]"
                             />
                         </div>
                     </div>
                 </section>
             </div>
             
-            {/* Footer moved inside wrapper with proper z-index */}
-            <div className="relative z-20 bg-transparent">
-                <Footer />
-            </div>
+        
 
             {/* Global Styles */}
             <style jsx global>{`
@@ -601,6 +639,30 @@ const ProfessionalLandingPage = () => {
                 * {
                     -webkit-font-smoothing: antialiased;
                     -moz-osx-font-smoothing: grayscale;
+                    -webkit-tap-highlight-color: transparent;
+                }
+
+                html {
+                    scroll-behavior: smooth;
+                }
+
+                @media (max-width: 767px) {
+                    html {
+                        overflow-x: hidden;
+                        -webkit-overflow-scrolling: touch;
+                    }
+
+                    body {
+                        overscroll-behavior-y: none;
+                    }
+
+                    * {
+                        -webkit-transform: translateZ(0);
+                        -moz-transform: translateZ(0);
+                        -ms-transform: translateZ(0);
+                        -o-transform: translateZ(0);
+                        transform: translateZ(0);
+                    }
                 }
 
                 .impact-button-css .bg-left {
@@ -693,17 +755,23 @@ const ProfessionalLandingPage = () => {
                     }
                 }
 
-                .animated-element,
-                .obstacle-card-enhanced,
-                .impact-card {
-                    will-change: opacity, transform;
-                }
-
-                /* Ensure cards are visible by default on mobile */
-                @media (max-width: 767px) {
+                /* Mobile optimization - disable will-change after animation */
+                @media (min-width: 768px) {
+                    .animated-element,
                     .obstacle-card-enhanced,
                     .impact-card {
-                        opacity: 1 !important;
+                        will-change: opacity, transform;
+                    }
+                }
+
+                /* Force hardware acceleration on mobile */
+                @media (max-width: 767px) {
+                    .obstacle-card-enhanced,
+                    .impact-card,
+                    .animated-element {
+                        backface-visibility: hidden;
+                        perspective: 1000px;
+                        transform: translate3d(0, 0, 0);
                     }
                 }
 
@@ -719,6 +787,14 @@ const ProfessionalLandingPage = () => {
 
                 img {
                     content-visibility: auto;
+                }
+
+                /* Optimize backdrop-blur for mobile */
+                @media (max-width: 767px) {
+                    .backdrop-blur-lg {
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                    }
                 }
             `}</style>
         </div>
