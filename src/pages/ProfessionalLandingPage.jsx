@@ -342,18 +342,20 @@ const RealisticStarfield = ({
                  {/* Section 1: Intro */}
                  <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden"> {/* Adjusted height */}
                      <div className="section-1-content relative z-10">
-                         <h1 className="animated-element font-heading text-5xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text text-transparent mb-6 drop-shadow-[0_0_10px_rgba(255,255,255,0.15)] leading-tight md:leading-tight"> {/* Softer shadow */}
-                             Ever Dreamt of <br className="hidden md:inline" /> Being Successful?
-                         </h1>
-                          <p className="animated-element text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
-                              Unlocking potential in a universe saturated with digital noise.
-                          </p>
-                     </div>
+  <h1 className="animated-element font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-text mb-6 leading-tight md:leading-tight"
+      style={{ textShadow: '0 4px 15px rgba(255, 255, 255, 0.3)' }} // Added inline style for a stronger white glow/shadow
+  >
+    Ever Dreamt of <br className="hidden md:inline" /> Being Successful?
+  </h1>
+  <p className="animated-element text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
+     Ever Wondered When it all pays off
+  </p>
+</div>
                     {/* Simplified scroll indicator with only CSS animation */}
                     <div className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 text-secondary-text animate-bounce flex flex-col items-center gap-1 opacity-60">
-                          <span>Scroll Down</span>
-                          <FaAngleDoubleDown />
-                      </div>
+       <span>Scroll Down</span>
+       <FaAngleDoubleDown /> {/* This icon should be centered below the text */}
+   </div>
                  </section>
 
                  {/* Section 2: Obstacles */}
