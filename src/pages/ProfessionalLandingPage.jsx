@@ -6,21 +6,19 @@ import gsap from 'gsap';
 import Navbar from '@/components/layout/Navbar';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
-import Button from '@/components/ui/Button'; // Assuming Button component handles complex styling well
+import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
-import Footer from '@/components/layout/Footer'; // Assuming Footer exists
+import Footer from '@/components/layout/Footer';
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
-    FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar
+    FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar, FaPlane
 } from 'react-icons/fa';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // --- Ultra-Optimized RealisticStarfield Component ---
-// (Keep the RealisticStarfield component as it was in the previous correct version)
-const RealisticStarfield = memo(({ /* ... props */ }) => {
-    // ... component logic remains the same
+const RealisticStarfield = memo(() => {
     const starfieldRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -38,8 +36,7 @@ const RealisticStarfield = memo(({ /* ... props */ }) => {
     }, []);
 
     const layers = useMemo(() => {
-        // ... layers logic remains the same
-        const starCountDesktop = 40, starCountMobile = 15, layerCount = 3, baseSpeed = 0.05; // Example values
+        const starCountDesktop = 40, starCountMobile = 15, layerCount = 3, baseSpeed = 0.05;
         const starCount = isMobile ? starCountMobile : starCountDesktop;
         const result = [];
         for (let i = 0; i < layerCount; i++) {
@@ -59,10 +56,9 @@ const RealisticStarfield = memo(({ /* ... props */ }) => {
             result.push({ stars, speedFactor, opacity, zIndex: -50 - i });
         }
         return result;
-    }, [isMobile]); // simplified dependencies
+    }, [isMobile]);
 
     useGSAP(() => {
-        // ... GSAP logic remains the same
          const mm = gsap.matchMedia();
 
         mm.add("(min-width: 768px)", () => {
@@ -95,9 +91,7 @@ const RealisticStarfield = memo(({ /* ... props */ }) => {
     }, { scope: starfieldRef, dependencies: [isMobile] });
 
     return (
-        // ... JSX remains the same
          <div ref={starfieldRef} className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010]">
-            {/* Removed the radial gradient divs */}
             {layers.map((layer, i) => (
                 <div
                     key={`layer-${i}`}
@@ -126,11 +120,7 @@ const RealisticStarfield = memo(({ /* ... props */ }) => {
 });
 RealisticStarfield.displayName = 'RealisticStarfield';
 
-
-// --- Ultra-Optimized ObstacleCard ---
-// (Keep the ObstacleCard component as it was in the previous correct version)
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
-    // ... component logic remains the same
     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -141,7 +131,6 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
     }, []);
 
      useGSAP(() => {
-        // ... GSAP logic remains the same
          if (!cardRef.current) return;
         const mm = gsap.matchMedia();
          mm.add("(min-width: 768px)", () => {
@@ -163,7 +152,6 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 }
             );
              if (!isTouchDevice) {
-                 // ... hover logic ...
                   const tl = gsap.timeline({ paused: true });
                 tl.to(cardRef.current, {
                     y: -6,
@@ -177,7 +165,7 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 const handleMouseLeave = () => tl.reverse();
                  cardRef.current.addEventListener('mouseenter', handleMouseEnter);
                 cardRef.current.addEventListener('mouseleave', handleMouseLeave);
-                 return () => { // cleanup
+                 return () => {
                     if (cardRef.current) {
                         cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
                         cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
@@ -207,7 +195,6 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
     }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, delay] });
 
     return (
-        // ... JSX remains the same
          <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden" style={{ opacity: 1 }}>
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/10 via-transparent to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
             <div className="obstacle-icon-wrapper relative inline-block mb-4 p-3 bg-red-500/15 rounded-full border border-red-500/25 transition-transform duration-300">
@@ -220,10 +207,7 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
 });
 ObstacleCard.displayName = 'ObstacleCard';
 
-// --- Ultra-Optimized ImpactCard ---
-// (Keep the ImpactCard component as it was in the previous correct version)
 const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
-    // ... component logic remains the same
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -232,7 +216,6 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
         setIsMobile(window.innerWidth < 768);
     }, []);
      useGSAP(() => {
-        // ... GSAP logic remains the same
         if (!cardRef.current) return;
         const mm = gsap.matchMedia();
          mm.add("(min-width: 768px)", () => {
@@ -252,7 +235,6 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
                 }
             );
              if (!isTouchDevice) {
-                 // ... hover logic ...
                   const tl = gsap.timeline({ paused: true });
                 tl.to(cardRef.current, {
                     y: -8,
@@ -265,7 +247,7 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
                 const handleMouseLeave = () => tl.reverse();
                  cardRef.current.addEventListener('mouseenter', handleMouseEnter);
                 cardRef.current.addEventListener('mouseleave', handleMouseLeave);
-                 return () => { // cleanup
+                 return () => {
                     if (cardRef.current) {
                         cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
                         cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
@@ -295,9 +277,8 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
     }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, shadowClass] });
 
     return (
-        // ... JSX remains the same, including the id prop
         <div
-            id={id} // Pass the id down to the root element
+            id={id}
             ref={cardRef}
             className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu ${gradientClass || 'bg-card/70 backdrop-blur-lg'}`}
             style={{ opacity: 1 }}
@@ -340,7 +321,6 @@ const ProfessionalLandingPage = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // ... (Keep useMemo hooks for images and obstacles) ...
      const allPortfolioImages = useMemo(() => [
         "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
         "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
@@ -353,7 +333,7 @@ const ProfessionalLandingPage = () => {
         return {
             marqueeImages1: shuffled.slice(0, midpoint),
             marqueeImages2: shuffled.slice(midpoint),
-            marqueeImagesMobile: shuffled // All images in one marquee for mobile
+            marqueeImagesMobile: shuffled
         };
     }, [allPortfolioImages]);
      const obstacles = useMemo(() => [
@@ -366,8 +346,41 @@ const ProfessionalLandingPage = () => {
     useGSAP(() => {
         const mm = gsap.matchMedia();
 
-        // Section 1 animations (Stagger for elements, separate for title chars)
-        gsap.fromTo(".section-1 .animated-element",
+        const plane1 = ".plane-1";
+        const plane2 = ".plane-2";
+        const line1 = ".intro-heading-line-1";
+        const line2 = ".intro-heading-line-2";
+
+        gsap.set([line1, line2], { opacity: 1 }); // Ensure lines are visible but masked
+        gsap.set(line1, { clipPath: 'inset(0 100% 0 0)' }); // Mask line 1 from the right
+        gsap.set(line2, { clipPath: 'inset(0 0 0 100%)' }); // Mask line 2 from the left
+
+        const tl = gsap.timeline({ delay: 0.5 });
+
+        // Plane 1 animation (Left to Right)
+        tl.to(plane1, {
+            x: "100vw",
+            duration: 2,
+            ease: "power2.inOut",
+            onUpdate: function() {
+                const progress = this.progress();
+                gsap.set(line1, { clipPath: `inset(0 ${100 - progress * 100}% 0 0)` });
+            }
+        }, 0);
+
+        // Plane 2 animation (Right to Left)
+        tl.to(plane2, {
+            x: "-100vw",
+            duration: 2,
+            ease: "power2.inOut",
+            onUpdate: function() {
+                const progress = this.progress();
+                gsap.set(line2, { clipPath: `inset(0 0 0 ${100 - progress * 100}%)` });
+            }
+        }, 0.5); // Start the second plane a bit later
+
+        // Animate other elements after the planes have started
+        tl.fromTo(".section-1 .animated-element",
             { opacity: 0, y: 20 },
             {
                 opacity: 1,
@@ -375,45 +388,17 @@ const ProfessionalLandingPage = () => {
                 stagger: 0.1,
                 duration: isMobile ? 0.4 : 0.6,
                 ease: "power2.out",
-                delay: 0.15 // Start other elements slightly before title finishes
-            }
-        );
-         // Enhanced Section 1 Title Animation targeting .word-span
-        gsap.fromTo(".intro-heading .word-span", // <-- Target .word-span
-            {
-                opacity: 0,
-                y: (i) => Math.sin(i * 0.5) * 50,
-                rotate: (i) => Math.random() * 90 - 45,
-                scale: 1.5,
-            },
-            {
-                opacity: 1,
-                y: 0,
-                rotate: 0,
-                scale: 1,
-                duration: 1.2,
-                ease: "elastic.out(1, 0.5)",
-                stagger: {
-                    each: 0.08, // Stagger per word
-                    from: "center",
-                },
-                delay: 0.2,
-            }
-        );
+            }, 1.5); // Delay until planes have revealed text
 
-        gsap.fromTo(".section-1 .scroll-indicator",
+        tl.fromTo(".section-1 .scroll-indicator",
             { opacity: 0, y: 10 },
             {
                 opacity: 1,
                 y: 0,
                 duration: isMobile ? 0.3 : 0.5,
                 ease: "power2.out",
-                delay: 0.6
-            }
-        );
-
-        // ... (Keep other section animations for desktop and mobile) ...
-         // Desktop animations for other sections
+            }, 2);
+            
         mm.add("(min-width: 768px)", () => {
             const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
 
@@ -440,7 +425,6 @@ const ProfessionalLandingPage = () => {
             });
         });
 
-        // Mobile animations - ultra minimal
         mm.add("(max-width: 767px)", () => {
             const sectionsToAnimate = ['.section-2', '.section-3', '.section-4-intro', '.section-4 .v4-impact', '.section-5'];
 
@@ -475,7 +459,6 @@ const ProfessionalLandingPage = () => {
         };
     }, { scope: containerRef, dependencies: [isMobile] });
 
-    // ... (Keep useCallback hooks) ...
      const handleExternalLink = useCallback((url) => {
         window.open(url, '_blank', 'noopener,noreferrer');
     }, []);
@@ -488,26 +471,8 @@ const ProfessionalLandingPage = () => {
     const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
 
-    // --- UPDATED splitTitle function ---
-    const splitTitle = (text) => {
-        // Split into words, wrap each word in a span, preserve spaces between spans
-        return text.split(/(\s+)/).filter(Boolean).map((segment, index) => (
-            segment.match(/\s+/) ? (
-                // If it's whitespace, just return it (or a non-breaking space if needed)
-                <span key={`space-${index}`}>{segment.replace(/ /g, "\u00A0")}</span> // Use non-breaking spaces
-            ) : (
-                // If it's a word, wrap it
-                <span key={`word-${index}`} className="word-span inline-block" style={{ willChange: 'transform, opacity' }}>
-                    {segment}
-                </span>
-            )
-        ));
-    };
-
-
     return (
     <div ref={containerRef} className="professional-landing-wrapper relative">
-        {/* Navbar */}
         <div className="fixed top-0 left-0 right-0 z-50">
             <Navbar />
         </div>
@@ -515,14 +480,17 @@ const ProfessionalLandingPage = () => {
         <div className="professional-landing bg-transparent text-text relative z-10">
             <RealisticStarfield />
 
-            {/* Section 1: Intro */}
             <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
+
+                {/* --- Aeroplanes --- */}
+                <FaPlane className="plane-1 absolute top-1/2 left-0 -translate-x-full -translate-y-[100%] text-3xl md:text-4xl text-white opacity-80" style={{ transform: 'translateX(-100%)' }} />
+                <FaPlane className="plane-2 absolute top-1/2 right-0 translate-x-full translate-y-[100%] text-3xl md:text-4xl text-white opacity-80" style={{ transform: 'translateX(100%) scaleX(-1)' }} />
+
+
                 <div className="section-1-content relative z-10">
                     <h1 className="intro-heading font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight md:leading-tight">
-                         {/* Call updated splitTitle */}
-                         {splitTitle("Ever Dreamt of ")}
-                         <br className="hidden md:block" />
-                         {splitTitle(" Being Successful?")}
+                         <div className="intro-heading-line-1">Ever Dreamt of </div>
+                         <div className="intro-heading-line-2 mt-1 md:mt-2">Being Successful?</div>
                     </h1>
                     <p className="animated-element text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
                         Ever Wondered When it all pays off
@@ -534,8 +502,6 @@ const ProfessionalLandingPage = () => {
                 </div>
             </section>
 
-                {/* Section 2: Obstacles */}
-                {/* ... (Keep Section 2 JSX) ... */}
                  <section className="section-2 min-h-screen flex flex-col items-center justify-center p-6 md:p-12 relative overflow-hidden">
                     <div className="section-2-content relative z-10 w-full max-w-5xl text-center">
                         <h2 className="animated-element font-heading text-4xl md:text-5xl font-bold text-text mb-12 md:mb-16">
@@ -555,9 +521,6 @@ const ProfessionalLandingPage = () => {
                     </div>
                 </section>
 
-
-                {/* Section 3: Chizel Born */}
-                {/* ... (Keep Section 3 JSX) ... */}
                  <section className="section-3 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
                     <div className="section-3-content relative z-10 flex flex-col items-center">
                         <div className="animated-element relative mb-6 md:mb-8">
@@ -572,9 +535,6 @@ const ProfessionalLandingPage = () => {
                     </div>
                 </section>
 
-
-                {/* Section 4: Our Impact & Milestones */}
-                {/* ... (Keep Section 4 JSX) ... */}
                  <section className="section-4 min-h-screen flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center relative overflow-hidden">
                     <div className="section-4-content relative z-10 w-full max-w-6xl">
                         <div className="section-4-intro mb-12 md:mb-16">
@@ -638,9 +598,6 @@ const ProfessionalLandingPage = () => {
                     </div>
                 </section>
 
-
-                {/* Section 5: CTA */}
-                {/* ... (Keep Section 5 JSX) ... */}
                  <section className="section-5 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden py-20 md:py-32">
                     <div className="section-5-content relative z-10 w-full max-w-3xl">
                         <h2 className="animated-element font-heading text-4xl md:text-6xl font-bold text-text mb-5 md:mb-6 drop-shadow-md">
@@ -660,13 +617,9 @@ const ProfessionalLandingPage = () => {
                         </div>
                     </div>
                 </section>
+        </div>
 
-            </div>
-
-
-            {/* Global Styles */}
             <style jsx global>{`
-                /* Keep existing styles */
                 :root {
                      --color-primary-rgb: 31, 111, 235;
                     --color-primary: rgb(31, 111, 235);
@@ -689,29 +642,10 @@ const ProfessionalLandingPage = () => {
                     scroll-behavior: smooth;
                 }
 
-                 /* ... other existing styles ... */
-                @media (max-width: 767px) {
+                 @media (max-width: 767px) {
                      html { overflow-x: hidden; -webkit-overflow-scrolling: touch; }
                     body { overscroll-behavior-y: none; }
-                     /* Removed forced hardware acceleration for broader compatibility */
-                }
-
-                 /* --- Ensure words don't break mid-letter --- */
-                .intro-heading .word-span {
-                    white-space: nowrap; /* Prevent breaking within the word span */
-                    display: inline-block; /* Needed for nowrap and transforms */
-                }
-                 .intro-heading {
-                     /* Allow breaking between word spans */
-                    word-wrap: break-word; /* Standard */
-                    overflow-wrap: break-word; /* Newer standard */
-                    hyphens: auto; /* Optional: allow hyphenation if needed */
-                     /* Add some letter spacing for style */
-                     letter-spacing: -0.02em; /* Adjust as needed */
                  }
-
-
-                 /* ... rest of the existing styles ... */
                  .impact-button-css .bg-left { background-position: 0% center; }
                  .impact-button-css .bg-right { background-position: 100% center; }
                  section { min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; overflow: hidden; z-index: 1; background-color: transparent; padding-top: 5rem; padding-bottom: 5rem; }
