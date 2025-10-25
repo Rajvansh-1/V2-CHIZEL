@@ -94,7 +94,7 @@ export const featuresData = [
 export const socialLinks = [
   {
     name: "Instagram",
-    href: "https://www.instagram.com/chizel_ox?igsh=MXkxdDR6Nzg1cnl4YQ==",
+    href: "https://www.instagram.com/chizel_official?utm_source=qr&igsh=MXkxdDR6Nzg1cnl4YQ==",
   },
   { name: "YouTube", href: "https://www.youtube.com/@chizelofficial" },
   {
