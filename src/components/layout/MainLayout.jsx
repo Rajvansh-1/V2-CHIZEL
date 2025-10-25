@@ -7,17 +7,24 @@ import Footer from "@/components/layout/Footer";
 import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
 
 const MainLayout = () => {
+  // Initialize smooth scrolling
   useLenisScroll();
 
   return (
-    // Use Flexbox: container takes full height, main content grows
-    <div className="flex flex-col min-h-screen">
+    // Flex container to manage vertical layout and ensure minimum screen height
+    <div className="flex flex-col min-h-screen bg-background"> {/* Added bg-background here for safety */}
       <CustomCursor />
       <Navbar />
-      <main className="relative w-full flex-grow bg-background">
-        <Outlet /> {/* ProfessionalLandingPage renders here */}
+
+      {/* Main content area that grows to fill space */}
+      <main className="relative w-full flex-grow"> {/* flex-grow is key */}
+        <Outlet /> {/* Renders the current route's component (e.g., ProfessionalLandingPage) */}
       </main>
-      <Footer /> {/* Footer is placed after the growing main content */}
+
+      {/* Footer is placed last in the flex container */}
+      <Footer />
+
+      {/* Floating elements remain fixed */}
       <FeedbackFloatingAlert />
     </div>
   );
