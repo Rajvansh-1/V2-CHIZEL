@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
-// Footer is handled by MainLayout, no import needed here
+// Footer is handled by MainLayout
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
@@ -16,8 +16,9 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- Ultra-Optimized RealisticStarfield Component ---
+// --- RealisticStarfield Component (Keep as previously defined) ---
 const RealisticStarfield = memo(() => {
+    // ... (Component code remains the same as in the previous answer) ...
     const starfieldRef = useRef(null);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); // Initial state check
 
@@ -118,9 +119,10 @@ const RealisticStarfield = memo(() => {
 });
 RealisticStarfield.displayName = 'RealisticStarfield';
 
-// --- ObstacleCard Component ---
+// --- ObstacleCard Component (Keep as previously defined) ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
-    const cardRef = useRef(null);
+    // ... (Component code remains the same as in the previous answer) ...
+     const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
@@ -215,9 +217,9 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
 });
 ObstacleCard.displayName = 'ObstacleCard';
 
-
-// --- ImpactCard Component ---
+// --- ImpactCard Component (Keep as previously defined) ---
 const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
+    // ... (Component code remains the same as in the previous answer) ...
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -326,7 +328,6 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
 });
 ImpactCard.displayName = 'ImpactCard';
 
-
 // --- Main Landing Page Component ---
 const ProfessionalLandingPage = () => {
     const containerRef = useRef(null);
@@ -344,7 +345,7 @@ const ProfessionalLandingPage = () => {
         "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
         "/images/slider/i8.png", "/images/slider/i9.png", "/images/slider/i7.png",
         "/images/slider/i11.png"
-    ].filter(Boolean), []); // Filter out any potentially undefined paths
+    ].filter(Boolean), []);
 
 
      const { marqueeImages1, marqueeImages2, marqueeImagesMobile } = useMemo(() => {
@@ -368,38 +369,32 @@ const ProfessionalLandingPage = () => {
     ], []);
 
     useGSAP(() => {
+        // --- Initial Animation Timeline ---
         const mm = gsap.matchMedia();
-
         const plane1 = ".plane-1";
         const plane2 = ".plane-2";
         const line1 = ".intro-heading-line-1";
         const line2 = ".intro-heading-line-2";
 
-         // Ensure elements start in the correct state for animation
-        gsap.set([line1, line2], { opacity: 1, visibility: 'visible' }); // Use visibility
+        // Initial states
+        gsap.set([line1, line2], { opacity: 1, visibility: 'visible' });
         gsap.set(line1, { clipPath: 'inset(0 100% 0 0)' });
         gsap.set(line2, { clipPath: 'inset(0 0 0 100%)' });
-        gsap.set(plane1, { x: '-100%', opacity: 1 }); // Start off-screen left
-        gsap.set(plane2, { x: '100%', opacity: 1 }); // Start off-screen right
+        gsap.set(plane1, { x: '-100%', opacity: 1 });
+        gsap.set(plane2, { x: '100%', opacity: 1 });
         gsap.set(".section-1 .animated-element", { opacity: 0, y: 20 });
         gsap.set(".section-1 .scroll-indicator", { opacity: 0 });
 
+        // Timeline for intro sequence
+        const introTl = gsap.timeline({ delay: 0.5 });
+        introTl.to(plane1, { x: "100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line1, { clipPath: `inset(0 ${100 - this.progress() * 100}% 0 0)` }); } }, 0);
+        introTl.to(plane2, { x: "-100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line2, { clipPath: `inset(0 0 0 ${100 - this.progress() * 100}%)` }); } }, 0.5);
+        introTl.to(".section-1 .animated-element", { opacity: 1, y: 0, stagger: 0.1, duration: isMobile ? 0.4 : 0.6, ease: "power2.out" }, 1.5);
+        introTl.to(".section-1 .scroll-indicator", { opacity: 1, duration: isMobile ? 0.3 : 0.5, ease: "power2.out" }, 2);
 
-        const tl = gsap.timeline({ delay: 0.5 }); // Start animation slightly sooner
-
-        // Plane animations revealing text
-        tl.to(plane1, { x: "100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line1, { clipPath: `inset(0 ${100 - this.progress() * 100}% 0 0)` }); } }, 0);
-        tl.to(plane2, { x: "-100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line2, { clipPath: `inset(0 0 0 ${100 - this.progress() * 100}%)` }); } }, 0.5);
-
-        // Fade in text and button after planes have moved sufficiently
-        tl.to(".section-1 .animated-element", { opacity: 1, y: 0, stagger: 0.1, duration: isMobile ? 0.4 : 0.6, ease: "power2.out" }, 1.5);
-
-        // Fade in scroll indicator
-         tl.to(".section-1 .scroll-indicator", { opacity: 1, duration: isMobile ? 0.3 : 0.5, ease: "power2.out" }, 2);
-
-        // --- Scroll-Triggered Animations for Sections ---
-        const animateSectionElements = (selector, start = "top 85%") => {
-             const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p:not(.v4-subtitle)`); // Avoid double animating subtitle
+        // --- Scroll-Triggered Animations ---
+         const animateSectionElements = (selector, start = "top 85%") => {
+             const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p:not(.v4-subtitle)`);
              if (elements.length > 0) {
                  gsap.fromTo(elements,
                     { opacity: 0, y: isMobile ? 10 : 20 },
@@ -407,73 +402,65 @@ const ProfessionalLandingPage = () => {
                         scrollTrigger: {
                             trigger: selector,
                             start: start,
-                             toggleActions: isMobile ? 'play none none none' : 'play none none reverse', // Play once on mobile
-                             once: isMobile, // Ensure it runs only once on mobile
+                             toggleActions: isMobile ? 'play none none none' : 'play none none reverse',
+                             once: isMobile,
                              fastScrollEnd: true
                         },
-                        opacity: 1,
-                        y: 0,
+                        opacity: 1, y: 0,
                          stagger: isMobile ? 0.03 : 0.07,
                          duration: isMobile ? 0.3 : 0.6,
                          ease: isMobile ? "power1.out" : "power2.out",
-                         willChange: 'transform, opacity' // Performance hint
+                         willChange: 'transform, opacity'
                     }
                 );
             }
         };
 
-         // Apply animations to sections
+         // Apply scroll animations
          animateSectionElements('.section-2');
          animateSectionElements('.section-3');
-         animateSectionElements('.section-4-intro'); // Animate intro text separately
-         // Target marquee section specifically
-         gsap.fromTo(['.section-4 .v4-impact .logo-marquee', '.section-4 .v4-impact .v4-subtitle'], // Also animate the subtitle here
-             { opacity: 0, y: isMobile ? 15 : 30 },
-             {
-                 scrollTrigger: {
-                     trigger: '.section-4 .v4-impact',
-                     start: "top 90%", // Trigger marquee slightly earlier
-                     toggleActions: isMobile ? 'play none none none' : 'play none none reverse',
-                     once: isMobile,
-                     fastScrollEnd: true
-                 },
-                 opacity: 1,
-                 y: 0,
-                 stagger: 0.1,
-                 duration: isMobile ? 0.4 : 0.7,
-                 ease: isMobile ? "power1.out" : "power2.out",
-                 willChange: 'transform, opacity'
-             }
-         );
-         animateSectionElements('.section-5');
+         animateSectionElements('.section-4-intro');
 
+         // Marquee scroll animation (using the container as trigger)
+          gsap.fromTo(['.section-4 .v4-impact .logo-marquee', '.section-4 .v4-impact .v4-subtitle'],
+            { opacity: 0, y: isMobile ? 15 : 30 },
+            {
+                scrollTrigger: {
+                    trigger: '.section-4 .v4-impact', // Target the wrapper div
+                    start: "top 90%",
+                    toggleActions: isMobile ? 'play none none none' : 'play none none reverse',
+                    once: isMobile,
+                    fastScrollEnd: true
+                },
+                opacity: 1, y: 0,
+                stagger: 0.1,
+                duration: isMobile ? 0.4 : 0.7,
+                ease: isMobile ? "power1.out" : "power2.out",
+                willChange: 'transform, opacity'
+            }
+        );
 
+         animateSectionElements('.section-5', "top 90%"); // Trigger final section slightly earlier
+
+        // --- Cleanup ---
         return () => {
-            tl.kill(); // Kill the main timeline
-            mm.revert(); // Revert MatchMedia setups
-            ScrollTrigger.getAll().forEach(trigger => trigger.kill()); // Kill all scroll triggers
+            introTl.kill();
+            ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+             // It's generally better practice to kill specific animations/ScrollTriggers
+             // rather than just reverting MatchMedia if other animations exist outside this scope.
         };
-    }, { scope: containerRef, dependencies: [isMobile] }); // Re-run GSAP setup if mobile status changes
+    }, { scope: containerRef, dependencies: [isMobile] }); // Depend on isMobile
 
-     // --- Event Handlers ---
-     const handleExternalLink = useCallback((url) => {
-         if (url) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-        }
-    }, []);
-
-    const handleWaitlist = useCallback(() => {
-        handleExternalLink("https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true");
-    }, [handleExternalLink]);
-
-    const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
-    const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
-    const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
+     // --- Event Handlers (memoized) ---
+     const handleExternalLink = useCallback((url) => { if (url) window.open(url, '_blank', 'noopener,noreferrer'); }, []);
+     const handleWaitlist = useCallback(() => handleExternalLink("https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true"), [handleExternalLink]);
+     const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
+     const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
+     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
 
     // --- Render ---
     return (
-        // Let MainLayout handle the overall page structure (min-h-screen, flex-grow etc.)
-        <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10">
+        <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10 flex-grow"> {/* Let MainLayout control overall height */}
             <RealisticStarfield />
 
              <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
@@ -482,8 +469,14 @@ const ProfessionalLandingPage = () => {
 
                 <div className="section-1-content relative z-10">
                     <h1 className="intro-heading font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight md:leading-tight">
-                         <div className="intro-heading-line-1 inline-block">Ever Dreamt of </div>
-                         <div className="intro-heading-line-2 inline-block mt-1 md:mt-2">Being Successful?</div>
+                        {/* Line 1: Always visible */}
+                        <div className="intro-heading-line-1">
+                            Ever Dreamt of
+                        </div>
+                        {/* Line 2: Always visible, natural block behavior ensures it's on a new line */}
+                        <div className="intro-heading-line-2 mt-1 md:mt-2">
+                            Being Successful?
+                        </div>
                     </h1>
                     <p className="animated-element text-secondary-text text-lg md:text-xl max-w-2xl mx-auto mb-8">
                         Ever Wondered When it all pays off
@@ -543,20 +536,20 @@ const ProfessionalLandingPage = () => {
                              A glimpse into the vibrant, engaging world we're building.
                          </p>
                     </div>
-                     {/* Marquee Section */}
-                     <div className="v4-impact mb-16 md:mb-20"> {/* Wrapper for marquee */}
+                     <div className="v4-impact mb-16 md:mb-20">
                          {isMobile ? (
                             <div className="flex flex-col">
-                                <LogoMarquee images={marqueeImagesMobile} speed={15} direction="left" />
+                                {/* Added will-change for performance */}
+                                <LogoMarquee images={marqueeImagesMobile} speed={15} direction="left" className="will-change-transform" />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-5 md:gap-6">
-                                <LogoMarquee images={marqueeImages1} speed={10} direction="left" />
-                                <LogoMarquee images={marqueeImages2} speed={10} direction="right" />
+                                {/* Added will-change for performance */}
+                                <LogoMarquee images={marqueeImages1} speed={10} direction="left" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages2} speed={10} direction="right" className="will-change-transform" />
                             </div>
                         )}
                     </div>
-                     {/* Explore Universe Section */}
                      <div className="section-4-intro mt-16 md:mt-20">
                         <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-5 md:mb-6">
                             Explore the <span className="animated-gradient-heading">Chizel Universe</span>
@@ -566,44 +559,14 @@ const ProfessionalLandingPage = () => {
                         </p>
                     </div>
                     <div className="impact-card-container grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
-                       <ImpactCard
-                            id="chizel-core-card"
-                            icon={<FaGlobe />}
-                            title="Chizel Core"
-                            description="Discover the foundation of our learning ecosystem, technology, and vision."
-                            buttonText="Explore Core"
-                            onClick={handleCoreClick}
-                            gradientClass="bg-gradient-to-br from-blue-900/40 via-card/60 to-blue-900/40 backdrop-blur-lg"
-                            iconBgClass="bg-blue-500/25"
-                            shadowClass="rgba(31, 111, 235, 0.25)"
-                        />
-                        <ImpactCard
-                             id="chizel-kids-card"
-                            icon={<FaChild />}
-                            title="Chizel for Kids"
-                            description="Step into the interactive ChizelVerse designed for fun, skill-building adventures."
-                            buttonText="Enter Kids Verse"
-                            onClick={handleKidsClick}
-                            gradientClass="bg-gradient-to-br from-purple-900/40 via-card/60 to-purple-900/40 backdrop-blur-lg"
-                            iconBgClass="bg-purple-500/25"
-                            shadowClass="rgba(93, 63, 211, 0.25)"
-                        />
-                        <ImpactCard
-                             id="chizel-parents-card"
-                            icon={<FaUserFriends />}
-                            title="Chizel for Parents"
-                            description="Monitor progress, discover resources, and connect with the parent community."
-                            buttonText="View Parent Portal"
-                            onClick={handleParentsClick}
-                            gradientClass="bg-gradient-to-br from-orange-900/40 via-card/60 to-orange-900/40 backdrop-blur-lg"
-                            iconBgClass="bg-orange-500/25"
-                            shadowClass="rgba(255, 179, 71, 0.25)"
-                        />
+                       <ImpactCard id="chizel-core-card" icon={<FaGlobe />} title="Chizel Core" description="Discover the foundation of our learning ecosystem, technology, and vision." buttonText="Explore Core" onClick={handleCoreClick} gradientClass="bg-gradient-to-br from-blue-900/40 via-card/60 to-blue-900/40 backdrop-blur-lg" iconBgClass="bg-blue-500/25" shadowClass="rgba(31, 111, 235, 0.25)" />
+                        <ImpactCard id="chizel-kids-card" icon={<FaChild />} title="Chizel for Kids" description="Step into the interactive ChizelVerse designed for fun, skill-building adventures." buttonText="Enter Kids Verse" onClick={handleKidsClick} gradientClass="bg-gradient-to-br from-purple-900/40 via-card/60 to-purple-900/40 backdrop-blur-lg" iconBgClass="bg-purple-500/25" shadowClass="rgba(93, 63, 211, 0.25)" />
+                        <ImpactCard id="chizel-parents-card" icon={<FaUserFriends />} title="Chizel for Parents" description="Monitor progress, discover resources, and connect with the parent community." buttonText="View Parent Portal" onClick={handleParentsClick} gradientClass="bg-gradient-to-br from-orange-900/40 via-card/60 to-orange-900/40 backdrop-blur-lg" iconBgClass="bg-orange-500/25" shadowClass="rgba(255, 179, 71, 0.25)" />
                     </div>
                 </div>
             </section>
 
-             {/* Removed min-h-screen from the last section */}
+             {/* REMOVED min-h-screen from this last section */}
              <section className="section-5 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden py-20 md:py-32">
                 <div className="section-5-content relative z-10 w-full max-w-3xl">
                     <h2 className="font-heading text-4xl md:text-6xl font-bold text-text mb-5 md:mb-6 drop-shadow-md animated-element">
@@ -613,134 +576,114 @@ const ProfessionalLandingPage = () => {
                         Be among the first explorers. Join the Chizel waitlist today for exclusive early access, special launch rewards, and updates on our mission to reshape learning.
                     </p>
                     <div className="relative inline-block group animated-element">
-                         {/* Pulse animation applied here */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-orange rounded-full blur-md opacity-50 group-hover:opacity-75 transition duration-300 pointer-events-none" style={{ animation: isMobile ? 'none' : 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-orange rounded-full blur-md opacity-50 group-hover:opacity-75 transition duration-300 pointer-events-none" style={{ animation: isMobile ? 'none' : 'pulse-border 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                         <Button
                             title="Secure Your Spot"
                             onClick={handleWaitlist}
                             rightIcon={<FaArrowRight />}
-                            // Use more specific button classes if Button component styles conflict
-                            containerClass="final-cta-button relative !text-base md:!text-lg !py-3 !px-8 md:!py-4 md:!px-10 !bg-gradient-to-r !from-primary !to-accent hover:!shadow-[0_0_20px_rgba(31,111,235,0.5)]"
+                            containerClass="final-cta-button relative !text-base md:!text-lg !py-3 !px-8 md:!py-4 md:!px-10 !bg-gradient-to-r !from-primary !to-accent hover:!shadow-[0_0_20px_rgba(31,111,235,0.5)]" // Kept hover shadow for CTA
                         />
                     </div>
                 </div>
             </section>
-             {/* Footer is rendered by MainLayout */}
+             {/* Footer will be rendered by MainLayout after this component finishes */}
 
             <style jsx global>{`
+                /* --- Root Variables (Consolidated) --- */
                 :root {
-                     --color-primary: rgb(31, 111, 235);      /* Blue */
-                    --color-primary-rgb: 31, 111, 235;
-                    --color-accent: rgb(93, 63, 211);       /* Purple */
-                    --color-accent-rgb: 93, 63, 211;
-                     --color-orange: rgb(255, 179, 71);      /* Orange/Amber */
-                     --color-orange-rgb: 255, 179, 71;
-                     --color-primary-alpha: rgba(31, 111, 235, 0.25);
-                    --color-accent-alpha: rgba(93, 63, 211, 0.25);
-                     --color-orange-alpha: rgba(255, 179, 71, 0.25);
-                     --color-text: #e6f1ff;
-                     --color-secondary-text: #8fa5c6;
+                     --color-primary: rgb(31, 111, 235); --color-primary-rgb: 31, 111, 235; --color-primary-alpha: rgba(31, 111, 235, 0.25);
+                    --color-accent: rgb(93, 63, 211); --color-accent-rgb: 93, 63, 211; --color-accent-alpha: rgba(93, 63, 211, 0.25);
+                     --color-orange: rgb(255, 179, 71); --color-orange-rgb: 255, 179, 71; --color-orange-alpha: rgba(255, 179, 71, 0.25);
+                     --color-red: rgb(239, 68, 68);
+                     --color-yellow: rgb(250, 204, 21);
+                     --color-text: #e6f1ff; --color-secondary-text: #8fa5c6;
                      --color-border: rgba(230, 241, 255, 0.1);
-                     --color-background: #0b1226;
-                     --color-card: #16213e;
-                     --color-red: rgb(239, 68, 68); /* Explicit red for obstacles */
-                     --color-yellow: rgb(250, 204, 21); /* Explicit yellow for scroll indicator */
+                     --color-background: #0b1226; --color-card: #16213e;
                 }
 
-                /* Base Styles & Font Smoothing */
-                * {
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    -webkit-tap-highlight-color: transparent;
-                }
+                /* --- Base & Reset --- */
+                * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; }
                 html { scroll-behavior: smooth; overflow-x: hidden; }
-                body { overflow-x: hidden; }
+                body { overflow-x: hidden; background-color: var(--color-background); } /* Ensure body bg matches */
 
-                /* Layout & Section Styling */
-                 section {
-                     /* min-height: 100vh; */ /* Use this carefully, removed from last section */
-                     display: flex; flex-direction: column; align-items: center; justify-content: center;
-                     position: relative; width: 100%; overflow: hidden; /* Prevent content overflow */
-                     z-index: 1; background-color: transparent; /* Rely on starfield */
-                     padding-top: 5rem; padding-bottom: 5rem; /* Standard padding */
-                 }
-                /* Ensure first 4 sections take full viewport height */
+                /* --- Layout & Section Styling --- */
+                 section { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; overflow: hidden; z-index: 1; background-color: transparent; padding: 5rem 1rem; } /* Adjusted padding */
                  .section-1, .section-2, .section-3, .section-4 { min-height: 100vh; }
-                 .section-5 { min-height: auto; padding-top: 5rem; padding-bottom: 8rem; } /* Less min-height, more bottom padding */
+                 .section-5 { min-height: auto; padding-top: 5rem; padding-bottom: 8rem; } /* More bottom padding for space before footer */
 
-                /* Typography & Gradients */
+                /* --- Typography & Gradients --- */
                 .intro-heading { color: var(--color-text); text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px var(--color-primary-alpha), 0 0 35px var(--color-accent-alpha); will-change: transform; }
                  .animated-gradient-heading { color: transparent; background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-orange), var(--color-primary)); background-clip: text; -webkit-background-clip: text; background-size: 200% auto; animation: gradient-flow 6s linear infinite; font-weight: 800; }
 
-                /* Animations */
+                /* --- Logo Marquee Performance --- */
+                 .logo-marquee { will-change: transform; } /* Hint for marquee container */
+                 .marquee-content { will-change: transform; } /* Hint for animating content */
+                 .marquee-item img { will-change: opacity, transform; /* Hint for hover effects */ }
+
+                /* --- Animations --- */
                 @keyframes gradient-flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
                 @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.1); } }
                 @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.95); } }
-                .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-                .animate-bounce { animation: bounce 2s infinite; }
-                @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+                 @keyframes pulse-border { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.02); } } /* Renamed to avoid conflict */
+                 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+                 .animate-bounce { animation: bounce 2s infinite; }
+                 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+                 /* Scroll Indicator */
+                 .scroll-indicator { animation: fadeInScroll 1.5s 2s ease-out forwards; }
+                 @keyframes fadeInScroll { from { opacity: 0; } to { opacity: 1; } }
+                 .scroll-chevron { animation: bounceSlight 2s infinite ease-in-out; }
+                 @keyframes bounceSlight { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(4px); opacity: 1; } }
+                 /* Shine */
+                 @keyframes shine { 100% { left: 125%; } }
 
-                /* Scroll Indicator Specific Animations */
-                .scroll-indicator { animation: fadeInScroll 1.5s 2s ease-out forwards; } /* Fade in after intro animation */
-                @keyframes fadeInScroll { from { opacity: 0; } to { opacity: 1; } }
-                .scroll-chevron { animation: bounceSlight 2s infinite ease-in-out; }
-                @keyframes bounceSlight { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(4px); opacity: 1; } }
+                /* --- Performance & Accessibility --- */
+                .will-change-transform { will-change: transform; }
+                .will-change-opacity { will-change: opacity; }
+                .will-change-transform-opacity { will-change: transform, opacity; }
+                 /* Apply will-change more specifically */
+                 .animated-element, .obstacle-card-enhanced, .impact-card { will-change: transform, opacity; }
+                 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+                 img { content-visibility: auto; max-width: 100%; height: auto; } /* Ensure images are responsive */
 
-                /* Performance & Accessibility */
-                @media (min-width: 768px) { .animated-element, .obstacle-card-enhanced, .impact-card { will-change: opacity, transform; } }
-                @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
-                img { content-visibility: auto; } /* Helps browser rendering performance */
-
-                /* Mobile Specific Adjustments */
+                /* --- Mobile Specific Adjustments --- */
                 @media (max-width: 767px) {
-                    html { -webkit-overflow-scrolling: touch; } /* Smoother scrolling on iOS */
-                    body { overscroll-behavior-y: none; } /* Prevent pull-to-refresh */
-                    .backdrop-blur-lg { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); } /* Slightly less blur on mobile */
-                    .intro-heading { font-size: clamp(2.5rem, 10vw, 3.5rem); } /* Adjust heading size */
-                    section { padding-top: 4rem; padding-bottom: 4rem; } /* Reduce section padding */
+                    html { -webkit-overflow-scrolling: touch; }
+                    body { overscroll-behavior-y: none; }
+                    .backdrop-blur-lg { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+                     .intro-heading { font-size: clamp(2.5rem, 10vw, 3.5rem); }
+                     section { padding: 4rem 1rem; } /* Consistent mobile padding */
                      .section-5 { padding-bottom: 6rem; }
-                     .impact-card-container { grid-template-columns: 1fr; max-width: 350px; } /* Stack cards on mobile */
+                     .impact-card-container { grid-template-columns: 1fr; max-width: 350px; }
                 }
 
                  /* --- Impact Card Button Base Styles --- */
-                 .impact-button-css { position: relative; overflow: hidden; /* Ensure pseudo-elements are contained */ }
-                 .impact-button-css .button-hover-fill { background-size: 200% auto; background-position: 0% center; }
+                 .impact-button-css { position: relative; overflow: hidden; transform: translateZ(0); /* Promotes GPU rendering */}
+                 .impact-button-css .button-hover-fill { background-size: 200% auto; background-position: 0% center; will-change: transform; }
+                 .impact-button-css .button-text-default { will-change: transform; }
                  .impact-button-css:hover .button-hover-fill { transform: translateX(0%); background-position: 100% center; }
                  .impact-button-css:hover .button-text-default { transform: translateX(100%); }
-                 .impact-button-css .button-hover-fill, .impact-button-css .button-text-default { transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth transition */ }
+                 .impact-button-css .button-hover-fill, .impact-button-css .button-text-default { transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
 
-                /* --- CORE BUTTON (Blue/Purple Theme) --- */
-                #chizel-core-card .impact-button-css {
-                    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-                    border-color: transparent;
-                    box-shadow: 0 0 15px 0px var(--color-primary-alpha), 0 0 30px 0px var(--color-accent-alpha);
-                    animation: pulse-glow-core 2.5s infinite ease-in-out;
-                }
+                /* --- CORE BUTTON Theme --- */
+                #chizel-core-card .impact-button-css { background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-primary-alpha), 0 0 30px 0px var(--color-accent-alpha); animation: pulse-glow-core 2.5s infinite ease-in-out; }
                  #chizel-core-card .impact-button-css::before { content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%); transform: skewX(-25deg); animation: shine 4s infinite linear; }
                 #chizel-core-card .impact-button-css:hover { transform: scale(1.05); box-shadow: 0 0 25px 5px var(--color-primary-alpha), 0 0 40px 10px var(--color-accent-alpha); border-color: rgba(255, 255, 255, 0.5); }
                  #chizel-core-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, var(--color-accent), var(--color-primary), var(--color-accent)); }
                  @keyframes pulse-glow-core { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-primary-alpha), 0 0 30px 0px var(--color-accent-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-primary-alpha), 0 0 40px 10px var(--color-accent-alpha); } }
 
-                 /* --- KIDS BUTTON (Purple Theme) --- */
-                #chizel-kids-card .impact-button-css {
-                    background: var(--color-accent); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-accent-alpha); animation: pulse-glow-kids 2.5s infinite ease-in-out;
-                }
+                 /* --- KIDS BUTTON Theme --- */
+                #chizel-kids-card .impact-button-css { background: var(--color-accent); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-accent-alpha); animation: pulse-glow-kids 2.5s infinite ease-in-out; }
                  #chizel-kids-card .impact-button-css::before { content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 100%); transform: skewX(-25deg); animation: shine 4.5s infinite linear 0.5s; }
                 #chizel-kids-card .impact-button-css:hover { transform: scale(1.05); box-shadow: 0 0 25px 5px var(--color-accent-alpha); border-color: rgba(255, 255, 255, 0.4); }
                  #chizel-kids-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, rgb(110, 20, 180), var(--color-accent), rgb(110, 20, 180)); }
                  @keyframes pulse-glow-kids { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-accent-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-accent-alpha); } }
 
-                 /* --- PARENTS BUTTON (Orange Theme) --- */
-                 #chizel-parents-card .impact-button-css {
-                    background: var(--color-orange); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-orange-alpha); animation: pulse-glow-parents 2.5s infinite ease-in-out;
-                 }
+                 /* --- PARENTS BUTTON Theme --- */
+                 #chizel-parents-card .impact-button-css { background: var(--color-orange); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-orange-alpha); animation: pulse-glow-parents 2.5s infinite ease-in-out; }
                  #chizel-parents-card .impact-button-css::before { content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%); transform: skewX(-25deg); animation: shine 4.2s infinite linear 1s; }
                 #chizel-parents-card .impact-button-css:hover { transform: scale(1.05); box-shadow: 0 0 25px 5px var(--color-orange-alpha); border-color: rgba(255, 255, 255, 0.5); }
                  #chizel-parents-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, rgb(255, 150, 40), var(--color-orange), rgb(255, 150, 40)); }
                  @keyframes pulse-glow-parents { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-orange-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-orange-alpha); } }
-
-                 /* General Shine Animation */
-                 @keyframes shine { 100% { left: 125%; } }
 
             `}</style>
         </div>
