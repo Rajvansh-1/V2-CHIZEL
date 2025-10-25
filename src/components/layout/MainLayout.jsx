@@ -7,21 +7,20 @@ import Footer from "@/components/layout/Footer";
 import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
 
 const MainLayout = () => {
-  // Call the hook directly. It manages its own effects.
   useLenisScroll();
 
   return (
-    <>
+    // Use Flexbox: container takes full height, main content grows
+    <div className="flex flex-col min-h-screen">
       <CustomCursor />
       <Navbar />
-      <main className="relative w-full min-h-screen bg-background">
-        <Outlet />
+      <main className="relative w-full flex-grow bg-background">
+        <Outlet /> {/* ProfessionalLandingPage renders here */}
       </main>
-      <Footer />
+      <Footer /> {/* Footer is placed after the growing main content */}
       <FeedbackFloatingAlert />
-    </>
+    </div>
   );
 };
-
 
 export default MainLayout;
