@@ -104,6 +104,9 @@ export const socialLinks = [
   { 
     name: "Twitter", href: "https://x.com/Chizel_Official"
    },
+   { 
+    name: "Facebook", href: "https://www.facebook.com/profile.php?id=61582590343680" 
+  },
 ];
 
 export const problemSlides = [
