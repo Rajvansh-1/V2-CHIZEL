@@ -3,18 +3,22 @@ import { useGSAP } from "@gsap/react";
 import { useRef, memo } from "react";
 import Button from "@/components/ui/Button";
 import { socialLinks } from "@utils/constants";
+// Assuming you have react-icons v6+ installed, use FaXTwitter.
+// If using v5 or earlier, use FaTwitter from 'react-icons/fa'
 import { FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6"; // <-- IMPORT ADDED (adjust if using older react-icons)
 import { trackEvent } from "@/utils/analytics";
 
 const iconMap = {
   Instagram: <FaInstagram size="1.5em" />,
   YouTube: <FaYoutube size="1.5em" />,
   LinkedIn: <FaLinkedin size="1.5em" />,
+  Twitter: <FaXTwitter size="1.5em" />, // <-- ADDED MAPPING (use FaTwitter if needed)
 };
 
 const ContactSection = () => {
   const containerRef = useRef(null);
-  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/edit"; 
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/edit";
 
   useGSAP(() => {
     // --- OPTIMIZED ANIMATION: All elements animate in together without delay ---
@@ -74,9 +78,9 @@ const ContactSection = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="relative z-20 flex flex-col items-center text-center px-4 sm:px-8">
-        
+
         <div className="mb-10">
             <h3 className="contact-element font-ui uppercase tracking-widest text-primary">Incoming Transmission...</h3>
             <h2 className="contact-element font-heading text-4xl sm:text-5xl md:text-6xl mt-2 animated-gradient-heading">Join The Mission</h2>
@@ -84,7 +88,7 @@ const ContactSection = () => {
                 The journey ahead requires the brightest minds and the bravest hearts. Your voice, your ideas, and your support can shape the future of learning across the galaxy.
             </p>
         </div>
-        
+
         <div className="contact-element relative group mb-16">
             <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary/50 rounded-full blur-md opacity-50 animate-pulse group-hover:opacity-80 transition-opacity"></div>
             <Button
@@ -97,7 +101,7 @@ const ContactSection = () => {
         <div className="social-hub w-full max-w-md border-t border-white/10 pt-8">
              <h4 className="contact-element font-ui uppercase tracking-widest text-secondary-text mb-6">Follow Mission Command</h4>
              <div className="flex justify-center gap-4 md:gap-6">
-              {socialLinks.map((link) => (
+              {socialLinks.map((link) => ( // The loop now includes the Twitter/X link
                 <a
                   key={link.name}
                   href={link.href}
@@ -109,7 +113,7 @@ const ContactSection = () => {
                 >
                   <div className="w-16 h-16 flex-center bg-card/50 border-2 border-primary/20 rounded-full backdrop-blur-md transition-all duration-300 ease-out group-hover:bg-primary group-hover:border-primary/50 group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_rgba(31,111,235,0.4)]">
                     <span className="text-primary transition-colors duration-300 group-hover:text-text">
-                      {iconMap[link.name]}
+                      {iconMap[link.name]} {/* The iconMap now includes the Twitter/X icon */}
                     </span>
                   </div>
                 </a>
