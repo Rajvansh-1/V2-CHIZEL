@@ -11,14 +11,21 @@ import LogoMarquee from '@/components/common/LogoMarquee';
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
-    FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar, FaPlane, FaRegLightbulb, FaChevronDown
+    FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar,
+    FaPlane, FaRegLightbulb, FaChevronDown,
+    // --- ICONS ADDED FOR NEW SECTION ---
+    FaInstagram, FaYoutube, FaLinkedin, FaFacebook
 } from 'react-icons/fa';
+// --- ICON ADDED FOR NEW SECTION ---
+import { FaXTwitter } from 'react-icons/fa6'; 
+// --- DATA ADDED FOR NEW SECTION ---
+import { socialLinks } from '@utils/constants';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // --- RealisticStarfield Component (Keep as previously defined) ---
 const RealisticStarfield = memo(() => {
-    // ... (Component code remains the same as in the previous answer) ...
+    // ... (Component code remains the same) ...
     const starfieldRef = useRef(null);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); // Initial state check
 
@@ -121,7 +128,7 @@ RealisticStarfield.displayName = 'RealisticStarfield';
 
 // --- ObstacleCard Component (Keep as previously defined) ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
-    // ... (Component code remains the same as in the previous answer) ...
+    // ... (Component code remains the same) ...
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -219,7 +226,7 @@ ObstacleCard.displayName = 'ObstacleCard';
 
 // --- ImpactCard Component (Keep as previously defined) ---
 const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
-    // ... (Component code remains the same as in the previous answer) ...
+    // ... (Component code remains the same) ...
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -334,6 +341,15 @@ const ProfessionalLandingPage = () => {
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
+    // --- ADDED: Icon Map for Socials ---
+    const iconMap = {
+      Instagram: <FaInstagram size="1.5em" />,
+      YouTube: <FaYoutube size="1.5em" />,
+      LinkedIn: <FaLinkedin size="1.5em" />,
+      Twitter: <FaXTwitter size="1.5em" />,
+      Facebook: <FaFacebook size="1.5em" />,
+    };
+
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
          window.addEventListener('resize', checkMobile, { passive: true });
@@ -440,14 +456,58 @@ const ProfessionalLandingPage = () => {
             }
         );
 
-         animateSectionElements('.section-5', "top 90%"); // Trigger final section slightly earlier
+         animateSectionElements('.section-5', "top 90%");
+         // --- ADDED: Animate new social section ---
+         animateSectionElements('.section-socials', "top 95%"); 
+
+        // --- ADDED: Social Icon Hover Animations ---
+        const icons = gsap.utils.toArray(".social-icon-link");
+
+        icons.forEach((iconLink) => {
+            const iconWrapper = iconLink.querySelector(".social-icon-wrapper");
+            const iconItself = iconWrapper.querySelector("span");
+            const pingEffect = iconLink.querySelector(".ping-effect");
+
+            const tl = gsap.timeline({ paused: true });
+
+            tl.to(iconWrapper, {
+                    scale: 1.2,
+                    rotate: 10,
+                    backgroundColor: 'var(--color-primary)',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 0 30px 5px rgba(31, 111, 235, 0.5)',
+                    duration: 0.3,
+                    ease: 'power2.out'
+                })
+              .to(iconItself, {
+                    color: '#FFFFFF',
+                    scale: 1.1,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                }, 0)
+              .fromTo(pingEffect,
+                    { scale: 0.5, opacity: 0.8 },
+                    { scale: 1.8, opacity: 0, duration: 0.4, ease: 'power1.out' },
+                0);
+
+            iconLink.addEventListener("mouseenter", () => tl.play());
+            iconLink.addEventListener("mouseleave", () => tl.reverse());
+
+            // Cleanup
+            return () => {
+                if (iconLink) {
+                    iconLink.removeEventListener("mouseenter", () => tl.play());
+                    iconLink.removeEventListener("mouseleave", () => tl.reverse());
+                }
+            };
+        });
+        // --- END: Social Icon Logic ---
+
 
         // --- Cleanup ---
         return () => {
             introTl.kill();
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-             // It's generally better practice to kill specific animations/ScrollTriggers
-             // rather than just reverting MatchMedia if other animations exist outside this scope.
         };
     }, { scope: containerRef, dependencies: [isMobile] }); // Depend on isMobile
 
@@ -457,6 +517,12 @@ const ProfessionalLandingPage = () => {
      const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
      const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
      const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
+     // --- ADDED: Social click handler for analytics (optional) ---
+     const handleSocialClick = (socialName) => {
+        // trackEvent('click_social', 'Socials', `Clicked ${socialName} Icon`);
+        console.log(`Clicked ${socialName}`);
+     };
+
 
     // --- Render ---
     return (
@@ -586,6 +652,43 @@ const ProfessionalLandingPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* ============== NEW SOCIAL LINKS SECTION ============== */}
+            <section className="section-socials flex flex-col items-center justify-center text-center p-4 relative overflow-hidden pt-10 pb-20 md:pt-16 md:pb-32">
+                <div className="relative z-10 w-full max-w-lg">
+                    <h4 className="animated-element font-ui uppercase tracking-widest text-secondary-text mb-8">
+                        Follow Our Journey
+                    </h4>
+                    <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+                    {socialLinks.map((link) => (
+                        <a
+                        key={link.name}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Follow Chizel on ${link.name}`}
+                        className="social-icon-link relative" // Used for GSAP targeting
+                        onClick={() => handleSocialClick(link.name)}
+                        >
+                        {/* This div provides the idle float animation */}
+                        <div className="social-icon-float" >
+                            {/* This wrapper handles the hover scale/rotate/glow */}
+                            <div className="social-icon-wrapper w-16 h-16 relative flex-center bg-card/60 border-2 border-primary/20 rounded-full backdrop-blur-md transition-colors duration-300">
+                            {/* This is the ping effect on hover */}
+                            <div className="ping-effect absolute inset-0 rounded-full border-2 border-primary opacity-0"/>
+                            {/* This is the icon itself */}
+                            <span className="relative z-10 text-primary transition-colors duration-300">
+                                {iconMap[link.name]}
+                            </span>
+                            </div>
+                        </div>
+                        </a>
+                    ))}
+                    </div>
+                </div>
+            </section>
+
+
              {/* Footer will be rendered by MainLayout after this component finishes */}
 
             <style jsx global>{`
@@ -685,6 +788,18 @@ const ProfessionalLandingPage = () => {
                  #chizel-parents-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, rgb(255, 150, 40), var(--color-orange), rgb(255, 150, 40)); }
                  @keyframes pulse-glow-parents { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-orange-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-orange-alpha); } }
 
+                {/* --- ADDED: SOCIAL ICON STYLES --- */}
+                @keyframes gentleFloat {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-6px); }
+                }
+                .social-icon-float {
+                  animation: gentleFloat 4s infinite ease-in-out;
+                }
+                .social-icon-link:nth-child(2) .social-icon-float { animation-delay: 0.3s; }
+                .social-icon-link:nth-child(3) .social-icon-float { animation-delay: 0.6s; }
+                .social-icon-link:nth-child(4) .social-icon-float { animation-delay: 0.9s; }
+                .social-icon-link:nth-child(5) .social-icon-float { animation-delay: 1.2s; }
             `}</style>
         </div>
     );
