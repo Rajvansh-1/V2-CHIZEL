@@ -7,21 +7,46 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
+import clsx from 'clsx'; // Corrected import for clsx
 // Footer is handled by MainLayout
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
     FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar,
     FaPlane, FaRegLightbulb, FaChevronDown,
+    // ** ADDED FOR PREVIOUS FIXES **
+    FaBrain, 
     // --- ICONS ADDED FOR NEW SECTION ---
     FaInstagram, FaYoutube, FaLinkedin, FaFacebook
 } from 'react-icons/fa';
 // --- ICON ADDED FOR NEW SECTION ---
-import { FaXTwitter } from 'react-icons/fa6'; 
+import { FaXTwitter } from 'react-icons/fa6';
 // UPDATED: Import 'principles' from constants
 import { socialLinks, principles } from '@utils/constants';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// --- Offer Block Component (MINIMALIST & PREMIUM) ---
+const OfferBlock = memo(({ title, ctaText, ctaOnClick, ctaGradientClass, ctaRightIcon, className }) => (
+    // Note: Removed icon and subtitle from here for a cleaner look
+    <div className={`offer-block-content flex flex-col items-center justify-center space-y-8 ${className}`}>
+        <div className="relative text-center">
+            {/* Title is now larger and more prominent */}
+            <h3 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-text font-bold drop-shadow-md leading-tight">
+                {title}
+            </h3>
+        </div>
+        <Button
+            title={ctaText}
+            onClick={ctaOnClick}
+            rightIcon={ctaRightIcon || <FaArrowRight />}
+            // Added explicit high z-index to ensure button hover effects work correctly
+            containerClass={clsx("!text-lg !py-4 !px-12 relative z-20", ctaGradientClass)}
+        />
+    </div>
+));
+OfferBlock.displayName = 'OfferBlock';
+
 
 // --- RealisticStarfield Component (Keep as previously defined) ---
 const RealisticStarfield = memo(() => {
@@ -119,7 +144,7 @@ const RealisticStarfield = memo(() => {
 });
 RealisticStarfield.displayName = 'RealisticStarfield';
 
-// --- ObstacleCard Component (Keep as previously defined) ---
+// --- ObstacleCard Component (Kept as is) ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -214,113 +239,6 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
 });
 ObstacleCard.displayName = 'ObstacleCard';
 
-// --- ImpactCard Component (Keep as previously defined) ---
-const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
-     const cardRef = useRef(null);
-    const [isTouchDevice, setIsTouchDevice] = useState(false);
-    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
-
-     useEffect(() => {
-        setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-         const checkMobile = () => setIsMobile(window.innerWidth < 768);
-         window.addEventListener('resize', checkMobile, { passive: true });
-         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-     useGSAP(() => {
-        if (!cardRef.current) return;
-        const mm = gsap.matchMedia();
-         mm.add("(min-width: 768px)", () => {
-             gsap.fromTo(cardRef.current,
-                { opacity: 0, y: 35 },
-                {
-                    scrollTrigger: {
-                        trigger: cardRef.current,
-                        start: 'top 90%',
-                        toggleActions: 'play none none reverse',
-                        fastScrollEnd: true
-                    },
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.6,
-                    ease: 'power2.out',
-                    willChange: 'transform, opacity'
-                }
-            );
-             if (!isTouchDevice) {
-                  const tl = gsap.timeline({ paused: true });
-                tl.to(cardRef.current, {
-                    y: -8,
-                    scale: 1.02,
-                    boxShadow: shadowClass ? `0 15px 30px ${shadowClass.replace('0.25)', '0.2)')}` : '0 15px 30px rgba(0,0,0,0.2)',
-                    duration: 0.25,
-                    ease: 'power2.out'
-                });
-                 const handleMouseEnter = () => tl.play();
-                const handleMouseLeave = () => tl.reverse();
-                 cardRef.current.addEventListener('mouseenter', handleMouseEnter);
-                cardRef.current.addEventListener('mouseleave', handleMouseLeave);
-                 return () => {
-                    if (cardRef.current) {
-                        cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
-                        cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
-                    }
-                };
-            }
-        });
-         mm.add("(max-width: 767px)", () => {
-             gsap.fromTo(cardRef.current,
-                { opacity: 0, y: 15 },
-                {
-                    scrollTrigger: {
-                        trigger: cardRef.current,
-                        start: 'top 98%',
-                        toggleActions: 'play none none none',
-                        fastScrollEnd: true,
-                        once: true
-                    },
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.3,
-                    ease: 'power1.out',
-                    willChange: 'transform, opacity'
-                }
-            );
-        });
-         return () => mm.revert();
-    }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, shadowClass] });
-
-    return (
-        <div
-            id={id}
-            ref={cardRef}
-            className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu will-change-transform ${gradientClass || 'bg-card/70 backdrop-blur-lg'}`}
-            style={{ opacity: 0 }}
-        >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
-            <div className="relative z-10 flex flex-col items-center h-full">
-                <div className={`p-4 rounded-full border border-white/15 mb-5 inline-block transition-transform duration-300 group-hover:scale-110 ${iconBgClass || 'bg-primary/15'}`}>
-                    <div className="text-3xl text-white">{icon}</div>
-                </div>
-                <h3 className="font-heading text-2xl text-text mb-3">{title}</h3>
-                <p className="text-secondary-text text-sm mb-6 flex-grow leading-relaxed">{description}</p>
-                <button
-                    onClick={onClick}
-                    className="impact-button-css mt-auto relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition duration-300 ease-out border-2 border-white/20 rounded-full group w-full hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-white/50"
-                >
-                    <span className="button-hover-fill absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 transform -translate-x-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] bg-left group-hover:translate-x-0 group-hover:bg-right ease">
-                        <FaArrowRight className="text-xl ml-1 transition-transform duration-300 group-hover:translate-x-1" />
-                    </span>
-                    <span className="button-text-default absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease">
-                        {buttonText}
-                    </span>
-                    <span className="relative invisible">{buttonText}</span>
-                </button>
-            </div>
-        </div>
-    );
-});
-ImpactCard.displayName = 'ImpactCard';
 
 // --- Main Landing Page Component ---
 const ProfessionalLandingPage = () => {
@@ -347,7 +265,7 @@ const ProfessionalLandingPage = () => {
         "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
         "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
         "/images/slider/i8.png", "/images/slider/i9.png", "/images/slider/i7.png",
-        "/images/slider/i11.png"
+        "/images/slider/i11.png", "/images/slider/i12.png"
     ].filter(Boolean), []);
 
 
@@ -397,6 +315,7 @@ const ProfessionalLandingPage = () => {
 
         // --- Scroll-Triggered Animations ---
          const animateSectionElements = (selector, start = "top 85%") => {
+             // MODIFIED: Removed .offer-block-content from targets so they are immediately visible (cleaner/faster load)
              const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p:not(.v4-subtitle)`);
              if (elements.length > 0) {
                  gsap.fromTo(elements,
@@ -443,7 +362,7 @@ const ProfessionalLandingPage = () => {
             }
         );
 
-         // NEW: Animate the Offers Section elements
+         // NEW: Animate the Offers Section elements (only the header now)
          animateSectionElements('.section-offers-content', "top 90%");
          
          animateSectionElements('.section-5', "top 90%");
@@ -580,7 +499,7 @@ const ProfessionalLandingPage = () => {
                 </div>
             </section>
 
-             <section className="section-4 min-h-screen flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center relative overflow-hidden">
+             <section className="section-4 flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center relative overflow-hidden">
                 <div className="section-4-content relative z-10 w-full max-w-6xl">
                     <div className="section-4-intro mb-12 md:mb-16">
                         <h3 className="font-heading text-5xl md:text-6xl mb-4 animated-gradient-heading drop-shadow-lg">
@@ -603,72 +522,53 @@ const ProfessionalLandingPage = () => {
                         )}
                     </div>
                     
-                    {/* >>> START NEW OFFER SECTION CONTENT (PROFESSIONAL & PREMIUM) <<< */}
+                    {/* >>> START UPDATED OFFER SECTION CONTENT (MINIMALIST & PREMIUM) <<< */}
                     <div className="section-offers-content pt-12 md:pt-16 max-w-5xl mx-auto">
-                        <h2 className="animated-element font-heading text-6xl md:text-7xl font-black text-white mb-16 md:mb-20 drop-shadow-lg">
+                        <h2 className="animated-element font-heading text-6xl md:text-7xl font-black text-white mb-20 md:mb-28 drop-shadow-lg">
                             <span className="animated-gradient-heading">What We Offer</span>
                         </h2>
 
-                        {/* 1. Steps to Cure Brainrot (Sub-section) - Premium List + Button */}
-                        <div className="animated-element flex flex-col items-center justify-center space-y-6">
-                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
-                                    Steps to cure <span className="text-orange">Brainrot</span>
-                                </h3>
-                                <Button
-                                    title="Click Here"
-                                    onClick={handleParentsClick}
-                                    rightIcon={<FaArrowRight />}
-                                    containerClass="!bg-gradient-to-r !from-orange-500 !to-yellow-500 !text-lg !py-4 !px-12"
-                                />
-                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
-                            </div>
-
-                        {/* Block 2-4: Clean Title/Button Blocks - Separated by large vertical space */}
-                        <div className="space-y-16 md:space-y-24">
+                        <div className="space-y-20 md:space-y-32">
                             
-                            {/* 2. Try Our Brain Detox Games (Minimalist Block) */}
-                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
-                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
-                                    Try Our <span className="animated-gradient-heading">Brain Detox Games</span>
-                                </h3>
-                                <Button
-                                    title="Click Here to Play"
-                                    onClick={handleKidsClick}
-                                    rightIcon={<FaArrowRight />}
-                                    containerClass="!bg-gradient-to-r !from-accent !to-purple-600 !text-lg !py-4 !px-12"
-                                />
-                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
-                            </div>
+                            {/* Block 1: The Brainrot Cure */}
+                            <OfferBlock
+                                title="STEPS TO CURE BRAINROT"
+                                ctaText="CLICK HERE"
+                                ctaOnClick={handleParentsClick}
+                                ctaGradientClass="!bg-gradient-to-r !from-red-600 !to-orange-500 !text-white !font-bold"
+                                className="pb-10 border-b border-white/10"
+                            />
 
-                            {/* 3. Try Chizel for Parents (Minimalist Block) */}
-                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
-                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
-                                    Try Chizel for <span className="text-orange">Parents</span>
-                                </h3>
-                                <Button
-                                    title="Click Here to View Portal"
-                                    onClick={handleParentsClick}
-                                    rightIcon={<FaArrowRight />}
-                                    containerClass="!bg-gradient-to-r !from-orange-500 !to-yellow-500 !text-lg !py-4 !px-12"
-                                />
-                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
-                            </div>
+                            {/* Block 2: Brain Detox Games */}
+                            <OfferBlock
+                                title="TRY OUR BRAINROT DETOX GAMES"
+                                ctaText="PLAY THE DEMO"
+                                ctaOnClick={handleKidsClick}
+                                ctaGradientClass="!bg-gradient-to-r !from-accent !to-purple-600 !text-white !font-bold"
+                                className="pb-10 border-b border-white/10"
+                            />
 
-                            {/* 4. Checkout our Chizel Core (Minimalist Block) */}
-                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
-                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
-                                    Checkout Our <span className="animated-gradient-heading">Chizel Core</span>
-                                </h3>
-                                <Button
-                                    title="Click Here to Explore"
-                                    onClick={handleCoreClick}
-                                    rightIcon={<FaArrowRight />}
-                                    containerClass="!bg-gradient-to-r !from-blue-500 !to-cyan-500 !text-lg !py-4 !px-12"
-                                />
-                            </div>
+                            {/* Block 3: Chizel for Parents */}
+                            <OfferBlock
+                                title="CHIZEL FOR PARENTS"
+                                ctaText="VIEW PARENTAL PORTAL"
+                                ctaOnClick={handleParentsClick}
+                                ctaGradientClass="!bg-gradient-to-r !from-cyan-500 !to-blue-500 !text-white !font-bold"
+                                className="pb-10 border-b border-white/10"
+                            />
+
+                            {/* Block 4: Explore The Chizel Core */}
+                            <OfferBlock
+                                title="EXPLORE THE CHIZEL CORE"
+                                ctaText="EXPLORE THE CORE"
+                                ctaOnClick={handleCoreClick}
+                                ctaGradientClass="!bg-gradient-to-r !from-primary !to-cyan-500 !text-white !font-bold"
+                                className="pb-10 border-b border-white/0" // No border on the last one
+                            />
+
                         </div>
                     </div>
-                    {/* >>> END NEW OFFER SECTION CONTENT HERE <<< */}
+                    {/* >>> END UPDATED OFFER SECTION CONTENT HERE <<< */}
                 </div>
             </section>
 
@@ -771,15 +671,6 @@ const ProfessionalLandingPage = () => {
                  @keyframes bounceSlight { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(4px); opacity: 1; } }
                  /* Shine */
                  @keyframes shine { 100% { left: 125%; } }
-
-                /* --- Performance & Accessibility --- */
-                .will-change-transform { will-change: transform; }
-                .will-change-opacity { will-change: opacity; }
-                .will-change-transform-opacity { will-change: transform, opacity; }
-                 /* Apply will-change more specifically */
-                 .animated-element, .obstacle-card-enhanced, .impact-card { will-change: transform, opacity; }
-                 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
-                 img { content-visibility: auto; max-width: 100%; height: auto; }
 
                 /* --- Mobile Specific Adjustments --- */
                 @media (max-width: 767px) {
