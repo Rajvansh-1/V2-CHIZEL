@@ -28,7 +28,8 @@ const AboutUsPage = () => {
     "/images/slider/i8.png",
     "/images/slider/i9.png", // Corrected path assuming it's in public/images/slider
     "/images/slider/i7.png",
-    "/images/slider/i11.png" // Corrected path assuming it's in public/images/slider
+    "/images/slider/i11.png",
+    "/images/slider/i12.png"// Corrected path assuming it's in public/images/slider
   ];
 
   // Shuffle the array
