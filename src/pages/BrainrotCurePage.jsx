@@ -1,14 +1,15 @@
 // src/pages/BrainrotCurePage.jsx
-import { useRef, useState, useMemo, useCallback } from 'react';
+import { useRef, useState, memo, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { Link } from 'react-router-dom';
 import { 
   FaHome, FaBrain, FaExternalLinkAlt, FaCheckCircle, 
   FaLightbulb, FaShieldAlt, FaHourglassHalf, FaQuoteLeft, 
-  FaArrowRight, FaRedo
+  FaArrowRight, FaRedo, FaMobileAlt, FaWalking, FaGamepad
 } from 'react-icons/fa';
 import { trackEvent } from "@/utils/analytics";
+import BentoTilt from "@/components/common/BentoTilt"; // Importing your existing component
 
 // --- 1. DATA CONSTANTS ---
 
@@ -51,49 +52,91 @@ const RESULTS_DATA = {
 
 const CURE_STEPS = [
   {
-    title: "Step 1 — Admit the Problem",
+    step: "01",
+    title: "Admit the Problem",
     icon: <FaQuoteLeft />,
     content: "Your brain is constantly craving quick hits of dopamine. Opening your phone again and again isn’t normal. Accepting this is a biological addiction is the first step to breaking the loop.",
-    gradient: "from-red-500/20 to-transparent",
+    accent: "border-red-500/50 text-red-400",
+    bg: "bg-red-500/5",
   },
   {
-    title: "Step 2 — Train Your Focus",
+    step: "02",
+    title: "Train Your Focus",
     icon: <FaBrain />,
     content: "Progressive Overload for your mind. Read for 10 minutes today, 15 tomorrow. Keep your phone in another room. This physically rebuilds neural pathways for attention.",
-    gradient: "from-orange-500/20 to-transparent",
+    accent: "border-orange-500/50 text-orange-400",
+    bg: "bg-orange-500/5",
   },
   {
-    title: "Step 3 — Environment Design",
+    step: "03",
+    title: "Environment Design",
     icon: <FaShieldAlt />,
     content: "If you see it, you will check it. Keep your phone completely out of sight while working. Create a 'monk mode' space that supports deep work, not distraction.",
-    gradient: "from-yellow-500/20 to-transparent",
+    accent: "border-yellow-500/50 text-yellow-400",
+    bg: "bg-yellow-500/5",
   },
   {
-    title: "Step 4 — Morning Protocol",
+    step: "04",
+    title: "Morning Protocol",
     icon: <FaLightbulb />,
     content: "Viewing Reels in the morning fries your dopamine receptors for the whole day. Choose calm habits: hydrate, stretch, or simply stare out a window for 5 minutes.",
-    gradient: "from-cyan-500/20 to-transparent",
+    accent: "border-cyan-500/50 text-cyan-400",
+    bg: "bg-cyan-500/5",
   },
   {
-    title: "Step 5 — Dopamine Fast",
+    step: "05",
+    title: "Dopamine Fast",
     icon: <FaHourglassHalf />,
     content: "Spend 1 hour a day with ZERO input. No music, no podcasts, no screens. Just you and your thoughts. This 'boredom' is where creativity and mental clarity are born.",
-    gradient: "from-indigo-500/20 to-transparent",
+    accent: "border-indigo-500/50 text-indigo-400",
+    bg: "bg-indigo-500/5",
   },
   {
-    title: "Step 6 — Mindful Consumption",
+    step: "06",
+    title: "Mindful Consumption",
     icon: <FaCheckCircle />,
     content: "Before unlocking, ask: 'Do I need to do a specific task?' If the answer is 'No' or 'I don't know', put it back down immediately. Break the twitch.",
-    gradient: "from-purple-500/20 to-transparent",
+    accent: "border-purple-500/50 text-purple-400",
+    bg: "bg-purple-500/5",
   },
 ];
 
 const REWIRE_STEPS = [
-  { emoji: "1️⃣", title: "Grayscale Mode", content: "Go to Accessibility Settings and turn your phone Black & White. Without color, the brain releases significantly less dopamine." },
-  { emoji: "2️⃣", title: "3-Senses Reset", content: "Feeling an urge to scroll? Stop. Name 3 things you see, 3 you hear, and 3 you can physically feel. Grounds you instantly." },
-  { emoji: "3️⃣", title: "Nightly '3 Wins'", content: "Before bed, write down 1 thing you learned, 1 thing you enjoyed, and 1 thing you achieved. Rewires brain for satisfaction, not consumption." },
-  { emoji: "4️⃣", title: "Shape Search", content: "Look around the room and find 3 triangles or 3 circles. A simple pattern-recognition task to snap your brain out of 'zombie mode'." },
-  { emoji: "5️⃣", title: "Explorer Day", content: "Once a week, go somewhere new without headphones. Listen to the world. Take photos of real life, but don't post them." },
+  { 
+    emoji: "📱", 
+    title: "Grayscale Mode", 
+    content: "Go to Settings and turn your phone Black & White. Without color, the brain releases significantly less dopamine. It makes Instagram look boring instantly." 
+  },
+  { 
+    emoji: "🧘", 
+    title: "3-Senses Reset", 
+    content: "Feeling an urge to scroll? Stop. Name 3 things you see, 3 you hear, and 3 you can physically feel. Grounds you instantly." 
+  },
+  { 
+    emoji: "✍️", 
+    title: "Nightly '3 Wins'", 
+    content: "Before bed, write down 1 thing you learned, 1 thing you enjoyed, and 1 thing you achieved. Rewires brain for satisfaction, not consumption." 
+  },
+  { 
+    emoji: "🔺", 
+    title: "Shape Search", 
+    content: "Look around the room and find 3 triangles or 3 circles. A simple pattern-recognition task to snap your brain out of 'zombie mode'." 
+  },
+  { 
+    emoji: "🎨", 
+    title: "Color Challenge", 
+    content: "Pick a color. Find 5 real objects in that color around you. Force your eyes to scan the real world instead of a screen." 
+  },
+  { 
+    emoji: "🌍", 
+    title: "Explorer Day", 
+    content: "Once a week, go somewhere new without headphones. Listen to the world. Take photos of real life, but don't post them." 
+  },
+  { 
+    emoji: "⚔️", 
+    title: "Challenge Master", 
+    content: "Do 1 'hard' quest weekly: help at home, build something, or try a new hobby for 15 mins. Reward yourself only after completion." 
+  },
 ];
 
 // --- 2. SUB-COMPONENTS ---
@@ -119,7 +162,7 @@ const QuizCard = ({ question, index, total, onAnswer }) => {
       { opacity: 0, x: 50, scale: 0.95 },
       { opacity: 1, x: 0, scale: 1, duration: 0.4, ease: "back.out(1.5)" }
     );
-  }, [index]); // Re-run on new question
+  }, [index]);
 
   return (
     <div ref={cardRef} className="w-full max-w-2xl mx-auto bg-card/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
@@ -153,7 +196,7 @@ const QuizCard = ({ question, index, total, onAnswer }) => {
 
 const ResultHeader = ({ score, resultData, onRetake }) => {
   return (
-    <div className="text-center space-y-6 animate-fade-in">
+    <div className="text-center space-y-6 animate-fade-in mb-20">
       <div className="inline-block text-8xl md:text-9xl mb-4 drop-shadow-2xl filter animate-float">
         {resultData.emoji}
       </div>
@@ -175,7 +218,7 @@ const ResultHeader = ({ score, resultData, onRetake }) => {
         {resultData.description}
       </p>
 
-      <div className="pt-8 pb-12">
+      <div className="pt-4">
         <button 
           onClick={onRetake}
           className="text-sm text-secondary-text hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto"
@@ -183,8 +226,6 @@ const ResultHeader = ({ score, resultData, onRetake }) => {
           <FaRedo className="text-xs" /> Retake Diagnosis
         </button>
       </div>
-      
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-12"></div>
     </div>
   );
 };
@@ -213,7 +254,6 @@ const BrainrotCurePage = () => {
     } else {
       setGameState('results');
       trackEvent('brainrot_quiz_complete', 'Quiz', `Final Score: ${newScore}`);
-      // Auto scroll to top when results appear
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -224,13 +264,12 @@ const BrainrotCurePage = () => {
     return RESULTS_DATA.high;
   };
 
-  // --- RENDER ---
   return (
     <div ref={containerRef} className="min-h-screen bg-background text-text pt-24 pb-20 px-4 overflow-x-hidden">
       
       {/* --- INTRO SCREEN --- */}
       {gameState === 'intro' && (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
+        <div className="flex flex-col items-center justify-center min-h-[70vh] max-w-3xl mx-auto text-center space-y-8 animate-fade-in">
           <div className="relative mb-6">
             <div className="absolute inset-0 bg-red-500/20 blur-[60px] rounded-full"></div>
             <FaBrain className="relative text-7xl md:text-8xl text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.6)] animate-pulse" />
@@ -270,9 +309,9 @@ const BrainrotCurePage = () => {
         </div>
       )}
 
-      {/* --- RESULTS SCREEN (REVEALS CONTENT) --- */}
+      {/* --- RESULTS SCREEN (CONTENT REVEAL) --- */}
       {gameState === 'results' && (
-        <div className="max-w-6xl mx-auto animate-fade-in">
+        <div className="max-w-7xl mx-auto animate-fade-in">
           
           {/* 1. Result Header */}
           <ResultHeader 
@@ -281,68 +320,82 @@ const BrainrotCurePage = () => {
             onRetake={handleStart} 
           />
 
-          {/* 2. The Cure Section */}
-          <div className="mt-16 mb-24">
+          {/* 2. The Cure Section - SPOTLIGHT EFFECT */}
+          <div className="mb-32">
             <div className="text-center mb-16">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-white mb-4">The Protocol</h2>
-              <p className="text-secondary-text text-lg">6 Steps to Detoxify Your Mind</p>
+              <h2 className="font-heading text-4xl md:text-5xl font-black text-white mb-4">THE PROTOCOL</h2>
+              <p className="text-secondary-text text-lg max-w-2xl mx-auto">
+                6 tactical steps to detoxify your mind. <br/>
+                <span className="text-primary font-bold">Hover to focus on a step.</span>
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* "group/grid" enables the spotlight logic on children */}
+            <div className="group/grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-2">
               {CURE_STEPS.map((step, i) => (
                 <div 
-                  key={i} 
-                  className="relative overflow-hidden rounded-2xl bg-card/50 border border-white/10 p-8 hover:bg-card hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 group"
+                  key={i}
+                  className="transition-all duration-500 ease-out group-hover/grid:blur-[2px] group-hover/grid:scale-[0.98] hover:!blur-none hover:!scale-105 hover:!z-10"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${step.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                  <div className="relative z-10">
-                    <div className="text-4xl text-primary mb-4 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">{step.icon}</div>
-                    <h3 className="font-heading text-xl font-bold text-white mb-3">{step.title}</h3>
-                    <div className="font-body text-secondary-text text-sm leading-relaxed group-hover:text-gray-200">
-                      {step.content}
+                  <BentoTilt className="h-full">
+                    <div className={`relative h-full overflow-hidden rounded-3xl border-2 ${step.accent} bg-card/80 p-8 flex flex-col`}>
+                        {/* Background Glow */}
+                        <div className={`absolute inset-0 ${step.bg} opacity-20`}></div>
+                        
+                        <div className="relative z-10 flex justify-between items-start mb-6">
+                            <span className={`font-heading text-5xl font-bold opacity-20 ${step.accent.split(' ')[1]}`}>
+                                {step.step}
+                            </span>
+                            <div className={`text-3xl ${step.accent.split(' ')[1]}`}>
+                                {step.icon}
+                            </div>
+                        </div>
+
+                        <h3 className="relative z-10 font-heading text-2xl font-bold text-white mb-4">
+                            {step.title}
+                        </h3>
+                        
+                        <p className="relative z-10 font-body text-secondary-text leading-relaxed text-base">
+                            {step.content}
+                        </p>
                     </div>
-                  </div>
+                  </BentoTilt>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* 3. Rewire Section */}
-          <div className="max-w-4xl mx-auto bg-gradient-to-b from-card/30 to-transparent border border-white/5 rounded-3xl p-8 md:p-12">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-12">
-              Daily Brain Rewiring Habits
-            </h2>
+          {/* 3. Rewire Section - QUEST CARDS */}
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="font-heading text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 mb-4">
+                REWIRE YOUR BRAIN
+              </h2>
+              <p className="text-secondary-text text-lg">Daily "Side Quests" to reclaim your attention span.</p>
+            </div>
             
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {REWIRE_STEPS.map((step, i) => (
-                <div key={i} className="flex items-start gap-4 p-4 md:p-6 rounded-xl bg-background/50 border border-white/5 hover:border-cyan-500/30 transition-colors">
-                  <span className="text-3xl select-none">{step.emoji}</span>
-                  <div>
-                    <h4 className="font-heading text-lg font-bold text-white mb-1">{step.title}</h4>
-                    <p className="font-body text-sm text-secondary-text">{step.content}</p>
-                  </div>
-                </div>
+                <BentoTilt key={i} className={i === REWIRE_STEPS.length - 1 ? "md:col-span-2" : ""}>
+                    <div className="h-full flex items-start gap-5 p-6 md:p-8 rounded-2xl bg-card/40 border border-white/10 hover:bg-card/60 hover:border-primary/30 transition-all duration-300 group">
+                        <div className="h-14 w-14 flex-shrink-0 rounded-xl bg-white/5 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 border border-white/5">
+                            {step.emoji}
+                        </div>
+                        <div>
+                            <h4 className="font-heading text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+                                {step.title}
+                            </h4>
+                            <p className="font-body text-secondary-text text-sm md:text-base leading-relaxed">
+                                {step.content}
+                            </p>
+                        </div>
+                    </div>
+                </BentoTilt>
               ))}
             </div>
           </div>
 
-          {/* 4. Final CTA */}
-          <div className="mt-20 flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <a 
-                href="https://rajvansh-1.github.io/ParentPage-CV/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-white font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-            >
-              Access Parent Portal <FaExternalLinkAlt className="text-sm" />
-            </a>
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 px-8 py-4 rounded-full bg-card border border-white/10 text-secondary-text hover:text-white hover:bg-white/5 transition-all"
-            >
-              <FaHome /> Return to Base
-            </Link>
-          </div>
+          
 
         </div>
       )}
