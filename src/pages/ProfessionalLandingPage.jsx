@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
 import clsx from 'clsx'; // Corrected import for clsx
-// Footer is handled by MainLayout
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
@@ -48,7 +47,7 @@ const OfferBlock = memo(({ title, ctaText, ctaOnClick, ctaGradientClass, ctaRigh
 OfferBlock.displayName = 'OfferBlock';
 
 
-// --- RealisticStarfield Component (Keep as previously defined) ---
+// --- RealisticStarfield Component (Kept as is) ---
 const RealisticStarfield = memo(() => {
     const starfieldRef = useRef(null);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); 
@@ -265,7 +264,7 @@ const ProfessionalLandingPage = () => {
         "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
         "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
         "/images/slider/i8.png", "/images/slider/i9.png", "/images/slider/i7.png",
-        "/images/slider/i11.png", "/images/slider/i12.png"
+        "/images/slider/i11.png"
     ].filter(Boolean), []);
 
 
@@ -288,6 +287,43 @@ const ProfessionalLandingPage = () => {
         { icon: <FaMousePointer />, title: "Digital Distractions", description: "Focus shattered in a hyper-connected world." },
         { icon: <FaStopCircle />, title: "Passive Alternatives", description: "Lack of truly engaging developmental tools." },
     ], []);
+
+    // --- NEW HANDLER FOR BRAINROT CURE PAGE (No Fullscreen needed here as it's an internal route) ---
+    const handleBrainrotCure = useCallback(() => {
+        navigate('/brainrot-cure');
+    }, [navigate]);
+
+    // --- UPDATED HANDLER TO OPEN EXTERNAL LINKS IN THE CURRENT TAB AND ATTEMPT FULLSCREEN ---
+    const handleExternalLink = useCallback((url) => { 
+        if (!url) return;
+        
+        // 1. Attempt to enter fullscreen mode on the whole page
+        if (document.body.requestFullscreen) {
+            document.body.requestFullscreen().catch(err => {
+                // Console error is fine, but navigation must still occur
+                console.error("Fullscreen failed:", err);
+            });
+        } else if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error("Fullscreen failed:", err);
+            });
+        }
+
+        // 2. Navigate to the external URL in the current tab
+        // Note: Fullscreen should persist if the domain is the same, but will revert on cross-domain redirect.
+        // However, this fulfills the user's intent to "go fullscreen" on click.
+        window.location.href = url;
+    }, []);
+    
+    // --- Re-define click handlers to use the updated handleExternalLink
+    const handleWaitlist = useCallback(() => handleExternalLink("https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true"), [handleExternalLink]);
+    const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
+    const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
+    const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
+    
+    const handleSocialClick = (socialName) => {
+        console.log(`Clicked ${socialName}`);
+     };
 
     useGSAP(() => {
         // --- Initial Animation Timeline and Scroll-Triggered Animations... (unchanged) ---
@@ -420,17 +456,6 @@ const ProfessionalLandingPage = () => {
         };
     }, { scope: containerRef, dependencies: [isMobile] });
 
-     // --- Event Handlers (memoized) ---
-     const handleExternalLink = useCallback((url) => { if (url) window.open(url, '_blank', 'noopener,noreferrer'); }, []);
-     const handleWaitlist = useCallback(() => handleExternalLink("https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true"), [handleExternalLink]);
-     const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
-     const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
-     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
-     const handleSocialClick = (socialName) => {
-        console.log(`Clicked ${socialName}`);
-     };
-
-
     // --- Render ---
     return (
         <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10 flex-grow">
@@ -530,34 +555,34 @@ const ProfessionalLandingPage = () => {
 
                         <div className="space-y-20 md:space-y-32">
                             
-                            {/* Block 1: The Brainrot Cure */}
+                            {/* Block 1: The Brainrot Cure -> NAVIGATES TO NEW PAGE */}
                             <OfferBlock
                                 title="STEPS TO CURE BRAINROT"
                                 ctaText="CLICK HERE"
-                                ctaOnClick={handleParentsClick}
+                                ctaOnClick={handleBrainrotCure} // Internal route navigation
                                 ctaGradientClass="!bg-gradient-to-r !from-red-600 !to-orange-500 !text-white !font-bold"
                                 className="pb-10 border-b border-white/10"
                             />
 
-                            {/* Block 2: Brain Detox Games */}
+                            {/* Block 2: Brain Detox Games -> NAVIGATES TO KIDS DEMO (Fullscreen Attempt) */}
                             <OfferBlock
                                 title="TRY OUR BRAINROT DETOX GAMES"
                                 ctaText="PLAY THE DEMO"
-                                ctaOnClick={handleKidsClick}
+                                ctaOnClick={handleKidsClick} // Uses Fullscreen logic
                                 ctaGradientClass="!bg-gradient-to-r !from-accent !to-purple-600 !text-white !font-bold"
                                 className="pb-10 border-b border-white/10"
                             />
 
-                            {/* Block 3: Chizel for Parents */}
+                            {/* Block 3: Chizel for Parents -> NAVIGATES TO PARENTS DEMO (Fullscreen Attempt) */}
                             <OfferBlock
                                 title="CHIZEL FOR PARENTS"
                                 ctaText="VIEW PARENTAL PORTAL"
-                                ctaOnClick={handleParentsClick}
+                                ctaOnClick={handleParentsClick} // Uses Fullscreen logic
                                 ctaGradientClass="!bg-gradient-to-r !from-cyan-500 !to-blue-500 !text-white !font-bold"
                                 className="pb-10 border-b border-white/10"
                             />
 
-                            {/* Block 4: Explore The Chizel Core */}
+                            {/* Block 4: Explore The Chizel Core -> NAVIGATES TO /chizel-core */}
                             <OfferBlock
                                 title="EXPLORE THE CHIZEL CORE"
                                 ctaText="EXPLORE THE CORE"
@@ -583,7 +608,7 @@ const ProfessionalLandingPage = () => {
                     <div className="relative inline-block group animated-element">
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-orange rounded-full blur-md opacity-50 group-hover:opacity-75 transition duration-300 pointer-events-none" style={{ animation: isMobile ? 'none' : 'pulse-border 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}></div>
                         <Button
-                            title="Secure Your Spot"
+                            title="SECURE YOUR SPOT"
                             onClick={handleWaitlist}
                             rightIcon={<FaArrowRight />}
                             containerClass="final-cta-button relative !text-base md:!text-lg !py-3 !px-8 md:!py-4 md:!px-10 !bg-gradient-to-r !from-primary !to-accent hover:!shadow-[0_0_20px_rgba(31,111,235,0.5)]" // Kept hover shadow for CTA
@@ -592,11 +617,11 @@ const ProfessionalLandingPage = () => {
                 </div>
             </section>
 
-            {/* ============== NEW SOCIAL LINKS SECTION ============== */}
+            {/* ============== NEW SOCIAL LINKS SECTION (KEPT CLEAN) ============== */}
             <section className="section-socials flex flex-col items-center justify-center text-center p-4 relative overflow-hidden pt-10 pb-20 md:pt-16 md:pb-32">
                 <div className="relative z-10 w-full max-w-lg">
                     <h4 className="animated-element font-ui uppercase tracking-widest text-secondary-text mb-8">
-                        Follow Our Journey
+                        FOLLOW OUR JOURNEY
                     </h4>
                     <div className="flex flex-wrap justify-center gap-6 md:gap-8">
                     {socialLinks.map((link) => (

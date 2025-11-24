@@ -11,6 +11,7 @@ const ChizelWebPage = lazy(() => import("@/pages/chizel-web"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const AboutUsPage = lazy(() => import("@/pages/AboutUs"));
+const BrainrotCurePage = lazy(() => import("@/pages/BrainrotCurePage")); // <--- NEW IMPORT
 
 // Helper for Suspense Fallback
 const LoadingFallback = () => <div style={{ height: '100vh', background: 'var(--color-background)' }}></div>;
@@ -65,6 +66,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <AboutUsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "brainrot-cure", // <--- NEW ROUTE DEFINITION
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <BrainrotCurePage />
           </Suspense>
         ),
       },
