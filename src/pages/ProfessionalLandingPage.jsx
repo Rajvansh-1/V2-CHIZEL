@@ -18,22 +18,20 @@ import {
 } from 'react-icons/fa';
 // --- ICON ADDED FOR NEW SECTION ---
 import { FaXTwitter } from 'react-icons/fa6'; 
-// --- DATA ADDED FOR NEW SECTION ---
-import { socialLinks } from '@utils/constants';
+// UPDATED: Import 'principles' from constants
+import { socialLinks, principles } from '@utils/constants';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // --- RealisticStarfield Component (Keep as previously defined) ---
 const RealisticStarfield = memo(() => {
-    // ... (Component code remains the same) ...
     const starfieldRef = useRef(null);
-    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); // Initial state check
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); 
 
     useEffect(() => {
         let timeoutId;
         const checkMobile = () => {
             clearTimeout(timeoutId);
-            // Debounce resize check
             timeoutId = setTimeout(() => setIsMobile(window.innerWidth < 768), 150);
         };
         window.addEventListener('resize', checkMobile, { passive: true });
@@ -75,25 +73,21 @@ const RealisticStarfield = memo(() => {
                         trigger: "body",
                         start: "top top",
                         end: "bottom top",
-                        scrub: 4 + i, // Slower scrub for smoother parallax
-                        invalidateOnRefresh: false // Performance optimization
+                        scrub: 4 + i,
+                        invalidateOnRefresh: false
                     }
                 });
             });
-            // Set initial opacity slightly higher on desktop
              gsap.set(".realistic-star", { opacity: () => gsap.utils.random(0.4, 0.9) });
         });
 
         mm.add("(max-width: 767px)", () => {
-            // Lower opacity on mobile for performance/visual clarity
              gsap.set(".realistic-star", { opacity: () => gsap.utils.random(0.3, 0.7) });
-             // Optionally disable parallax on mobile if performance is an issue
-             // ScrollTrigger.getAll().forEach(st => st.disable());
         });
 
 
-        return () => mm.revert(); // Cleanup GSAP MatchMedia
-    }, { scope: starfieldRef, dependencies: [isMobile] }); // Re-run if isMobile changes
+        return () => mm.revert();
+    }, { scope: starfieldRef, dependencies: [isMobile] });
 
     return (
          <div ref={starfieldRef} className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010]" aria-hidden="true">
@@ -107,13 +101,12 @@ const RealisticStarfield = memo(() => {
                     {layer.stars.map((star, j) => (
                         <div
                             key={`star-${i}-${j}`}
-                            className="realistic-star absolute rounded-full bg-white will-change-transform" // Added will-change
+                            className="realistic-star absolute rounded-full bg-white will-change-transform"
                             style={{
                                 top: star.top,
                                 left: star.left,
                                 width: star.size,
                                 height: star.size,
-                                // Apply animation conditionally based on isMobile state
                                 animation: isMobile ? 'none' : `twinkle ${star.duration} infinite ease-in-out alternate`,
                                 animationDelay: star.delay
                             }}
@@ -128,7 +121,6 @@ RealisticStarfield.displayName = 'RealisticStarfield';
 
 // --- ObstacleCard Component (Keep as previously defined) ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
-    // ... (Component code remains the same) ...
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -150,17 +142,17 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 {
                     scrollTrigger: {
                         trigger: cardRef.current,
-                        start: 'top 90%', // Trigger earlier on desktop
+                        start: 'top 90%',
                         toggleActions: 'play none none reverse',
-                        fastScrollEnd: true // Snaps animation end if scrolling fast
+                        fastScrollEnd: true
                     },
                     opacity: 1,
                     y: 0,
                     scale: 1,
                     duration: 0.6,
-                    delay: delay * 0.06, // Stagger effect
+                    delay: delay * 0.06,
                     ease: 'power2.out',
-                    willChange: 'transform, opacity' // Performance hint
+                    willChange: 'transform, opacity'
                 }
             );
              // Hover effect only for non-touch devices
@@ -169,7 +161,7 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 tl.to(cardRef.current, {
                     y: -6,
                     scale: 1.02,
-                    boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)', // Red shadow
+                    boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
                     borderColor: 'rgba(239, 68, 68, 0.7)',
                     duration: 0.25,
                     ease: 'power2.out',
@@ -178,9 +170,8 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 const handleMouseLeave = () => tl.reverse();
                  cardRef.current.addEventListener('mouseenter', handleMouseEnter);
                 cardRef.current.addEventListener('mouseleave', handleMouseLeave);
-                 // Cleanup hover listeners
                  return () => {
-                    if (cardRef.current) { // Check if ref still exists
+                    if (cardRef.current) {
                         cardRef.current.removeEventListener('mouseenter', handleMouseEnter);
                         cardRef.current.removeEventListener('mouseleave', handleMouseLeave);
                     }
@@ -194,10 +185,10 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 {
                     scrollTrigger: {
                         trigger: cardRef.current,
-                        start: 'top 98%', // Trigger very close to bottom on mobile
-                        toggleActions: 'play none none none', // Only play once
+                        start: 'top 98%',
+                        toggleActions: 'play none none none',
                         fastScrollEnd: true,
-                        once: true // Ensure it runs only once
+                        once: true
                     },
                     opacity: 1,
                     y: 0,
@@ -207,12 +198,11 @@ const ObstacleCard = memo(({ icon, title, description, delay }) => {
                 }
             );
         });
-         return () => mm.revert(); // Cleanup GSAP MatchMedia
+         return () => mm.revert();
     }, { scope: cardRef, dependencies: [isTouchDevice, isMobile, delay] });
 
     return (
-        // Added will-change for performance
-         <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden will-change-transform" style={{ opacity: 0 }}> {/* Start hidden */}
+         <div ref={cardRef} className="obstacle-card-enhanced group bg-card/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 text-center shadow-lg transform-gpu transition-colors duration-300 relative overflow-hidden will-change-transform" style={{ opacity: 0 }}>
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-red-500/10 via-transparent to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
             <div className="obstacle-icon-wrapper relative inline-block mb-4 p-3 bg-red-500/15 rounded-full border border-red-500/25 transition-transform duration-300">
                 <div className="text-red-500 text-3xl">{icon}</div>
@@ -226,7 +216,6 @@ ObstacleCard.displayName = 'ObstacleCard';
 
 // --- ImpactCard Component (Keep as previously defined) ---
 const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gradientClass, iconBgClass, shadowClass }) => {
-    // ... (Component code remains the same) ...
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -260,11 +249,10 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
             );
              if (!isTouchDevice) {
                   const tl = gsap.timeline({ paused: true });
-                 // Use the provided shadowClass for the hover shadow color
                 tl.to(cardRef.current, {
                     y: -8,
                     scale: 1.02,
-                    boxShadow: shadowClass ? `0 15px 30px ${shadowClass.replace('0.25)', '0.2)')}` : '0 15px 30px rgba(0,0,0,0.2)', // Adjusted shadow intensity
+                    boxShadow: shadowClass ? `0 15px 30px ${shadowClass.replace('0.25)', '0.2)')}` : '0 15px 30px rgba(0,0,0,0.2)',
                     duration: 0.25,
                     ease: 'power2.out'
                 });
@@ -304,10 +292,10 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
 
     return (
         <div
-            id={id} // Ensure id is passed
+            id={id}
             ref={cardRef}
             className={`impact-card relative group p-8 rounded-3xl border border-white/10 overflow-hidden text-center transform-gpu will-change-transform ${gradientClass || 'bg-card/70 backdrop-blur-lg'}`}
-            style={{ opacity: 0 }} // Start hidden
+            style={{ opacity: 0 }}
         >
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 pointer-events-none"></div>
             <div className="relative z-10 flex flex-col items-center h-full">
@@ -316,7 +304,6 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
                 </div>
                 <h3 className="font-heading text-2xl text-text mb-3">{title}</h3>
                 <p className="text-secondary-text text-sm mb-6 flex-grow leading-relaxed">{description}</p>
-                {/* Button uses specific ID-based styles from the main component */}
                 <button
                     onClick={onClick}
                     className="impact-button-css mt-auto relative inline-flex items-center justify-center px-6 py-3 overflow-hidden font-medium text-white transition duration-300 ease-out border-2 border-white/20 rounded-full group w-full hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-white/50"
@@ -327,7 +314,7 @@ const ImpactCard = memo(({ id, icon, title, description, buttonText, onClick, gr
                     <span className="button-text-default absolute flex items-center justify-center w-full h-full text-white transition-all duration-300 transform group-hover:translate-x-full ease">
                         {buttonText}
                     </span>
-                    <span className="relative invisible">{buttonText}</span> {/* For layout spacing */}
+                    <span className="relative invisible">{buttonText}</span>
                 </button>
             </div>
         </div>
@@ -373,7 +360,7 @@ const ProfessionalLandingPage = () => {
         return {
             marqueeImages1: shuffled.slice(0, midpoint),
             marqueeImages2: shuffled.slice(midpoint),
-            marqueeImagesMobile: shuffled // Use all for mobile single row
+            marqueeImagesMobile: shuffled
         };
     }, [allPortfolioImages]);
 
@@ -385,7 +372,7 @@ const ProfessionalLandingPage = () => {
     ], []);
 
     useGSAP(() => {
-        // --- Initial Animation Timeline ---
+        // --- Initial Animation Timeline and Scroll-Triggered Animations... (unchanged) ---
         const mm = gsap.matchMedia();
         const plane1 = ".plane-1";
         const plane2 = ".plane-2";
@@ -442,7 +429,7 @@ const ProfessionalLandingPage = () => {
             { opacity: 0, y: isMobile ? 15 : 30 },
             {
                 scrollTrigger: {
-                    trigger: '.section-4 .v4-impact', // Target the wrapper div
+                    trigger: '.section-4 .v4-impact',
                     start: "top 90%",
                     toggleActions: isMobile ? 'play none none none' : 'play none none reverse',
                     once: isMobile,
@@ -456,11 +443,14 @@ const ProfessionalLandingPage = () => {
             }
         );
 
+         // NEW: Animate the Offers Section elements
+         animateSectionElements('.section-offers-content', "top 90%");
+         
          animateSectionElements('.section-5', "top 90%");
          // --- ADDED: Animate new social section ---
          animateSectionElements('.section-socials', "top 95%"); 
 
-        // --- ADDED: Social Icon Hover Animations ---
+        // --- ADDED: Social Icon Hover Animations (unchanged) ---
         const icons = gsap.utils.toArray(".social-icon-link");
 
         icons.forEach((iconLink) => {
@@ -509,7 +499,7 @@ const ProfessionalLandingPage = () => {
             introTl.kill();
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
         };
-    }, { scope: containerRef, dependencies: [isMobile] }); // Depend on isMobile
+    }, { scope: containerRef, dependencies: [isMobile] });
 
      // --- Event Handlers (memoized) ---
      const handleExternalLink = useCallback((url) => { if (url) window.open(url, '_blank', 'noopener,noreferrer'); }, []);
@@ -517,16 +507,14 @@ const ProfessionalLandingPage = () => {
      const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
      const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
      const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
-     // --- ADDED: Social click handler for analytics (optional) ---
      const handleSocialClick = (socialName) => {
-        // trackEvent('click_social', 'Socials', `Clicked ${socialName} Icon`);
         console.log(`Clicked ${socialName}`);
      };
 
 
     // --- Render ---
     return (
-        <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10 flex-grow"> {/* Let MainLayout control overall height */}
+        <div ref={containerRef} className="professional-landing bg-transparent text-text relative z-10 flex-grow">
             <RealisticStarfield />
 
              <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
@@ -605,34 +593,85 @@ const ProfessionalLandingPage = () => {
                      <div className="v4-impact mb-16 md:mb-20">
                          {isMobile ? (
                             <div className="flex flex-col">
-                                {/* Added will-change for performance */}
                                 <LogoMarquee images={marqueeImagesMobile} speed={15} direction="left" className="will-change-transform" />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-5 md:gap-6">
-                                {/* Added will-change for performance */}
                                 <LogoMarquee images={marqueeImages1} speed={10} direction="left" className="will-change-transform" />
                                 <LogoMarquee images={marqueeImages2} speed={10} direction="right" className="will-change-transform" />
                             </div>
                         )}
                     </div>
-                     <div className="section-4-intro mt-16 md:mt-20">
-                        <h2 className="font-heading text-4xl md:text-5xl font-bold text-text mb-5 md:mb-6">
-                            Explore the <span className="animated-gradient-heading">Chizel Universe</span>
+                    
+                    {/* >>> START NEW OFFER SECTION CONTENT (PROFESSIONAL & PREMIUM) <<< */}
+                    <div className="section-offers-content pt-12 md:pt-16 max-w-5xl mx-auto">
+                        <h2 className="animated-element font-heading text-6xl md:text-7xl font-black text-white mb-16 md:mb-20 drop-shadow-lg">
+                            <span className="animated-gradient-heading">What We Offer</span>
                         </h2>
-                        <p className="text-secondary-text text-lg md:text-xl max-w-3xl mx-auto mb-10 md:mb-12">
-                            Dive into the core platform or experience tailored journeys designed for kids and parents.
-                        </p>
+
+                        {/* 1. Steps to Cure Brainrot (Sub-section) - Premium List + Button */}
+                        <div className="animated-element flex flex-col items-center justify-center space-y-6">
+                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
+                                    Steps to cure <span className="text-orange">Brainrot</span>
+                                </h3>
+                                <Button
+                                    title="Click Here"
+                                    onClick={handleParentsClick}
+                                    rightIcon={<FaArrowRight />}
+                                    containerClass="!bg-gradient-to-r !from-orange-500 !to-yellow-500 !text-lg !py-4 !px-12"
+                                />
+                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
+                            </div>
+
+                        {/* Block 2-4: Clean Title/Button Blocks - Separated by large vertical space */}
+                        <div className="space-y-16 md:space-y-24">
+                            
+                            {/* 2. Try Our Brain Detox Games (Minimalist Block) */}
+                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
+                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
+                                    Try Our <span className="animated-gradient-heading">Brain Detox Games</span>
+                                </h3>
+                                <Button
+                                    title="Click Here to Play"
+                                    onClick={handleKidsClick}
+                                    rightIcon={<FaArrowRight />}
+                                    containerClass="!bg-gradient-to-r !from-accent !to-purple-600 !text-lg !py-4 !px-12"
+                                />
+                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
+                            </div>
+
+                            {/* 3. Try Chizel for Parents (Minimalist Block) */}
+                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
+                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
+                                    Try Chizel for <span className="text-orange">Parents</span>
+                                </h3>
+                                <Button
+                                    title="Click Here to View Portal"
+                                    onClick={handleParentsClick}
+                                    rightIcon={<FaArrowRight />}
+                                    containerClass="!bg-gradient-to-r !from-orange-500 !to-yellow-500 !text-lg !py-4 !px-12"
+                                />
+                                <div className="w-1/2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pt-8" />
+                            </div>
+
+                            {/* 4. Checkout our Chizel Core (Minimalist Block) */}
+                            <div className="animated-element flex flex-col items-center justify-center space-y-6">
+                                <h3 className="font-heading text-4xl md:text-5xl text-text drop-shadow-md">
+                                    Checkout Our <span className="animated-gradient-heading">Chizel Core</span>
+                                </h3>
+                                <Button
+                                    title="Click Here to Explore"
+                                    onClick={handleCoreClick}
+                                    rightIcon={<FaArrowRight />}
+                                    containerClass="!bg-gradient-to-r !from-blue-500 !to-cyan-500 !text-lg !py-4 !px-12"
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <div className="impact-card-container grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
-                       <ImpactCard id="chizel-core-card" icon={<FaGlobe />} title="Chizel Core" description="Discover the foundation of our learning ecosystem, technology, and vision." buttonText="Explore Core" onClick={handleCoreClick} gradientClass="bg-gradient-to-br from-blue-900/40 via-card/60 to-blue-900/40 backdrop-blur-lg" iconBgClass="bg-blue-500/25" shadowClass="rgba(31, 111, 235, 0.25)" />
-                        <ImpactCard id="chizel-kids-card" icon={<FaChild />} title="Chizel for Kids" description="Step into the interactive ChizelVerse designed for fun, skill-building adventures." buttonText="Enter Kids Verse" onClick={handleKidsClick} gradientClass="bg-gradient-to-br from-purple-900/40 via-card/60 to-purple-900/40 backdrop-blur-lg" iconBgClass="bg-purple-500/25" shadowClass="rgba(93, 63, 211, 0.25)" />
-                        <ImpactCard id="chizel-parents-card" icon={<FaUserFriends />} title="Chizel for Parents" description="Monitor progress, discover resources, and connect with the parent community." buttonText="View Parent Portal" onClick={handleParentsClick} gradientClass="bg-gradient-to-br from-orange-900/40 via-card/60 to-orange-900/40 backdrop-blur-lg" iconBgClass="bg-orange-500/25" shadowClass="rgba(255, 179, 71, 0.25)" />
-                    </div>
+                    {/* >>> END NEW OFFER SECTION CONTENT HERE <<< */}
                 </div>
             </section>
 
-             {/* REMOVED min-h-screen from this last section */}
              <section className="section-5 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden py-20 md:py-32">
                 <div className="section-5-content relative z-10 w-full max-w-3xl">
                     <h2 className="font-heading text-4xl md:text-6xl font-bold text-text mb-5 md:mb-6 drop-shadow-md animated-element">
@@ -667,16 +706,12 @@ const ProfessionalLandingPage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Follow Chizel on ${link.name}`}
-                        className="social-icon-link relative" // Used for GSAP targeting
+                        className="social-icon-link relative"
                         onClick={() => handleSocialClick(link.name)}
                         >
-                        {/* This div provides the idle float animation */}
                         <div className="social-icon-float" >
-                            {/* This wrapper handles the hover scale/rotate/glow */}
                             <div className="social-icon-wrapper w-16 h-16 relative flex-center bg-card/60 border-2 border-primary/20 rounded-full backdrop-blur-md transition-colors duration-300">
-                            {/* This is the ping effect on hover */}
                             <div className="ping-effect absolute inset-0 rounded-full border-2 border-primary opacity-0"/>
-                            {/* This is the icon itself */}
                             <span className="relative z-10 text-primary transition-colors duration-300">
                                 {iconMap[link.name]}
                             </span>
@@ -688,8 +723,6 @@ const ProfessionalLandingPage = () => {
                 </div>
             </section>
 
-
-             {/* Footer will be rendered by MainLayout after this component finishes */}
 
             <style jsx global>{`
                 /* --- Root Variables (Consolidated) --- */
@@ -707,27 +740,27 @@ const ProfessionalLandingPage = () => {
                 /* --- Base & Reset --- */
                 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; }
                 html { scroll-behavior: smooth; overflow-x: hidden; }
-                body { overflow-x: hidden; background-color: var(--color-background); } /* Ensure body bg matches */
+                body { overflow-x: hidden; background-color: var(--color-background); }
 
                 /* --- Layout & Section Styling --- */
-                 section { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; overflow: hidden; z-index: 1; background-color: transparent; padding: 5rem 1rem; } /* Adjusted padding */
+                 section { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; overflow: hidden; z-index: 1; background-color: transparent; padding: 5rem 1rem; }
                  .section-1, .section-2, .section-3, .section-4 { min-height: 100vh; }
-                 .section-5 { min-height: auto; padding-top: 5rem; padding-bottom: 8rem; } /* More bottom padding for space before footer */
+                 .section-5 { min-height: auto; padding-top: 5rem; padding-bottom: 8rem; }
 
                 /* --- Typography & Gradients --- */
                 .intro-heading { color: var(--color-text); text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px var(--color-primary-alpha), 0 0 35px var(--color-accent-alpha); will-change: transform; }
                  .animated-gradient-heading { color: transparent; background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-orange), var(--color-primary)); background-clip: text; -webkit-background-clip: text; background-size: 200% auto; animation: gradient-flow 6s linear infinite; font-weight: 800; }
 
                 /* --- Logo Marquee Performance --- */
-                 .logo-marquee { will-change: transform; } /* Hint for marquee container */
-                 .marquee-content { will-change: transform; } /* Hint for animating content */
-                 .marquee-item img { will-change: opacity, transform; /* Hint for hover effects */ }
+                 .logo-marquee { will-change: transform; }
+                 .marquee-content { will-change: transform; }
+                 .marquee-item img { will-change: opacity, transform; }
 
                 /* --- Animations --- */
                 @keyframes gradient-flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
                 @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.1); } }
                 @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.95); } }
-                 @keyframes pulse-border { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.02); } } /* Renamed to avoid conflict */
+                 @keyframes pulse-border { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.02); } }
                  .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
                  .animate-bounce { animation: bounce 2s infinite; }
                  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -746,7 +779,7 @@ const ProfessionalLandingPage = () => {
                  /* Apply will-change more specifically */
                  .animated-element, .obstacle-card-enhanced, .impact-card { will-change: transform, opacity; }
                  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
-                 img { content-visibility: auto; max-width: 100%; height: auto; } /* Ensure images are responsive */
+                 img { content-visibility: auto; max-width: 100%; height: auto; }
 
                 /* --- Mobile Specific Adjustments --- */
                 @media (max-width: 767px) {
@@ -754,13 +787,13 @@ const ProfessionalLandingPage = () => {
                     body { overscroll-behavior-y: none; }
                     .backdrop-blur-lg { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
                      .intro-heading { font-size: clamp(2.5rem, 10vw, 3.5rem); }
-                     section { padding: 4rem 1rem; } /* Consistent mobile padding */
+                     section { padding: 4rem 1rem; }
                      .section-5 { padding-bottom: 6rem; }
                      .impact-card-container { grid-template-columns: 1fr; max-width: 350px; }
                 }
 
                  /* --- Impact Card Button Base Styles --- */
-                 .impact-button-css { position: relative; overflow: hidden; transform: translateZ(0); /* Promotes GPU rendering */}
+                 .impact-button-css { position: relative; overflow: hidden; transform: translateZ(0); }
                  .impact-button-css .button-hover-fill { background-size: 200% auto; background-position: 0% center; will-change: transform; }
                  .impact-button-css .button-text-default { will-change: transform; }
                  .impact-button-css:hover .button-hover-fill { transform: translateX(0%); background-position: 100% center; }
@@ -774,18 +807,18 @@ const ProfessionalLandingPage = () => {
                  #chizel-core-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, var(--color-accent), var(--color-primary), var(--color-accent)); }
                  @keyframes pulse-glow-core { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-primary-alpha), 0 0 30px 0px var(--color-accent-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-primary-alpha), 0 0 40px 10px var(--color-accent-alpha); } }
 
-                 /* --- KIDS BUTTON Theme --- */
+                 /* --- KIDS BUTTON Theme (Used for Brain Detox Games) --- */
                 #chizel-kids-card .impact-button-css { background: var(--color-accent); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-accent-alpha); animation: pulse-glow-kids 2.5s infinite ease-in-out; }
                  #chizel-kids-card .impact-button-css::before { content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 100%); transform: skewX(-25deg); animation: shine 4.5s infinite linear 0.5s; }
                 #chizel-kids-card .impact-button-css:hover { transform: scale(1.05); box-shadow: 0 0 25px 5px var(--color-accent-alpha); border-color: rgba(255, 255, 255, 0.4); }
-                 #chizel-kids-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, rgb(110, 20, 180), var(--color-accent), rgb(110, 20, 180)); }
+                 #chizel-kids-card .button-hover-fill { background-image: linear-gradient(90deg, rgb(110, 20, 180), var(--color-accent), rgb(110, 20, 180)); }
                  @keyframes pulse-glow-kids { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-accent-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-accent-alpha); } }
 
                  /* --- PARENTS BUTTON Theme --- */
                  #chizel-parents-card .impact-button-css { background: var(--color-orange); border-color: transparent; box-shadow: 0 0 15px 0px var(--color-orange-alpha); animation: pulse-glow-parents 2.5s infinite ease-in-out; }
                  #chizel-parents-card .impact-button-css::before { content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%); transform: skewX(-25deg); animation: shine 4.2s infinite linear 1s; }
                 #chizel-parents-card .impact-button-css:hover { transform: scale(1.05); box-shadow: 0 0 25px 5px var(--color-orange-alpha); border-color: rgba(255, 255, 255, 0.5); }
-                 #chizel-parents-card .impact-button-css .button-hover-fill { background-image: linear-gradient(90deg, rgb(255, 150, 40), var(--color-orange), rgb(255, 150, 40)); }
+                 #chizel-parents-card .button-hover-fill { background-image: linear-gradient(90deg, rgb(255, 150, 40), var(--color-orange), rgb(255, 150, 40)); }
                  @keyframes pulse-glow-parents { 0%, 100% { transform: scale(1); box-shadow: 0 0 15px 0px var(--color-orange-alpha); } 50% { transform: scale(1.03); box-shadow: 0 0 25px 5px var(--color-orange-alpha); } }
 
                 {/* --- ADDED: SOCIAL ICON STYLES --- */}
