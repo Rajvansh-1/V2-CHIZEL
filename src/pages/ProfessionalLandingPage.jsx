@@ -261,10 +261,10 @@ const ProfessionalLandingPage = () => {
     }, []);
 
      const allPortfolioImages = useMemo(() => [
-        "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i3.jpg",
+        "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i7.png", "/images/slider/i3.jpg",
         "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
         "/images/slider/i8.png", "/images/slider/i9.png", "/images/slider/i7.png",
-        "/images/slider/i11.png"
+        "/images/slider/i11.png", "/images/slider/i12.png"
     ].filter(Boolean), []);
 
 
