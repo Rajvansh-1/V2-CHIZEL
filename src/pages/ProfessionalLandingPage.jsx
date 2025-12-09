@@ -260,24 +260,91 @@ const ProfessionalLandingPage = () => {
          return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-     const allPortfolioImages = useMemo(() => [
-        "/images/slider/i1.jpg", "/images/slider/i2.jpg", "/images/slider/i7.png", "/images/slider/i3.jpg",
-        "/images/slider/i4.jpg", "/images/slider/i5.jpg", "/images/slider/i10.png",
-        "/images/slider/i8.png", "/images/slider/i9.png", "/images/slider/i7.png",
-        "/images/slider/i11.png", "/images/slider/i12.png"
-    ].filter(Boolean), []);
+    // --- UPDATED: Image Slider Logic (Balanced Frequency & Smart Shuffle) ---
+     const allPortfolioImages = useMemo(() => {
+        const standardImages = [
+            "/images/slider/i1.jpg", 
+            "/images/slider/i2.jpg", 
+            "/images/slider/i3.jpg",
+            "/images/slider/i4.jpg", 
+            "/images/slider/i5.jpg", 
+            "/images/slider/i6.png", 
+            "/images/slider/i7.png",
+            "/images/slider/i8.png", 
+            "/images/slider/i9.png", 
+            "/images/slider/i10.png",
+            "/images/slider/i11.png",
+            "/images/slider/i12.png" 
+        ];
+
+        const frequentImages = [
+            "/images/slider/i13.JPG",
+            "/images/slider/i14.JPG",
+            "/images/slider/i15.jpeg",
+            "/images/slider/i16.jpeg",
+            "/images/slider/i17.jpeg",
+            "/images/slider/i18.jpeg"
+        ];
+
+        // Combine logic: Duplicate frequentImages 3 times so they appear more often
+        const combined = [
+            ...standardImages,
+            ...frequentImages,
+            ...frequentImages,
+            ...frequentImages
+        ].filter(Boolean);
+        
+        // Smart Shuffle: Fisher-Yates + Adjacent Check to prevent duplicates
+        // 1. Initial random shuffle
+        for (let i = combined.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combined[i], combined[j]] = [combined[j], combined[i]];
+        }
+        
+        // 2. Linear pass to separate identical neighbors
+        // Since we only have max 3 copies of an image in ~30 slots, swapping with a neighbor usually works.
+        for (let i = 0; i < combined.length - 1; i++) {
+             if (combined[i] === combined[i + 1]) {
+                 // Found a duplicate neighbor. Look ahead for a non-duplicate to swap.
+                 let swapIdx = -1;
+                 for (let j = i + 2; j < combined.length; j++) {
+                     if (combined[j] !== combined[i]) {
+                         swapIdx = j;
+                         break;
+                     }
+                 }
+                 // If no forward swap found (rare, at end of list), look backward
+                 if (swapIdx === -1) {
+                     for (let j = i - 1; j >= 0; j--) {
+                         if (combined[j] !== combined[i] && (j === 0 || combined[j-1] !== combined[i])) {
+                             swapIdx = j;
+                             break;
+                         }
+                     }
+                 }
+                 
+                 if (swapIdx !== -1) {
+                     [combined[i + 1], combined[swapIdx]] = [combined[swapIdx], combined[i + 1]];
+                 }
+             }
+        }
+        
+        return combined;
+    }, []);
 
 
      const { marqueeImages1, marqueeImages2, marqueeImagesMobile } = useMemo(() => {
          if (!allPortfolioImages || allPortfolioImages.length === 0) {
              return { marqueeImages1: [], marqueeImages2: [], marqueeImagesMobile: [] };
          }
-        const shuffled = [...allPortfolioImages].sort(() => Math.random() - 0.5);
-        const midpoint = Math.ceil(shuffled.length / 2);
+         
+        // Split for desktop (2 rows)
+        const midpoint = Math.ceil(allPortfolioImages.length / 2);
+        
         return {
-            marqueeImages1: shuffled.slice(0, midpoint),
-            marqueeImages2: shuffled.slice(midpoint),
-            marqueeImagesMobile: shuffled
+            marqueeImages1: allPortfolioImages.slice(0, midpoint),
+            marqueeImages2: allPortfolioImages.slice(midpoint),
+            marqueeImagesMobile: allPortfolioImages // Mobile uses full list
         };
     }, [allPortfolioImages]);
 
@@ -310,8 +377,6 @@ const ProfessionalLandingPage = () => {
         }
 
         // 2. Navigate to the external URL in the current tab
-        // Note: Fullscreen should persist if the domain is the same, but will revert on cross-domain redirect.
-        // However, this fulfills the user's intent to "go fullscreen" on click.
         window.location.href = url;
     }, []);
     
@@ -537,12 +602,14 @@ const ProfessionalLandingPage = () => {
                      <div className="v4-impact mb-16 md:mb-20">
                          {isMobile ? (
                             <div className="flex flex-col">
-                                <LogoMarquee images={marqueeImagesMobile} speed={15} direction="left" className="will-change-transform" />
+                                {/* Increased speed prop (duration) to 40s because list is 3x longer */}
+                                <LogoMarquee images={marqueeImagesMobile} speed={40} direction="left" className="will-change-transform" />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-5 md:gap-6">
-                                <LogoMarquee images={marqueeImages1} speed={10} direction="left" className="will-change-transform" />
-                                <LogoMarquee images={marqueeImages2} speed={10} direction="right" className="will-change-transform" />
+                                {/* Increased speed prop (duration) to 50s/60s because list is longer & user requested slower speed */}
+                                <LogoMarquee images={marqueeImages1} speed={50} direction="left" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages2} speed={60} direction="right" className="will-change-transform" />
                             </div>
                         )}
                     </div>
