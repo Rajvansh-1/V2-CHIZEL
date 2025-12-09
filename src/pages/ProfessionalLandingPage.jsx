@@ -253,7 +253,7 @@ const ProfessionalLandingPage = () => {
          return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // --- UPDATED: Image Slider Logic (Balanced Frequency & Smart Shuffle) ---
+    // --- UPDATED: Image Slider Logic (Refined) ---
      const allPortfolioImages = useMemo(() => {
         const standardImages = [
             "/images/slider/i1.jpg", 
@@ -279,28 +279,32 @@ const ProfessionalLandingPage = () => {
             "/images/slider/i18.jpeg"
         ];
 
+        // 1. Combine: Standard + Frequent (2x only, as requested)
         const combined = [
             ...standardImages,
             ...frequentImages,
-            ...frequentImages,
             ...frequentImages
+            // removed 3rd occurrence
         ].filter(Boolean);
         
-        // Smart Shuffle: Fisher-Yates + Adjacent Check
+        // 2. Fisher-Yates Shuffle
         for (let i = combined.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [combined[i], combined[j]] = [combined[j], combined[i]];
         }
         
+        // 3. Horizontal Neighbor Check (Prevent [A, A])
         for (let i = 0; i < combined.length - 1; i++) {
              if (combined[i] === combined[i + 1]) {
                  let swapIdx = -1;
+                 // Look forward
                  for (let j = i + 2; j < combined.length; j++) {
                      if (combined[j] !== combined[i]) {
                          swapIdx = j;
                          break;
                      }
                  }
+                 // If no forward, look backward
                  if (swapIdx === -1) {
                      for (let j = i - 1; j >= 0; j--) {
                          if (combined[j] !== combined[i] && (j === 0 || combined[j-1] !== combined[i])) {
@@ -315,6 +319,17 @@ const ProfessionalLandingPage = () => {
                  }
              }
         }
+
+        // 4. Vertical Split Check (Optional but good)
+        // Ensure index 0 of first half != index 0 of second half to prevent initial stacking
+        const mid = Math.ceil(combined.length / 2);
+        if (combined.length > 2 && combined[0] === combined[mid]) {
+            // Swap [0] with [1] if safe, or any other safe index
+            if (combined[1] !== combined[mid]) {
+                [combined[0], combined[1]] = [combined[1], combined[0]];
+            }
+        }
+
         return combined;
     }, []);
 
@@ -324,6 +339,7 @@ const ProfessionalLandingPage = () => {
              return { marqueeImages1: [], marqueeImages2: [], marqueeImagesMobile: [] };
          }
         const midpoint = Math.ceil(allPortfolioImages.length / 2);
+        
         return {
             marqueeImages1: allPortfolioImages.slice(0, midpoint),
             marqueeImages2: allPortfolioImages.slice(midpoint),
@@ -364,65 +380,51 @@ const ProfessionalLandingPage = () => {
     const handleSocialClick = (socialName) => { console.log(`Clicked ${socialName}`); };
 
     useGSAP(() => {
-        // --- UPDATED INTRO ANIMATION (The "Air Show" Reveal) ---
+        // --- UPDATED INTRO ANIMATION (Unchanged from previous step) ---
         const mm = gsap.matchMedia();
-        const plane1 = ".plane-1"; // Reveals Line 1 (L -> R)
-        const plane2 = ".plane-2"; // Reveals Line 2 (R -> L)
+        const plane1 = ".plane-1"; 
+        const plane2 = ".plane-2";
         const line1 = ".intro-heading-line-1";
         const line2 = ".intro-heading-line-2";
 
-        // Initial States:
-        // Text is hidden via clip-path
-        gsap.set(line1, { clipPath: 'inset(0 100% 0 0)', opacity: 1 }); // Hidden from right
-        gsap.set(line2, { clipPath: 'inset(0 0 0 100%)', opacity: 1 }); // Hidden from left
-        
-        // Planes positioned for cross-over
-        // Plane 1 starts Left, Plane 2 starts Right
-        gsap.set(plane1, { xPercent: -120, opacity: 1, yPercent: -50 }); // Center vertically on its line
-        gsap.set(plane2, { xPercent: 120, opacity: 1, yPercent: -50, scaleX: -1 }); // Flip for R->L direction
+        gsap.set(line1, { clipPath: 'inset(0 100% 0 0)', opacity: 1 }); 
+        gsap.set(line2, { clipPath: 'inset(0 0 0 100%)', opacity: 1 }); 
+        gsap.set(plane1, { xPercent: -120, opacity: 1, yPercent: -50 }); 
+        gsap.set(plane2, { xPercent: 120, opacity: 1, yPercent: -50, scaleX: -1 });
         
         gsap.set(".section-1 .animated-element", { opacity: 0, y: 20 });
         gsap.set(".section-1 .scroll-indicator", { opacity: 0 });
 
-        // Animation Timeline
         const introTl = gsap.timeline({ delay: 0.5 });
-
-        // 1. Synchronized Fly-In & Reveal
-        // Both planes take off simultaneously and cross in the center
         const flyDuration = 2.2;
         const flyEase = "power2.inOut";
 
-        // Plane 1: Flies Left -> Right
         introTl.to(plane1, { 
-            x: "110vw", // Fly well off screen
+            x: "110vw", 
             duration: flyDuration, 
             ease: flyEase,
             onUpdate: function() {
-                // Sync Line 1 reveal to Plane 1's progress
                 const progress = this.progress();
                 const insetVal = 100 - (progress * 100);
                 gsap.set(line1, { clipPath: `inset(0 ${insetVal}% 0 0)` });
             }
         }, 0);
 
-        // Plane 2: Flies Right -> Left
         introTl.to(plane2, { 
-            x: "-110vw", // Fly well off screen
+            x: "-110vw", 
             duration: flyDuration, 
             ease: flyEase,
             onUpdate: function() {
-                // Sync Line 2 reveal to Plane 2's progress
                 const progress = this.progress();
                 const insetVal = 100 - (progress * 100);
                 gsap.set(line2, { clipPath: `inset(0 0 0 ${insetVal}%)` });
             }
-        }, 0); // Start at 0 (Absolute Sync)
+        }, 0); 
 
-        // 2. Elements Fade In
         introTl.to(".section-1 .animated-element", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: "power2.out" }, 1.8);
         introTl.to(".section-1 .scroll-indicator", { opacity: 1, duration: 0.6, ease: "power2.out" }, 2.2);
 
-        // --- Scroll-Triggered Animations (Unchanged) ---
+        // --- Scroll-Triggered Animations ---
          const animateSectionElements = (selector, start = "top 85%") => {
              const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p:not(.v4-subtitle)`);
              if (elements.length > 0) {
@@ -499,29 +501,20 @@ const ProfessionalLandingPage = () => {
             <RealisticStarfield />
 
              <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                {/* --- UPDATED PLANE STRUCTURE --- */}
-                {/* Planes are now absolute but will be positioned relative to the screen center in GSAP, but visual placement handled by CSS classes implicitly */}
-                
-                {/* Plane 1 (For Top Line) - Slightly higher offset */}
                 <div className="plane-1 absolute top-[42%] left-0 text-3xl md:text-5xl text-primary drop-shadow-[0_0_15px_rgba(31,111,235,0.8)] z-20 will-change-transform">
                     <FaPlane aria-hidden="true"/>
                 </div>
 
-                {/* Plane 2 (For Bottom Line) - Slightly lower offset */}
                 <div className="plane-2 absolute top-[52%] right-0 text-3xl md:text-5xl text-accent drop-shadow-[0_0_15px_rgba(93,63,211,0.8)] z-20 will-change-transform">
-                     {/* No scale-x-[-1] here, handled in GSAP for better control */}
                     <FaPlane aria-hidden="true"/>
                 </div>
 
-
                 <div className="section-1-content relative z-10">
                     <h1 className="intro-heading font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight md:leading-tight">
-                        {/* Line 1: Always visible */}
                         <div className="intro-heading-line-1 relative inline-block py-2">
                             Ever Dreamt of
                         </div>
                         <br />
-                        {/* Line 2: Always visible, natural block behavior ensures it's on a new line */}
                         <div className="intro-heading-line-2 mt-1 md:mt-2 relative inline-block py-2">
                             Being Successful?
                         </div>
@@ -587,12 +580,12 @@ const ProfessionalLandingPage = () => {
                      <div className="v4-impact mb-16 md:mb-20">
                          {isMobile ? (
                             <div className="flex flex-col">
-                                <LogoMarquee images={marqueeImagesMobile} speed={40} direction="left" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImagesMobile} speed={30} direction="left" className="will-change-transform" />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-5 md:gap-6">
-                                <LogoMarquee images={marqueeImages1} speed={35} direction="left" className="will-change-transform" />
-                                <LogoMarquee images={marqueeImages2} speed={40} direction="right" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages1} speed={20} direction="left" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages2} speed={20} direction="right" className="will-change-transform" />
                             </div>
                         )}
                     </div>
