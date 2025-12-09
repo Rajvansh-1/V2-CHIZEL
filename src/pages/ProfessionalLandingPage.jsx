@@ -7,30 +7,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
 import LogoMarquee from '@/components/common/LogoMarquee';
-import clsx from 'clsx'; // Corrected import for clsx
+import clsx from 'clsx'; 
 
 import {
     FaMobileAlt, FaInfinity, FaStopCircle, FaMousePointer,
     FaArrowRight, FaAngleDoubleDown, FaGlobe, FaChild, FaUserFriends, FaStar,
     FaPlane, FaRegLightbulb, FaChevronDown,
-    // ** ADDED FOR PREVIOUS FIXES **
     FaBrain, 
-    // --- ICONS ADDED FOR NEW SECTION ---
     FaInstagram, FaYoutube, FaLinkedin, FaFacebook
 } from 'react-icons/fa';
-// --- ICON ADDED FOR NEW SECTION ---
 import { FaXTwitter } from 'react-icons/fa6';
-// UPDATED: Import 'principles' from constants
 import { socialLinks, principles } from '@utils/constants';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // --- Offer Block Component (MINIMALIST & PREMIUM) ---
 const OfferBlock = memo(({ title, ctaText, ctaOnClick, ctaGradientClass, ctaRightIcon, className }) => (
-    // Note: Removed icon and subtitle from here for a cleaner look
     <div className={`offer-block-content flex flex-col items-center justify-center space-y-8 ${className}`}>
         <div className="relative text-center">
-            {/* Title is now larger and more prominent */}
             <h3 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-text font-bold drop-shadow-md leading-tight">
                 {title}
             </h3>
@@ -39,7 +33,6 @@ const OfferBlock = memo(({ title, ctaText, ctaOnClick, ctaGradientClass, ctaRigh
             title={ctaText}
             onClick={ctaOnClick}
             rightIcon={ctaRightIcon || <FaArrowRight />}
-            // Added explicit high z-index to ensure button hover effects work correctly
             containerClass={clsx("!text-lg !py-4 !px-12 relative z-20", ctaGradientClass)}
         />
     </div>
@@ -47,7 +40,7 @@ const OfferBlock = memo(({ title, ctaText, ctaOnClick, ctaGradientClass, ctaRigh
 OfferBlock.displayName = 'OfferBlock';
 
 
-// --- RealisticStarfield Component (Kept as is) ---
+// --- RealisticStarfield Component ---
 const RealisticStarfield = memo(() => {
     const starfieldRef = useRef(null);
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768); 
@@ -143,7 +136,7 @@ const RealisticStarfield = memo(() => {
 });
 RealisticStarfield.displayName = 'RealisticStarfield';
 
-// --- ObstacleCard Component (Kept as is) ---
+// --- ObstacleCard Component ---
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
      const cardRef = useRef(null);
     const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -286,7 +279,6 @@ const ProfessionalLandingPage = () => {
             "/images/slider/i18.jpeg"
         ];
 
-        // Combine logic: Duplicate frequentImages 3 times so they appear more often
         const combined = [
             ...standardImages,
             ...frequentImages,
@@ -294,18 +286,14 @@ const ProfessionalLandingPage = () => {
             ...frequentImages
         ].filter(Boolean);
         
-        // Smart Shuffle: Fisher-Yates + Adjacent Check to prevent duplicates
-        // 1. Initial random shuffle
+        // Smart Shuffle: Fisher-Yates + Adjacent Check
         for (let i = combined.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [combined[i], combined[j]] = [combined[j], combined[i]];
         }
         
-        // 2. Linear pass to separate identical neighbors
-        // Since we only have max 3 copies of an image in ~30 slots, swapping with a neighbor usually works.
         for (let i = 0; i < combined.length - 1; i++) {
              if (combined[i] === combined[i + 1]) {
-                 // Found a duplicate neighbor. Look ahead for a non-duplicate to swap.
                  let swapIdx = -1;
                  for (let j = i + 2; j < combined.length; j++) {
                      if (combined[j] !== combined[i]) {
@@ -313,7 +301,6 @@ const ProfessionalLandingPage = () => {
                          break;
                      }
                  }
-                 // If no forward swap found (rare, at end of list), look backward
                  if (swapIdx === -1) {
                      for (let j = i - 1; j >= 0; j--) {
                          if (combined[j] !== combined[i] && (j === 0 || combined[j-1] !== combined[i])) {
@@ -328,7 +315,6 @@ const ProfessionalLandingPage = () => {
                  }
              }
         }
-        
         return combined;
     }, []);
 
@@ -337,14 +323,11 @@ const ProfessionalLandingPage = () => {
          if (!allPortfolioImages || allPortfolioImages.length === 0) {
              return { marqueeImages1: [], marqueeImages2: [], marqueeImagesMobile: [] };
          }
-         
-        // Split for desktop (2 rows)
         const midpoint = Math.ceil(allPortfolioImages.length / 2);
-        
         return {
             marqueeImages1: allPortfolioImages.slice(0, midpoint),
             marqueeImages2: allPortfolioImages.slice(midpoint),
-            marqueeImagesMobile: allPortfolioImages // Mobile uses full list
+            marqueeImagesMobile: allPortfolioImages 
         };
     }, [allPortfolioImages]);
 
@@ -355,19 +338,15 @@ const ProfessionalLandingPage = () => {
         { icon: <FaStopCircle />, title: "Passive Alternatives", description: "Lack of truly engaging developmental tools." },
     ], []);
 
-    // --- NEW HANDLER FOR BRAINROT CURE PAGE (No Fullscreen needed here as it's an internal route) ---
+    // --- HANDLERS (Unchanged) ---
     const handleBrainrotCure = useCallback(() => {
         navigate('/brainrot-cure');
     }, [navigate]);
 
-    // --- UPDATED HANDLER TO OPEN EXTERNAL LINKS IN THE CURRENT TAB AND ATTEMPT FULLSCREEN ---
     const handleExternalLink = useCallback((url) => { 
         if (!url) return;
-        
-        // 1. Attempt to enter fullscreen mode on the whole page
         if (document.body.requestFullscreen) {
             document.body.requestFullscreen().catch(err => {
-                // Console error is fine, but navigation must still occur
                 console.error("Fullscreen failed:", err);
             });
         } else if (document.documentElement.requestFullscreen) {
@@ -375,48 +354,76 @@ const ProfessionalLandingPage = () => {
                 console.error("Fullscreen failed:", err);
             });
         }
-
-        // 2. Navigate to the external URL in the current tab
         window.location.href = url;
     }, []);
     
-    // --- Re-define click handlers to use the updated handleExternalLink
     const handleWaitlist = useCallback(() => handleExternalLink("https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true"), [handleExternalLink]);
     const handleCoreClick = useCallback(() => navigate('/chizel-core'), [navigate]);
     const handleKidsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ChizelVerse/'), [handleExternalLink]);
     const handleParentsClick = useCallback(() => handleExternalLink('https://rajvansh-1.github.io/ParentPage-CV/'), [handleExternalLink]);
-    
-    const handleSocialClick = (socialName) => {
-        console.log(`Clicked ${socialName}`);
-     };
+    const handleSocialClick = (socialName) => { console.log(`Clicked ${socialName}`); };
 
     useGSAP(() => {
-        // --- Initial Animation Timeline and Scroll-Triggered Animations... (unchanged) ---
+        // --- UPDATED INTRO ANIMATION (The "Air Show" Reveal) ---
         const mm = gsap.matchMedia();
-        const plane1 = ".plane-1";
-        const plane2 = ".plane-2";
+        const plane1 = ".plane-1"; // Reveals Line 1 (L -> R)
+        const plane2 = ".plane-2"; // Reveals Line 2 (R -> L)
         const line1 = ".intro-heading-line-1";
         const line2 = ".intro-heading-line-2";
 
-        // Initial states
-        gsap.set([line1, line2], { opacity: 1, visibility: 'visible' });
-        gsap.set(line1, { clipPath: 'inset(0 100% 0 0)' });
-        gsap.set(line2, { clipPath: 'inset(0 0 0 100%)' });
-        gsap.set(plane1, { x: '-100%', opacity: 1 });
-        gsap.set(plane2, { x: '100%', opacity: 1 });
+        // Initial States:
+        // Text is hidden via clip-path
+        gsap.set(line1, { clipPath: 'inset(0 100% 0 0)', opacity: 1 }); // Hidden from right
+        gsap.set(line2, { clipPath: 'inset(0 0 0 100%)', opacity: 1 }); // Hidden from left
+        
+        // Planes positioned for cross-over
+        // Plane 1 starts Left, Plane 2 starts Right
+        gsap.set(plane1, { xPercent: -120, opacity: 1, yPercent: -50 }); // Center vertically on its line
+        gsap.set(plane2, { xPercent: 120, opacity: 1, yPercent: -50, scaleX: -1 }); // Flip for R->L direction
+        
         gsap.set(".section-1 .animated-element", { opacity: 0, y: 20 });
         gsap.set(".section-1 .scroll-indicator", { opacity: 0 });
 
-        // Timeline for intro sequence
+        // Animation Timeline
         const introTl = gsap.timeline({ delay: 0.5 });
-        introTl.to(plane1, { x: "100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line1, { clipPath: `inset(0 ${100 - this.progress() * 100}% 0 0)` }); } }, 0);
-        introTl.to(plane2, { x: "-100vw", duration: 2, ease: "power2.inOut", onUpdate: function() { gsap.set(line2, { clipPath: `inset(0 0 0 ${100 - this.progress() * 100}%)` }); } }, 0.5);
-        introTl.to(".section-1 .animated-element", { opacity: 1, y: 0, stagger: 0.1, duration: isMobile ? 0.4 : 0.6, ease: "power2.out" }, 1.5);
-        introTl.to(".section-1 .scroll-indicator", { opacity: 1, duration: isMobile ? 0.3 : 0.5, ease: "power2.out" }, 2);
 
-        // --- Scroll-Triggered Animations ---
+        // 1. Synchronized Fly-In & Reveal
+        // Both planes take off simultaneously and cross in the center
+        const flyDuration = 2.2;
+        const flyEase = "power2.inOut";
+
+        // Plane 1: Flies Left -> Right
+        introTl.to(plane1, { 
+            x: "110vw", // Fly well off screen
+            duration: flyDuration, 
+            ease: flyEase,
+            onUpdate: function() {
+                // Sync Line 1 reveal to Plane 1's progress
+                const progress = this.progress();
+                const insetVal = 100 - (progress * 100);
+                gsap.set(line1, { clipPath: `inset(0 ${insetVal}% 0 0)` });
+            }
+        }, 0);
+
+        // Plane 2: Flies Right -> Left
+        introTl.to(plane2, { 
+            x: "-110vw", // Fly well off screen
+            duration: flyDuration, 
+            ease: flyEase,
+            onUpdate: function() {
+                // Sync Line 2 reveal to Plane 2's progress
+                const progress = this.progress();
+                const insetVal = 100 - (progress * 100);
+                gsap.set(line2, { clipPath: `inset(0 0 0 ${insetVal}%)` });
+            }
+        }, 0); // Start at 0 (Absolute Sync)
+
+        // 2. Elements Fade In
+        introTl.to(".section-1 .animated-element", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: "power2.out" }, 1.8);
+        introTl.to(".section-1 .scroll-indicator", { opacity: 1, duration: 0.6, ease: "power2.out" }, 2.2);
+
+        // --- Scroll-Triggered Animations (Unchanged) ---
          const animateSectionElements = (selector, start = "top 85%") => {
-             // MODIFIED: Removed .offer-block-content from targets so they are immediately visible (cleaner/faster load)
              const elements = gsap.utils.toArray(`${selector} .animated-element, ${selector} > h2, ${selector} > h3, ${selector} > p:not(.v4-subtitle)`);
              if (elements.length > 0) {
                  gsap.fromTo(elements,
@@ -439,12 +446,10 @@ const ProfessionalLandingPage = () => {
             }
         };
 
-         // Apply scroll animations
          animateSectionElements('.section-2');
          animateSectionElements('.section-3');
          animateSectionElements('.section-4-intro');
 
-         // Marquee scroll animation (using the container as trigger)
           gsap.fromTo(['.section-4 .v4-impact .logo-marquee', '.section-4 .v4-impact .v4-subtitle'],
             { opacity: 0, y: isMobile ? 15 : 30 },
             {
@@ -463,58 +468,25 @@ const ProfessionalLandingPage = () => {
             }
         );
 
-         // NEW: Animate the Offers Section elements (only the header now)
          animateSectionElements('.section-offers-content', "top 90%");
-         
          animateSectionElements('.section-5', "top 90%");
-         // --- ADDED: Animate new social section ---
          animateSectionElements('.section-socials', "top 95%"); 
 
-        // --- ADDED: Social Icon Hover Animations (unchanged) ---
+        // --- Social Icon Hover Animations ---
         const icons = gsap.utils.toArray(".social-icon-link");
-
         icons.forEach((iconLink) => {
             const iconWrapper = iconLink.querySelector(".social-icon-wrapper");
             const iconItself = iconWrapper.querySelector("span");
             const pingEffect = iconLink.querySelector(".ping-effect");
-
             const tl = gsap.timeline({ paused: true });
-
-            tl.to(iconWrapper, {
-                    scale: 1.2,
-                    rotate: 10,
-                    backgroundColor: 'var(--color-primary)',
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 0 30px 5px rgba(31, 111, 235, 0.5)',
-                    duration: 0.3,
-                    ease: 'power2.out'
-                })
-              .to(iconItself, {
-                    color: '#FFFFFF',
-                    scale: 1.1,
-                    duration: 0.3,
-                    ease: 'power2.out'
-                }, 0)
-              .fromTo(pingEffect,
-                    { scale: 0.5, opacity: 0.8 },
-                    { scale: 1.8, opacity: 0, duration: 0.4, ease: 'power1.out' },
-                0);
-
+            tl.to(iconWrapper, { scale: 1.2, rotate: 10, backgroundColor: 'var(--color-primary)', borderColor: 'rgba(255, 255, 255, 0.3)', boxShadow: '0 0 30px 5px rgba(31, 111, 235, 0.5)', duration: 0.3, ease: 'power2.out' })
+              .to(iconItself, { color: '#FFFFFF', scale: 1.1, duration: 0.3, ease: 'power2.out' }, 0)
+              .fromTo(pingEffect, { scale: 0.5, opacity: 0.8 }, { scale: 1.8, opacity: 0, duration: 0.4, ease: 'power1.out' }, 0);
             iconLink.addEventListener("mouseenter", () => tl.play());
             iconLink.addEventListener("mouseleave", () => tl.reverse());
-
-            // Cleanup
-            return () => {
-                if (iconLink) {
-                    iconLink.removeEventListener("mouseenter", () => tl.play());
-                    iconLink.removeEventListener("mouseleave", () => tl.reverse());
-                }
-            };
+            return () => { if (iconLink) { iconLink.removeEventListener("mouseenter", () => tl.play()); iconLink.removeEventListener("mouseleave", () => tl.reverse()); } };
         });
-        // --- END: Social Icon Logic ---
 
-
-        // --- Cleanup ---
         return () => {
             introTl.kill();
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
@@ -527,17 +499,30 @@ const ProfessionalLandingPage = () => {
             <RealisticStarfield />
 
              <section className="section-1 min-h-screen flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
-                <FaPlane className="plane-1 absolute top-1/2 left-0 text-3xl md:text-4xl text-white opacity-80 will-change-transform" aria-hidden="true"/>
-                <FaPlane className="plane-2 absolute top-1/2 right-0 text-3xl md:text-4xl text-white opacity-80 scale-x-[-1] will-change-transform" aria-hidden="true"/>
+                {/* --- UPDATED PLANE STRUCTURE --- */}
+                {/* Planes are now absolute but will be positioned relative to the screen center in GSAP, but visual placement handled by CSS classes implicitly */}
+                
+                {/* Plane 1 (For Top Line) - Slightly higher offset */}
+                <div className="plane-1 absolute top-[42%] left-0 text-3xl md:text-5xl text-primary drop-shadow-[0_0_15px_rgba(31,111,235,0.8)] z-20 will-change-transform">
+                    <FaPlane aria-hidden="true"/>
+                </div>
+
+                {/* Plane 2 (For Bottom Line) - Slightly lower offset */}
+                <div className="plane-2 absolute top-[52%] right-0 text-3xl md:text-5xl text-accent drop-shadow-[0_0_15px_rgba(93,63,211,0.8)] z-20 will-change-transform">
+                     {/* No scale-x-[-1] here, handled in GSAP for better control */}
+                    <FaPlane aria-hidden="true"/>
+                </div>
+
 
                 <div className="section-1-content relative z-10">
                     <h1 className="intro-heading font-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight md:leading-tight">
                         {/* Line 1: Always visible */}
-                        <div className="intro-heading-line-1">
+                        <div className="intro-heading-line-1 relative inline-block py-2">
                             Ever Dreamt of
                         </div>
+                        <br />
                         {/* Line 2: Always visible, natural block behavior ensures it's on a new line */}
-                        <div className="intro-heading-line-2 mt-1 md:mt-2">
+                        <div className="intro-heading-line-2 mt-1 md:mt-2 relative inline-block py-2">
                             Being Successful?
                         </div>
                     </h1>
@@ -602,14 +587,12 @@ const ProfessionalLandingPage = () => {
                      <div className="v4-impact mb-16 md:mb-20">
                          {isMobile ? (
                             <div className="flex flex-col">
-                                {/* Increased speed prop (duration) to 40s because list is 3x longer */}
                                 <LogoMarquee images={marqueeImagesMobile} speed={40} direction="left" className="will-change-transform" />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-5 md:gap-6">
-                                {/* Increased speed prop (duration) to 50s/60s because list is longer & user requested slower speed */}
-                                <LogoMarquee images={marqueeImages1} speed={50} direction="left" className="will-change-transform" />
-                                <LogoMarquee images={marqueeImages2} speed={60} direction="right" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages1} speed={35} direction="left" className="will-change-transform" />
+                                <LogoMarquee images={marqueeImages2} speed={40} direction="right" className="will-change-transform" />
                             </div>
                         )}
                     </div>
