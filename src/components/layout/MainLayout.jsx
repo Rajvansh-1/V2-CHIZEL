@@ -4,7 +4,7 @@ import CustomCursor from "@components/layout/CustomCursor";
 import useLenisScroll from "@hooks/useLenisScroll";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import FeedbackFloatingAlert from "@/components/features/feedback/FeedbackFloatingAlert";
+import ChiziAI from "@/components/common/ChiziAI";
 
 const MainLayout = () => {
   // Initialize smooth scrolling
@@ -25,7 +25,7 @@ const MainLayout = () => {
       <Footer />
 
       {/* Floating elements remain fixed */}
-      <FeedbackFloatingAlert />
+      <ChiziAI />
     </div>
   );
 };
