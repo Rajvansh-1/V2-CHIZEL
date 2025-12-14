@@ -554,8 +554,8 @@ const ChiziAI = () => {
       >
         <div
           className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-3xl px-4 py-3 md:px-5 md:py-4 shadow-lg transform transition-transform duration-200 ${message.sender === "user"
-              ? "bg-gradient-to-r from-primary to-accent text-white border-2 border-primary/30"
-              : "bg-card/90 border-2 border-primary/20 text-text backdrop-blur-sm"
+            ? "bg-gradient-to-r from-primary to-accent text-white border-2 border-primary/30"
+            : "bg-card/90 border-2 border-primary/20 text-text backdrop-blur-sm"
             }`}
         >
           <div className={`text-sm md:text-base lg:text-lg font-body leading-relaxed whitespace-pre-wrap break-words ${message.sender === "user" ? "text-white" : "text-text"}`}>
@@ -667,8 +667,8 @@ const ChiziAI = () => {
                       }
                     }}
                     className={`relative p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation ${isVoiceEnabled
-                        ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg"
-                        : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
+                      ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg"
+                      : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
                       }`}
                     aria-label={isVoiceEnabled ? "Disable voice output" : "Enable voice output"}
                     title={isVoiceEnabled ? "Voice ON 🔊" : "Voice OFF 🔇"}
@@ -722,8 +722,8 @@ const ChiziAI = () => {
                     onClick={isListening ? stopListening : startListening}
                     disabled={isTyping}
                     className={`rounded-xl sm:rounded-2xl px-3 py-3 sm:px-5 sm:py-4 font-bold transition-all duration-300 flex items-center justify-center min-w-[48px] sm:min-w-[60px] border-2 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 touch-manipulation ${isListening
-                        ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
-                        : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
+                      ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
+                      : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
                       }`}
                     aria-label={isListening ? "Stop listening" : "Start voice input"}
                     title={isListening ? "🔴 Listening..." : "🎤 Speak"}
