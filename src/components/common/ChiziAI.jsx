@@ -17,20 +17,40 @@ import { trackEvent } from "@/utils/analytics";
 
 // Get environment variables - works in both dev and production
 const getEnvVar = (key) => {
-  return import.meta.env[key] || '';
+  // Try multiple ways to get env vars for production compatibility
+  const value = import.meta.env[key] ||
+    import.meta.env[`VITE_${key}`] ||
+    window?.[key] ||
+    '';
+
+  // Log for debugging (only in development)
+  if (import.meta.env.DEV && !value) {
+    console.warn(`⚠️ Environment variable ${key} not found`);
+  }
+
+  return value || '';
 };
 
 // Enhanced AI Response handler with Groq + Gemini API support
 const getAIResponse = async (message, conversationHistory = []) => {
   try {
+    // Get API keys with production fallback
     const groqKey = getEnvVar('VITE_GROQ_API_KEY');
     const geminiKey = getEnvVar('VITE_GEMINI_API_KEY');
 
+    // Log API key status (only first character for security)
+    if (import.meta.env.DEV) {
+      console.log('🔑 API Keys Status:', {
+        groq: groqKey ? `${groqKey.substring(0, 4)}...` : 'Not set',
+        gemini: geminiKey ? `${geminiKey.substring(0, 4)}...` : 'Not set'
+      });
+    }
+
     // PRIMARY: Try Groq API first
-    if (groqKey && groqKey !== 'your_groq_api_key_here') {
+    if (groqKey && groqKey.length > 10 && !groqKey.includes('your_')) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased timeout
 
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -62,7 +82,7 @@ const getAIResponse = async (message, conversationHistory = []) => {
           }
         } else {
           const errorData = await response.text();
-          console.warn("Groq API error:", response.status, errorData);
+          console.warn("Groq API error:", response.status, errorData.substring(0, 100));
         }
       } catch (e) {
         if (e.name !== 'AbortError') {
@@ -72,10 +92,10 @@ const getAIResponse = async (message, conversationHistory = []) => {
     }
 
     // FALLBACK: Try Gemini API
-    if (geminiKey && geminiKey !== 'your_gemini_api_key_here') {
+    if (geminiKey && geminiKey.length > 10 && !geminiKey.includes('your_')) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased timeout
 
         // Limit conversation history for Gemini
         const recentHistory = conversationHistory.slice(-10);
@@ -122,7 +142,7 @@ const getAIResponse = async (message, conversationHistory = []) => {
           }
         } else {
           const errorData = await response.text();
-          console.warn("Gemini API error:", response.status, errorData);
+          console.warn("Gemini API error:", response.status, errorData.substring(0, 100));
         }
       } catch (e) {
         if (e.name !== 'AbortError') {
@@ -132,7 +152,7 @@ const getAIResponse = async (message, conversationHistory = []) => {
     }
 
     // FINAL FALLBACK: Enhanced smart responses
-    console.log("📝 Using enhanced fallback responses");
+    console.log("📝 Using enhanced fallback responses (no API keys configured)");
     return getEnhancedFallbackResponse(message);
   } catch (error) {
     console.error("❌ AI API Error:", error);
@@ -237,9 +257,11 @@ const ChiziAI = () => {
   const modalRef = useRef(null);
   const overlayRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
   const conversationHistoryRef = useRef([]);
+  const scrollTimeoutRef = useRef(null);
 
   // Keep conversation history ref in sync
   useEffect(() => {
@@ -248,43 +270,42 @@ const ChiziAI = () => {
 
   // Initialize Speech Recognition with better error handling
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      try {
-        const recognitionInstance = new SpeechRecognition();
-        recognitionInstance.continuous = false;
-        recognitionInstance.interimResults = false;
-        recognitionInstance.lang = 'en-US';
+      if (SpeechRecognition) {
+        try {
+          const recognitionInstance = new SpeechRecognition();
+          recognitionInstance.continuous = false;
+          recognitionInstance.interimResults = false;
+          recognitionInstance.lang = 'en-US';
 
-        recognitionInstance.onresult = async (event) => {
-          const transcript = event.results[0]?.[0]?.transcript?.trim();
-          if (transcript) {
-            setInputValue(transcript);
-            setIsListening(false);
-            await processMessage(transcript);
-          } else {
-            setIsListening(false);
-          }
-        };
-
-        recognitionInstance.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-          if (event.error === 'not-allowed') {
-            // Only alert if it's a permission issue
-            if (window.confirm("Microphone access is needed for voice input. Would you like to enable it in your browser settings? 🎤")) {
-              // User acknowledged
+          recognitionInstance.onresult = async (event) => {
+            const transcript = event.results[0]?.[0]?.transcript?.trim();
+            if (transcript) {
+              setInputValue(transcript);
+              setIsListening(false);
+              await processMessage(transcript);
+            } else {
+              setIsListening(false);
             }
-          }
-        };
+          };
 
-        recognitionInstance.onend = () => {
-          setIsListening(false);
-        };
+          recognitionInstance.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            setIsListening(false);
+            if (event.error === 'not-allowed') {
+              console.warn('Microphone permission not granted');
+            }
+          };
 
-        recognitionRef.current = recognitionInstance;
-      } catch (error) {
-        console.warn("Speech Recognition initialization failed:", error);
+          recognitionInstance.onend = () => {
+            setIsListening(false);
+          };
+
+          recognitionRef.current = recognitionInstance;
+        } catch (error) {
+          console.warn("Speech Recognition initialization failed:", error);
+        }
       }
     }
   }, []);
@@ -403,11 +424,35 @@ const ChiziAI = () => {
     }
   }, [messages.length, isOpen, isTyping, isVoiceEnabled, speakText]);
 
-  // Scroll to bottom
+  // Enhanced scroll to bottom - FIXED for desktop
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (messagesEndRef.current && messagesContainerRef.current) {
+        // Use scrollIntoView with better options for desktop
+        messagesEndRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+          inline: "nearest"
+        });
+
+        // Fallback: manual scroll for better desktop compatibility
+        setTimeout(() => {
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+          }
+        }, 100);
+      }
+    }, 100);
+
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
   }, [messages, isTyping]);
 
   // Focus input when chat opens
@@ -553,9 +598,9 @@ const ChiziAI = () => {
         className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
       >
         <div
-          className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-3xl px-4 py-3 md:px-5 md:py-4 shadow-lg transform transition-transform duration-200 ${message.sender === "user"
-            ? "bg-gradient-to-r from-primary to-accent text-white border-2 border-primary/30"
-            : "bg-card/90 border-2 border-primary/20 text-text backdrop-blur-sm"
+          className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-3xl px-4 py-3 md:px-5 md:py-4 shadow-lg transform transition-all duration-200 hover:scale-[1.01] ${message.sender === "user"
+              ? "bg-gradient-to-r from-primary via-accent to-primary text-white border-2 border-primary/30 shadow-[0_4px_15px_rgba(31,111,235,0.3)]"
+              : "bg-card/95 border-2 border-primary/20 text-text backdrop-blur-sm shadow-[0_4px_15px_rgba(0,0,0,0.2)]"
             }`}
         >
           <div className={`text-sm md:text-base lg:text-lg font-body leading-relaxed whitespace-pre-wrap break-words ${message.sender === "user" ? "text-white" : "text-text"}`}>
@@ -571,7 +616,7 @@ const ChiziAI = () => {
 
   return (
     <>
-      {/* Floating Button - Optimized for Mobile */}
+      {/* Floating Button - Enhanced Design */}
       <div
         ref={floatingRef}
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 cursor-pointer group touch-manipulation"
@@ -599,7 +644,7 @@ const ChiziAI = () => {
           <FaStar className="text-xs" />
         </div>
 
-        <div className="relative p-1 sm:p-1.5 rounded-full bg-gradient-to-r from-primary via-accent to-badge-bg shadow-2xl border-2 sm:border-[3px] border-primary-alpha transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation">
+        <div className="relative p-1 sm:p-1.5 rounded-full bg-gradient-to-r from-primary via-accent to-badge-bg shadow-2xl border-2 sm:border-[3px] border-primary-alpha transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation hover:shadow-[0_0_40px_rgba(31,111,235,0.7)]">
           <div className="relative bg-gradient-to-br from-card via-background to-card p-4 sm:p-5 md:p-6 rounded-full border-2 border-primary/40 shadow-inner">
             <div className="absolute inset-2 rounded-full bg-gradient-to-r from-primary-alpha via-accent-alpha to-primary-alpha blur-lg animate-pulse" />
             <FaRobot className="chizi-robot-icon relative text-primary text-xl sm:text-2xl md:text-3xl drop-shadow-lg" />
@@ -611,7 +656,7 @@ const ChiziAI = () => {
         </div>
       </div>
 
-      {/* Chat Modal - Mobile Optimized */}
+      {/* Chat Modal - Enhanced UI */}
       {isOpen && (
         <div
           ref={overlayRef}
@@ -623,15 +668,16 @@ const ChiziAI = () => {
             className="relative w-full max-w-full sm:max-w-lg md:max-w-2xl h-[95vh] sm:h-[90vh] md:h-[85vh] bg-gradient-to-br from-card/98 via-card/95 to-background/98 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/30 flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Animated Background Pattern */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
+            {/* Animated Background Pattern - Enhanced */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(31,111,235,0.3),transparent_50%)] animate-pulse"></div>
               <div className="absolute top-0 left-0 w-32 h-32 sm:w-64 sm:h-64 bg-primary/20 rounded-full blur-3xl animate-float"></div>
               <div className="absolute bottom-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-badge-bg/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
             </div>
 
-            {/* Header - Mobile Friendly */}
-            <div className="relative bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-4 sm:p-5 md:p-6 border-b-2 border-primary/30 backdrop-blur-sm">
+            {/* Header - Enhanced Design */}
+            <div className="relative bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-4 sm:p-5 md:p-6 border-b-2 border-primary/30 backdrop-blur-sm z-10">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="relative flex-shrink-0">
@@ -667,8 +713,8 @@ const ChiziAI = () => {
                       }
                     }}
                     className={`relative p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation ${isVoiceEnabled
-                      ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg"
-                      : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
+                        ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg hover:shadow-[0_0_15px_rgba(93,63,211,0.5)]"
+                        : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
                       }`}
                     aria-label={isVoiceEnabled ? "Disable voice output" : "Enable voice output"}
                     title={isVoiceEnabled ? "Voice ON 🔊" : "Voice OFF 🔇"}
@@ -691,13 +737,20 @@ const ChiziAI = () => {
               </div>
             </div>
 
-            {/* Messages Area - Optimized */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 scroll-smooth custom-scrollbar">
+            {/* Messages Area - FIXED SCROLLING for Desktop */}
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 scroll-smooth custom-scrollbar"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollBehavior: 'smooth'
+              }}
+            >
               {messageElements}
 
               {isTyping && (
                 <div className="flex justify-start animate-fade-in">
-                  <div className="bg-card/90 border-2 border-primary/20 rounded-3xl px-4 py-3 sm:px-5 sm:py-4 shadow-lg">
+                  <div className="bg-card/95 border-2 border-primary/20 rounded-3xl px-4 py-3 sm:px-5 sm:py-4 shadow-lg backdrop-blur-sm">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className="flex gap-1 sm:gap-1.5">
                         <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
@@ -710,11 +763,11 @@ const ChiziAI = () => {
                 </div>
               )}
 
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} style={{ height: '1px' }} />
             </div>
 
-            {/* Input Area - Mobile Optimized */}
-            <div className="p-3 sm:p-4 md:p-5 lg:p-6 border-t-2 border-primary/30 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-sm">
+            {/* Input Area - Enhanced */}
+            <div className="p-3 sm:p-4 md:p-5 lg:p-6 border-t-2 border-primary/30 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-sm z-10">
               <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3">
                 {isSpeechRecognitionAvailable && (
                   <button
@@ -722,8 +775,8 @@ const ChiziAI = () => {
                     onClick={isListening ? stopListening : startListening}
                     disabled={isTyping}
                     className={`rounded-xl sm:rounded-2xl px-3 py-3 sm:px-5 sm:py-4 font-bold transition-all duration-300 flex items-center justify-center min-w-[48px] sm:min-w-[60px] border-2 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 touch-manipulation ${isListening
-                      ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
-                      : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
+                        ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
+                        : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
                       }`}
                     aria-label={isListening ? "Stop listening" : "Start voice input"}
                     title={isListening ? "🔴 Listening..." : "🎤 Speak"}
@@ -763,14 +816,20 @@ const ChiziAI = () => {
         </div>
       )}
 
-      {/* Custom scrollbar and animations */}
+      {/* Custom scrollbar and animations - Enhanced */}
       <style>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(31, 111, 235, 0.5) transparent;
+        }
         .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
+          width: 8px;
+          height: 8px;
         }
         @media (min-width: 640px) {
           .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
+            height: 10px;
           }
         }
         .custom-scrollbar::-webkit-scrollbar-track {
@@ -780,9 +839,12 @@ const ChiziAI = () => {
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: linear-gradient(to bottom, var(--color-primary), var(--color-accent));
           border-radius: 10px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to bottom, var(--color-accent), var(--color-primary));
+          background-clip: padding-box;
         }
         @keyframes float {
           0%, 100% { transform: translateY(0px) translateX(0px); }
