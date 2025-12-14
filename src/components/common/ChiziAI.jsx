@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import {
@@ -15,15 +15,23 @@ import {
 } from "react-icons/fa";
 import { trackEvent } from "@/utils/analytics";
 
+// Get environment variables - works in both dev and production
+const getEnvVar = (key) => {
+  return import.meta.env[key] || '';
+};
+
 // Enhanced AI Response handler with Groq + Gemini API support
 const getAIResponse = async (message, conversationHistory = []) => {
   try {
-    const groqKey = import.meta.env.VITE_GROQ_API_KEY;
-    const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const groqKey = getEnvVar('VITE_GROQ_API_KEY');
+    const geminiKey = getEnvVar('VITE_GEMINI_API_KEY');
 
-    // PRIMARY: Try Groq API first (FREE tier - very fast, generous limits)
-    if (groqKey) {
+    // PRIMARY: Try Groq API first
+    if (groqKey && groqKey !== 'your_groq_api_key_here') {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -34,14 +42,16 @@ const getAIResponse = async (message, conversationHistory = []) => {
             model: "llama-3.1-8b-instant",
             messages: [
               { role: "system", content: getSystemPrompt() },
-              ...conversationHistory,
+              ...conversationHistory.slice(-10), // Limit history for performance
               { role: "user", content: message }
             ],
             max_tokens: 300,
             temperature: 0.8,
           }),
-          signal: AbortSignal.timeout(15000)
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -50,22 +60,30 @@ const getAIResponse = async (message, conversationHistory = []) => {
             console.log("✅ Groq API success");
             return content;
           }
+        } else {
+          const errorData = await response.text();
+          console.warn("Groq API error:", response.status, errorData);
         }
       } catch (e) {
-        console.log("⚠️ Groq API failed, trying Gemini...", e.message);
+        if (e.name !== 'AbortError') {
+          console.warn("⚠️ Groq API failed, trying Gemini...", e.message);
+        }
       }
     }
 
-    // FALLBACK: Try Gemini API (FREE tier available)
-    if (geminiKey) {
+    // FALLBACK: Try Gemini API
+    if (geminiKey && geminiKey !== 'your_gemini_api_key_here') {
       try {
-        // Convert conversation history to Gemini format
-        const geminiMessages = conversationHistory.map(msg => ({
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        // Limit conversation history for Gemini
+        const recentHistory = conversationHistory.slice(-10);
+        const geminiMessages = recentHistory.map(msg => ({
           role: msg.role === "assistant" ? "model" : "user",
           parts: [{ text: msg.content }]
         }));
 
-        // Add current message
         geminiMessages.push({
           role: "user",
           parts: [{ text: message }]
@@ -89,9 +107,11 @@ const getAIResponse = async (message, conversationHistory = []) => {
                 topP: 0.9,
               }
             }),
-            signal: AbortSignal.timeout(15000)
+            signal: controller.signal
           }
         );
+
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
@@ -100,9 +120,14 @@ const getAIResponse = async (message, conversationHistory = []) => {
             console.log("✅ Gemini API success");
             return content;
           }
+        } else {
+          const errorData = await response.text();
+          console.warn("Gemini API error:", response.status, errorData);
         }
       } catch (e) {
-        console.log("⚠️ Gemini API failed, using fallback...", e.message);
+        if (e.name !== 'AbortError') {
+          console.warn("⚠️ Gemini API failed, using fallback...", e.message);
+        }
       }
     }
 
@@ -139,7 +164,7 @@ When answering:
 Never discuss anything inappropriate, dangerous, or scary. Always keep it fun, educational, and age-appropriate!`;
 };
 
-// Enhanced fallback responses that handle many question types
+// Enhanced fallback responses
 const getEnhancedFallbackResponse = (message) => {
   const lowerMessage = message.toLowerCase().trim();
 
@@ -221,37 +246,35 @@ const ChiziAI = () => {
     conversationHistoryRef.current = conversationHistory;
   }, [conversationHistory]);
 
-  // Initialize Speech Recognition
+  // Initialize Speech Recognition with better error handling
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
+      try {
         const recognitionInstance = new SpeechRecognition();
         recognitionInstance.continuous = false;
         recognitionInstance.interimResults = false;
         recognitionInstance.lang = 'en-US';
 
         recognitionInstance.onresult = async (event) => {
-          const transcript = event.results[0][0].transcript.trim();
-          if (!transcript) {
+          const transcript = event.results[0]?.[0]?.transcript?.trim();
+          if (transcript) {
+            setInputValue(transcript);
             setIsListening(false);
-            return;
+            await processMessage(transcript);
+          } else {
+            setIsListening(false);
           }
-
-          setInputValue(transcript);
-          setIsListening(false);
-
-          // Process the voice message
-          await processMessage(transcript);
         };
 
         recognitionInstance.onerror = (event) => {
           console.error('Speech recognition error:', event.error);
           setIsListening(false);
-          if (event.error === 'no-speech') {
-            console.log("No speech detected");
-          } else if (event.error === 'not-allowed') {
-            alert("Microphone access is needed for voice input. Please enable it in your browser settings! 🎤");
+          if (event.error === 'not-allowed') {
+            // Only alert if it's a permission issue
+            if (window.confirm("Microphone access is needed for voice input. Would you like to enable it in your browser settings? 🎤")) {
+              // User acknowledged
+            }
           }
         };
 
@@ -260,15 +283,15 @@ const ChiziAI = () => {
         };
 
         recognitionRef.current = recognitionInstance;
-      } else {
-        console.log("Speech Recognition not supported in this browser");
+      } catch (error) {
+        console.warn("Speech Recognition initialization failed:", error);
       }
     }
   }, []);
 
   // Process message (used by both text and voice)
-  const processMessage = async (messageText) => {
-    if (!messageText.trim() || isTyping) return;
+  const processMessage = useCallback(async (messageText) => {
+    if (!messageText?.trim() || isTyping) return;
 
     const userMessage = {
       id: Date.now(),
@@ -299,8 +322,8 @@ const ChiziAI = () => {
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      setConversationHistory([
-        ...updatedHistory,
+      setConversationHistory(prev => [
+        ...prev,
         { role: "assistant", content: aiResponse }
       ]);
 
@@ -317,13 +340,15 @@ const ChiziAI = () => {
     } finally {
       setIsTyping(false);
     }
-  };
+  }, [isTyping]);
 
-  // Text-to-Speech function
+  // Text-to-Speech function with better voice handling
   const speakText = useCallback((text) => {
     if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
 
     const cleanText = text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+
+    if (!cleanText.trim()) return;
 
     window.speechSynthesis.cancel();
 
@@ -333,53 +358,67 @@ const ChiziAI = () => {
     utterance.volume = 1;
     utterance.lang = 'en-US';
 
-    const voices = window.speechSynthesis.getVoices();
-    const kidFriendlyVoice = voices.find(voice =>
-      voice.name.includes('Google UK English Female') ||
-      voice.name.includes('Microsoft Zira') ||
-      voice.name.includes('Samantha')
-    ) || voices.find(voice => voice.lang.startsWith('en') && voice.localService);
+    // Try to get voices (might need to wait)
+    const getVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const kidFriendlyVoice = voices.find(voice =>
+        voice.name.includes('Google UK English Female') ||
+        voice.name.includes('Microsoft Zira') ||
+        voice.name.includes('Samantha') ||
+        (voice.lang.startsWith('en') && voice.localService)
+      );
+      if (kidFriendlyVoice) {
+        utterance.voice = kidFriendlyVoice;
+      }
+    };
 
-    if (kidFriendlyVoice) {
-      utterance.voice = kidFriendlyVoice;
+    getVoices();
+    if (window.speechSynthesis.onvoiceschanged) {
+      window.speechSynthesis.onvoiceschanged = getVoices;
     }
 
     window.speechSynthesis.speak(utterance);
   }, [isVoiceEnabled]);
 
+  // Load voices
   useEffect(() => {
     if ('speechSynthesis' in window) {
-      const loadVoices = () => {
-        window.speechSynthesis.getVoices();
-      };
-      loadVoices();
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
+      window.speechSynthesis.getVoices();
+      if (window.speechSynthesis.onvoiceschanged) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
       }
     }
   }, []);
 
   // Speak AI messages
   useEffect(() => {
-    if (messages.length > 1 && isOpen) {
+    if (messages.length > 1 && isOpen && !isTyping) {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.sender === 'ai' && isVoiceEnabled) {
-        setTimeout(() => speakText(lastMessage.text), 500);
+        const timeoutId = setTimeout(() => speakText(lastMessage.text), 500);
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [messages, isOpen, isVoiceEnabled, speakText]);
+  }, [messages.length, isOpen, isTyping, isVoiceEnabled, speakText]);
 
   // Scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [messages, isTyping]);
 
   // Focus input when chat opens
   useEffect(() => {
-    if (isOpen && inputRef.current && !isListening) {
-      setTimeout(() => inputRef.current?.focus(), 300);
+    if (isOpen && inputRef.current && !isListening && !isTyping) {
+      const timeoutId = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 400);
+      return () => clearTimeout(timeoutId);
     }
-  }, [isOpen, isListening]);
+  }, [isOpen, isListening, isTyping]);
 
   // Start/Stop voice recognition
   const startListening = useCallback(() => {
@@ -397,7 +436,11 @@ const ChiziAI = () => {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
       setIsListening(false);
     }
   }, [isListening]);
@@ -449,7 +492,9 @@ const ChiziAI = () => {
 
   const openChat = useCallback(() => {
     setIsOpen(true);
-    document.body.style.overflow = 'hidden';
+    if (document.body) {
+      document.body.style.overflow = 'hidden';
+    }
 
     if (modalRef.current && overlayRef.current) {
       gsap.set([overlayRef.current, modalRef.current], { opacity: 0, scale: 0.8 });
@@ -478,108 +523,142 @@ const ChiziAI = () => {
         duration: 0.3,
         onComplete: () => {
           setIsOpen(false);
-          document.body.style.overflow = 'unset';
+          if (document.body) {
+            document.body.style.overflow = 'unset';
+          }
         },
       });
+    } else {
+      setIsOpen(false);
+      if (document.body) {
+        document.body.style.overflow = 'unset';
+      }
     }
   }, [stopListening]);
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = useCallback(async (e) => {
     e?.preventDefault();
-    await processMessage(inputValue);
-  };
+    if (inputValue.trim() && !isTyping && !isListening) {
+      await processMessage(inputValue);
+    }
+  }, [inputValue, isTyping, isListening, processMessage]);
 
   const isSpeechRecognitionAvailable = recognitionRef.current !== null;
 
+  // Memoize message rendering for performance
+  const messageElements = useMemo(() => {
+    return messages.map((message, index) => (
+      <div
+        key={message.id}
+        className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
+      >
+        <div
+          className={`max-w-[85%] sm:max-w-[80%] md:max-w-[75%] rounded-3xl px-4 py-3 md:px-5 md:py-4 shadow-lg transform transition-transform duration-200 ${message.sender === "user"
+              ? "bg-gradient-to-r from-primary to-accent text-white border-2 border-primary/30"
+              : "bg-card/90 border-2 border-primary/20 text-text backdrop-blur-sm"
+            }`}
+        >
+          <div className={`text-sm md:text-base lg:text-lg font-body leading-relaxed whitespace-pre-wrap break-words ${message.sender === "user" ? "text-white" : "text-text"}`}>
+            {message.text}
+          </div>
+          <div className={`text-xs mt-2 ${message.sender === "user" ? "text-white/70" : "text-secondary-text"}`}>
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </div>
+        </div>
+      </div>
+    ));
+  }, [messages]);
+
   return (
     <>
-      {/* Floating Button - Kid Friendly Design */}
+      {/* Floating Button - Optimized for Mobile */}
       <div
         ref={floatingRef}
-        className="fixed bottom-6 right-6 z-50 cursor-pointer group"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 cursor-pointer group touch-manipulation"
         onClick={openChat}
+        role="button"
+        aria-label="Open Chizi AI Chat"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openChat();
+          }
+        }}
       >
         <div className="chizi-glow absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-badge-bg blur-2xl opacity-60" />
 
-        <div className="chizi-sparkle absolute -top-3 -left-2 text-primary opacity-70">
-          <FaStar className="text-base" />
+        {/* Sparkles - Hidden on very small screens */}
+        <div className="chizi-sparkle absolute -top-2 -left-1 sm:-top-3 sm:-left-2 text-primary opacity-70 hidden sm:block">
+          <FaStar className="text-sm sm:text-base" />
         </div>
-        <div className="chizi-sparkle absolute -bottom-3 -right-2 text-accent opacity-70">
-          <FaGem className="text-sm" />
+        <div className="chizi-sparkle absolute -bottom-2 -right-1 sm:-bottom-3 sm:-right-2 text-accent opacity-70 hidden sm:block">
+          <FaGem className="text-xs sm:text-sm" />
         </div>
-        <div className="chizi-sparkle absolute top-1/2 -left-4 text-badge-bg opacity-70">
+        <div className="chizi-sparkle absolute top-1/2 -left-3 sm:-left-4 text-badge-bg opacity-70 hidden md:block">
           <FaStar className="text-xs" />
         </div>
-        <div className="chizi-sparkle absolute -top-2 right-1/2 text-primary opacity-70">
-          <FaRocket className="text-xs" />
-        </div>
 
-        <div className="relative p-1.5 rounded-full bg-gradient-to-r from-primary via-accent to-badge-bg shadow-2xl border-3 border-primary-alpha transition-all duration-300 hover:scale-110 hover:shadow-[0_0_30px_rgba(31,111,235,0.6)]">
-          <div className="relative bg-gradient-to-br from-card via-background to-card p-5 md:p-6 rounded-full border-2 border-primary/40 shadow-inner">
+        <div className="relative p-1 sm:p-1.5 rounded-full bg-gradient-to-r from-primary via-accent to-badge-bg shadow-2xl border-2 sm:border-[3px] border-primary-alpha transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation">
+          <div className="relative bg-gradient-to-br from-card via-background to-card p-4 sm:p-5 md:p-6 rounded-full border-2 border-primary/40 shadow-inner">
             <div className="absolute inset-2 rounded-full bg-gradient-to-r from-primary-alpha via-accent-alpha to-primary-alpha blur-lg animate-pulse" />
-            <FaRobot className="chizi-robot-icon relative text-primary text-2xl md:text-3xl drop-shadow-lg" />
+            <FaRobot className="chizi-robot-icon relative text-primary text-xl sm:text-2xl md:text-3xl drop-shadow-lg" />
           </div>
 
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-accent to-primary rounded-full border-3 border-background animate-pulse shadow-lg">
+          <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-accent to-primary rounded-full border-2 sm:border-[3px] border-background animate-pulse shadow-lg">
             <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-75" />
           </div>
         </div>
-
-        <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-card/98 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border-2 border-primary/40 hidden md:block whitespace-nowrap transform group-hover:scale-105">
-          <div className="flex items-center gap-3">
-            <FaRobot className="text-primary text-base animate-bounce" />
-            <div className="text-sm font-bold text-text font-heading">Ask Chizi AI! ✨</div>
-          </div>
-          <div className="absolute right-0 top-1/2 translate-x-1 -translate-y-1/2 w-3 h-3 bg-card border-r-2 border-b-2 border-primary/40 rotate-45"></div>
-        </div>
       </div>
 
-      {/* Chat Modal - Beautiful Kid-Friendly Design */}
+      {/* Chat Modal - Mobile Optimized */}
       {isOpen && (
         <div
           ref={overlayRef}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-sm"
           onClick={closeChat}
         >
           <div
             ref={modalRef}
-            className="relative w-full max-w-lg md:max-w-2xl h-[90vh] md:h-[85vh] bg-gradient-to-br from-card/98 via-card/95 to-background/98 backdrop-blur-xl rounded-3xl shadow-2xl border-2 border-primary/30 flex flex-col overflow-hidden"
+            className="relative w-full max-w-full sm:max-w-lg md:max-w-2xl h-[95vh] sm:h-[90vh] md:h-[85vh] bg-gradient-to-br from-card/98 via-card/95 to-background/98 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/30 flex flex-col overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Animated Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(31,111,235,0.3),transparent_50%)] animate-pulse"></div>
-              <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float"></div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+              <div className="absolute top-0 left-0 w-32 h-32 sm:w-64 sm:h-64 bg-primary/20 rounded-full blur-3xl animate-float"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
             </div>
 
-            {/* Header - Cute & Colorful */}
-            <div className="relative bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-5 md:p-6 border-b-2 border-primary/30 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
+            {/* Header - Mobile Friendly */}
+            <div className="relative bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 p-4 sm:p-5 md:p-6 border-b-2 border-primary/30 backdrop-blur-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="relative flex-shrink-0">
                     <div className="absolute inset-0 bg-primary rounded-full blur-xl opacity-60 animate-pulse"></div>
-                    <div className="relative w-14 h-14 bg-gradient-to-br from-primary via-accent to-primary rounded-full flex items-center justify-center border-3 border-primary/50 shadow-lg transform hover:scale-110 transition-transform">
-                      <FaRobot className="text-2xl text-white drop-shadow-lg" />
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-badge-bg rounded-full border-2 border-white animate-ping"></div>
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary via-accent to-primary rounded-full flex items-center justify-center border-2 sm:border-[3px] border-primary/50 shadow-lg transform hover:scale-110 transition-transform">
+                      <FaRobot className="text-xl sm:text-2xl text-white drop-shadow-lg" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-badge-bg rounded-full border-2 border-white animate-ping"></div>
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-heading font-bold text-transparent bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text drop-shadow-sm">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-heading font-bold text-transparent bg-gradient-to-r from-primary via-accent to-badge-bg bg-clip-text drop-shadow-sm truncate">
                       Chizi AI
                     </h2>
-                    <p className="text-sm text-secondary-text flex items-center gap-2 font-body">
-                      <span className={`w-2.5 h-2.5 ${isListening ? 'bg-accent animate-pulse' : 'bg-primary'} rounded-full shadow-sm`} />
-                      {isListening ? (
-                        <span className="text-accent font-semibold animate-pulse">Listening... 🎤</span>
-                      ) : (
-                        <span>Ready to chat! ✨</span>
-                      )}
+                    <p className="text-xs sm:text-sm text-secondary-text flex items-center gap-2 font-body">
+                      <span className={`w-2 h-2 sm:w-2.5 sm:h-2.5 ${isListening ? 'bg-accent animate-pulse' : 'bg-primary'} rounded-full shadow-sm flex-shrink-0`} />
+                      <span className="truncate">
+                        {isListening ? (
+                          <span className="text-accent font-semibold animate-pulse">Listening... 🎤</span>
+                        ) : (
+                          <span>Ready to chat! ✨</span>
+                        )}
+                      </span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                   <button
                     onClick={() => {
                       setIsVoiceEnabled(!isVoiceEnabled);
@@ -587,65 +666,45 @@ const ChiziAI = () => {
                         window.speechSynthesis.cancel();
                       }
                     }}
-                    className={`relative p-3 rounded-xl transition-all duration-300 hover:scale-110 ${isVoiceEnabled
-                      ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg"
-                      : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
+                    className={`relative p-2.5 sm:p-3 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation ${isVoiceEnabled
+                        ? "bg-accent/20 text-accent border-2 border-accent/40 shadow-lg"
+                        : "bg-card/50 text-secondary-text border-2 border-border hover:border-primary/30"
                       }`}
                     aria-label={isVoiceEnabled ? "Disable voice output" : "Enable voice output"}
-                    title={isVoiceEnabled ? "Voice output ON 🔊" : "Voice output OFF 🔇"}
+                    title={isVoiceEnabled ? "Voice ON 🔊" : "Voice OFF 🔇"}
                   >
                     {isVoiceEnabled ? (
-                      <FaVolumeUp className="text-lg" />
+                      <FaVolumeUp className="text-base sm:text-lg" />
                     ) : (
-                      <FaVolumeMute className="text-lg" />
+                      <FaVolumeMute className="text-base sm:text-lg" />
                     )}
                   </button>
 
                   <button
                     onClick={closeChat}
-                    className="text-secondary-text hover:text-text transition-all duration-300 bg-card/50 hover:bg-card/80 rounded-xl p-3 border-2 border-border hover:border-primary/30 hover:scale-110"
+                    className="text-secondary-text hover:text-text transition-all duration-300 bg-card/50 hover:bg-card/80 rounded-xl p-2.5 sm:p-3 border-2 border-border hover:border-primary/30 hover:scale-110 active:scale-95 touch-manipulation"
                     aria-label="Close chat"
                   >
-                    <FaTimes className="text-lg" />
+                    <FaTimes className="text-base sm:text-lg" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Messages Area - Fun & Playful */}
-            <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-4 scroll-smooth custom-scrollbar">
-              {messages.map((message, index) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div
-                    className={`max-w-[85%] md:max-w-[75%] rounded-3xl px-5 py-4 shadow-lg transform hover:scale-[1.02] transition-transform duration-200 ${message.sender === "user"
-                      ? "bg-gradient-to-r from-primary to-accent text-white border-2 border-primary/30"
-                      : "bg-card/90 border-2 border-primary/20 text-text backdrop-blur-sm"
-                      }`}
-                  >
-                    <div className={`text-base md:text-lg font-body leading-relaxed whitespace-pre-wrap break-words ${message.sender === "user" ? "text-white" : "text-text"}`}>
-                      {message.text}
-                    </div>
-                    <div className={`text-xs mt-2 ${message.sender === "user" ? "text-white/70" : "text-secondary-text"}`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Messages Area - Optimized */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4 scroll-smooth custom-scrollbar">
+              {messageElements}
 
               {isTyping && (
                 <div className="flex justify-start animate-fade-in">
-                  <div className="bg-card/90 border-2 border-primary/20 rounded-3xl px-5 py-4 shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="flex gap-1.5">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        <div className="w-2 h-2 bg-badge-bg rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  <div className="bg-card/90 border-2 border-primary/20 rounded-3xl px-4 py-3 sm:px-5 sm:py-4 shadow-lg">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex gap-1 sm:gap-1.5">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-badge-bg rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                       </div>
-                      <span className="text-sm text-secondary-text font-body font-semibold">Chizi is thinking...</span>
+                      <span className="text-xs sm:text-sm text-secondary-text font-body font-semibold">Chizi is thinking...</span>
                     </div>
                   </div>
                 </div>
@@ -654,22 +713,22 @@ const ChiziAI = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area - Interactive & Fun */}
-            <div className="p-5 md:p-6 border-t-2 border-primary/30 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-sm">
-              <form onSubmit={handleSendMessage} className="flex gap-3">
+            {/* Input Area - Mobile Optimized */}
+            <div className="p-3 sm:p-4 md:p-5 lg:p-6 border-t-2 border-primary/30 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-sm">
+              <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3">
                 {isSpeechRecognitionAvailable && (
                   <button
                     type="button"
                     onClick={isListening ? stopListening : startListening}
                     disabled={isTyping}
-                    className={`rounded-2xl px-5 py-4 font-bold transition-all duration-300 flex items-center justify-center min-w-[60px] border-2 shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${isListening
-                      ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
-                      : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
+                    className={`rounded-xl sm:rounded-2xl px-3 py-3 sm:px-5 sm:py-4 font-bold transition-all duration-300 flex items-center justify-center min-w-[48px] sm:min-w-[60px] border-2 shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 touch-manipulation ${isListening
+                        ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse shadow-[0_0_20px_rgba(93,63,211,0.6)]"
+                        : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(31,111,235,0.4)]"
                       }`}
                     aria-label={isListening ? "Stop listening" : "Start voice input"}
-                    title={isListening ? "🔴 Listening... Click to stop" : "🎤 Click to speak"}
+                    title={isListening ? "🔴 Listening..." : "🎤 Speak"}
                   >
-                    <FaMicrophone className={`text-xl ${isListening ? "animate-pulse" : ""}`} />
+                    <FaMicrophone className={`text-base sm:text-xl ${isListening ? "animate-pulse" : ""}`} />
                   </button>
                 )}
                 <input
@@ -678,36 +737,41 @@ const ChiziAI = () => {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder={isListening ? "🎤 Listening..." : "Ask me anything! 🌟"}
-                  className="flex-1 bg-background/80 border-2 border-primary/30 rounded-2xl px-5 py-4 text-text placeholder-secondary-text focus:outline-none focus:ring-4 focus:ring-primary/30 focus:border-primary text-base md:text-lg font-body shadow-inner transition-all duration-300"
+                  className="flex-1 bg-background/80 border-2 border-primary/30 rounded-xl sm:rounded-2xl px-3 py-3 sm:px-5 sm:py-4 text-text placeholder-secondary-text focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-primary/30 focus:border-primary text-sm sm:text-base md:text-lg font-body shadow-inner transition-all duration-300"
                   disabled={isTyping || isListening}
                 />
                 <button
                   type="submit"
                   disabled={!inputValue.trim() || isTyping || isListening}
-                  className="bg-gradient-to-r from-primary via-accent to-primary text-white rounded-2xl px-6 md:px-8 py-4 font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(31,111,235,0.6)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center min-w-[60px] border-2 border-primary/30 shadow-lg"
+                  className="bg-gradient-to-r from-primary via-accent to-primary text-white rounded-xl sm:rounded-2xl px-4 py-3 sm:px-6 md:px-8 sm:py-4 font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_25px_rgba(31,111,235,0.6)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center min-w-[48px] sm:min-w-[60px] border-2 border-primary/30 shadow-lg touch-manipulation"
                   aria-label="Send message"
                 >
                   {isTyping ? (
-                    <FaSpinner className="animate-spin text-xl" />
+                    <FaSpinner className="animate-spin text-base sm:text-xl" />
                   ) : (
-                    <FaPaperPlane className="text-xl" />
+                    <FaPaperPlane className="text-base sm:text-xl" />
                   )}
                 </button>
               </form>
-              <p className="text-xs md:text-sm text-secondary-text mt-3 text-center font-ui flex items-center justify-center gap-2">
-                <FaStar className="text-badge-bg text-xs" />
-                <span>Type your question or click the mic to speak! I can answer anything! 🎤✨</span>
-                <FaStar className="text-primary text-xs" />
+              <p className="text-xs sm:text-sm text-secondary-text mt-2 sm:mt-3 text-center font-ui flex items-center justify-center gap-2 flex-wrap">
+                <FaStar className="text-badge-bg text-xs flex-shrink-0" />
+                <span className="text-center">Type or tap mic to speak! 🎤✨</span>
+                <FaStar className="text-primary text-xs flex-shrink-0" />
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Custom scrollbar styles */}
+      {/* Custom scrollbar and animations */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
+          width: 6px;
+        }
+        @media (min-width: 640px) {
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+          }
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
@@ -727,6 +791,9 @@ const ChiziAI = () => {
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
+        }
+        .touch-manipulation {
+          touch-action: manipulation;
         }
       `}</style>
     </>
