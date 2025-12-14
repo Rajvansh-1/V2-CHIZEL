@@ -28,7 +28,17 @@ export default defineConfig({
           // Group heavy dependencies into a separate chunk
           vendor: ['react', 'react-dom', 'gsap', 'react-router-dom'],
         },
+        // Ensure consistent asset naming for production
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       },
     },
+    // Ensure proper CSS extraction
+    cssCodeSplit: true,
+    // Source maps for debugging (optional, can disable for production)
+    sourcemap: false,
   },
+  // Base path for deployment
+  base: './',
 })
