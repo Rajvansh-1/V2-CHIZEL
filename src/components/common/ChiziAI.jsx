@@ -1,3 +1,5 @@
+// src/components/common/ChiziAI.jsx
+
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -47,10 +49,11 @@ const getAIResponse = async (message, conversationHistory = []) => {
     }
 
     // PRIMARY: Try Groq API first
+    // UPGRADE: Using Llama 3.3 70B (Versatile) for top-level performance
     if (groqKey && groqKey.length > 10 && !groqKey.includes('your_')) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased timeout
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased timeout for larger model
 
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
@@ -59,14 +62,17 @@ const getAIResponse = async (message, conversationHistory = []) => {
             "Authorization": `Bearer ${groqKey}`
           },
           body: JSON.stringify({
-            model: "llama-3.1-8b-instant",
+            // UPDATED MODEL: Llama 3.3 70B
+            model: "llama-3.3-70b-versatile",
             messages: [
               { role: "system", content: getSystemPrompt() },
-              ...conversationHistory.slice(-10), // Limit history for performance
+              ...conversationHistory.slice(-6), // Context window optimized for 70B latency
               { role: "user", content: message }
             ],
-            max_tokens: 300,
-            temperature: 0.8,
+            // Increased tokens for better storytelling and explanations
+            max_tokens: 1024,
+            // Slightly lower temperature for more coherent educational content
+            temperature: 0.6,
           }),
           signal: controller.signal
         });
@@ -77,7 +83,7 @@ const getAIResponse = async (message, conversationHistory = []) => {
           const data = await response.json();
           const content = data.choices[0]?.message?.content?.trim();
           if (content) {
-            console.log("✅ Groq API success");
+            console.log("✅ Groq API success (Llama 3.3 70B)");
             return content;
           }
         } else {
@@ -95,7 +101,7 @@ const getAIResponse = async (message, conversationHistory = []) => {
     if (geminiKey && geminiKey.length > 10 && !geminiKey.includes('your_')) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // Increased timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         // Limit conversation history for Gemini
         const recentHistory = conversationHistory.slice(-10);
@@ -122,8 +128,8 @@ const getAIResponse = async (message, conversationHistory = []) => {
                 parts: [{ text: getSystemPrompt() }]
               },
               generationConfig: {
-                maxOutputTokens: 300,
-                temperature: 0.8,
+                maxOutputTokens: 1024, // Increased fallback tokens too
+                temperature: 0.7,
                 topP: 0.9,
               }
             }),
@@ -170,7 +176,6 @@ Your personality:
 - Be curious and ask follow-up questions
 - Celebrate their curiosity and learning
 - Use fun analogies and examples
-- Keep responses concise (2-4 sentences for most answers)
 - Always be safe, positive, and educational
 - Encourage creativity, problem-solving, and asking questions
 
@@ -180,6 +185,11 @@ When answering:
 - Show enthusiasm for their questions
 - If you don't know something, admit it cheerfully and suggest exploring together
 - Answer ANY type of question - science, math, history, animals, space, games, stories, etc.
+
+Task Handling:
+- If asked for a story, make it interactive or have a moral lesson.
+- If asked a math problem, guide them through it step-by-step instead of just giving the answer.
+- If asked about sensitive topics, gently redirect to a parent or guardian in a supportive way.
 
 Never discuss anything inappropriate, dangerous, or scary. Always keep it fun, educational, and age-appropriate!`;
 };
@@ -363,13 +373,21 @@ const ChiziAI = () => {
     }
   }, [isTyping]);
 
-  // Text-to-Speech function with better voice handling
+  // Text-to-Speech function with better voice handling and EMOJI STRIPPING
   const speakText = useCallback((text) => {
     if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
 
-    const cleanText = text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '');
+    // 1. Remove Emojis and special symbols using a broad regex
+    // Removes: Emoji ranges, Miscellaneous Symbols, Dingbats, Supplemental Symbols
+    let cleanText = text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+    
+    // 2. Remove Markdown characters that we don't want spoken (bold stars, hashes, etc)
+    cleanText = cleanText.replace(/[*#`_]/g, '');
 
-    if (!cleanText.trim()) return;
+    // 3. Clean up extra whitespace left by removals
+    cleanText = cleanText.replace(/\s+/g, ' ').trim();
+
+    if (!cleanText) return;
 
     window.speechSynthesis.cancel();
 
