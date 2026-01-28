@@ -107,7 +107,12 @@ const RealisticStarfield = memo(() => {
     }, { scope: starfieldRef, dependencies: [isMobile] });
 
     return (
-         <div ref={starfieldRef} className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010]" aria-hidden="true">
+         <div 
+        ref={starfieldRef} 
+        // ADD "pointer-events-none" to this class list:
+        className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-b from-[#020010] via-[#0b1226] to-[#020010] pointer-events-none" 
+        aria-hidden="true"
+    >
             {layers.map((layer, i) => (
                 <div
                     key={`layer-${i}`}

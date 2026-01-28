@@ -12,15 +12,17 @@
   color: inherit;
 }
 
-/* Base HTML and Body setup */
+/* src/styles/global.css */
+
 html {
-  overflow-x: hidden; /* Remove !important if possible */
-  /* Ensure overflow-y is not hidden */
+  /* Remove overflow-x: hidden from here */
+  box-sizing: border-box;
 }
 
 body {
-  overflow-x: hidden !important;
+  overflow-x: hidden !important; /* Keep it here to prevent horizontal scroll */
   max-width: 100vw !important;
+  width: 100%; /* Ensure width is explicit */
   box-sizing: border-box;
 }
 
