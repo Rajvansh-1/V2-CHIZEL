@@ -712,8 +712,7 @@ const ProfessionalLandingPage = () => {
 
                 /* --- Base & Reset --- */
                 * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; }
-                html { scroll-behavior: smooth; overflow-x: hidden; }
-                body { overflow-x: hidden; background-color: var(--color-background); }
+               
 
                 /* --- Layout & Section Styling --- */
                  section { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; overflow: hidden; z-index: 1; background-color: transparent; padding: 5rem 1rem; }
@@ -748,7 +747,7 @@ const ProfessionalLandingPage = () => {
                 /* --- Mobile Specific Adjustments --- */
                 @media (max-width: 767px) {
                     html { -webkit-overflow-scrolling: touch; }
-                    body { overscroll-behavior-y: none; }
+                   
                     .backdrop-blur-lg { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
                      .intro-heading { font-size: clamp(2.5rem, 10vw, 3.5rem); }
                      section { padding: 4rem 1rem; }
