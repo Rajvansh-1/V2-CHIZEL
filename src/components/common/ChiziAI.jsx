@@ -111,7 +111,7 @@ const getAIResponse = async (message, conversationHistory = [], language) => {
               { role: "user", content: message }
             ],
             max_tokens: 1024,
-            temperature: 0.5, // Lower temperature for calmer, more focused responses
+            temperature: 0.5, 
           }),
           signal: controller.signal
         });
@@ -176,13 +176,14 @@ const getAIResponse = async (message, conversationHistory = [], language) => {
 
 const ChiziAI = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(null); // null, 'en', or 'hi'
+  const [selectedLanguage, setSelectedLanguage] = useState(null); 
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationHistory, setConversationHistory] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
+  const [isSpeechSupported, setIsSpeechSupported] = useState(false); // FIXED: Added state to properly render mic
 
   const floatingRef = useRef(null);
   const modalRef = useRef(null);
@@ -200,36 +201,41 @@ const ChiziAI = () => {
 
   // Setup Speech Recognition based on selected language
   useEffect(() => {
-    if (typeof window !== 'undefined' && selectedLanguage) {
+    if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
       if (SpeechRecognition) {
-        try {
-          const recognitionInstance = new SpeechRecognition();
-          recognitionInstance.continuous = false;
-          recognitionInstance.interimResults = false;
-          // Set recognition language specifically based on selection
-          recognitionInstance.lang = selectedLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+        setIsSpeechSupported(true); // FIXED: Notify React that Mic is supported
 
-          recognitionInstance.onresult = async (event) => {
-            const transcript = event.results[0]?.[0]?.transcript?.trim();
-            if (transcript) {
-              setInputValue(transcript);
+        if (selectedLanguage) {
+          try {
+            const recognitionInstance = new SpeechRecognition();
+            recognitionInstance.continuous = false;
+            recognitionInstance.interimResults = false;
+            // Set recognition language specifically based on selection
+            recognitionInstance.lang = selectedLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+
+            recognitionInstance.onresult = async (event) => {
+              const transcript = event.results[0]?.[0]?.transcript?.trim();
+              if (transcript) {
+                setInputValue(transcript);
+                setIsListening(false);
+                await processMessage(transcript);
+              } else {
+                setIsListening(false);
+              }
+            };
+
+            recognitionInstance.onerror = (event) => {
+              console.error('Speech recognition error:', event.error);
               setIsListening(false);
-              await processMessage(transcript);
-            } else {
-              setIsListening(false);
-            }
-          };
+            };
 
-          recognitionInstance.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            setIsListening(false);
-          };
-
-          recognitionInstance.onend = () => setIsListening(false);
-          recognitionRef.current = recognitionInstance;
-        } catch (error) {
-          console.warn("Speech Recognition initialization failed:", error);
+            recognitionInstance.onend = () => setIsListening(false);
+            recognitionRef.current = recognitionInstance;
+          } catch (error) {
+            console.warn("Speech Recognition initialization failed:", error);
+          }
         }
       }
     }
@@ -307,13 +313,12 @@ const ChiziAI = () => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(cleanText);
     
-    // Natural, calm voice tuning based strictly on selected language
     if (selectedLanguage === 'hi') {
       utterance.lang = 'hi-IN';
-      utterance.rate = 0.85; // Slower, calm pacing for kids
+      utterance.rate = 0.85; 
       utterance.pitch = 1.1; 
     } else {
-      utterance.lang = 'en-US'; // Standardized clear English
+      utterance.lang = 'en-US'; 
       utterance.rate = 0.9;
       utterance.pitch = 1.1;
     }
@@ -325,11 +330,9 @@ const ChiziAI = () => {
       let targetVoice;
 
       if (selectedLanguage === 'hi') {
-        // Look for the most natural premium Hindi voices
         targetVoice = voices.find(v => v.name.includes('Swara') || v.name.includes('Neerja') || v.name.includes('Google हिन्दी')) ||
                       voices.find(v => v.lang === 'hi-IN');
       } else {
-        // Look for friendly, calm English voices
         targetVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Samantha') || v.name.includes('Ava')) ||
                       voices.find(v => v.lang.startsWith('en'));
       }
@@ -342,7 +345,6 @@ const ChiziAI = () => {
     window.speechSynthesis.speak(utterance);
   }, [isVoiceEnabled, selectedLanguage]);
 
-  // Load voices early
   useEffect(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.getVoices();
@@ -428,8 +430,6 @@ const ChiziAI = () => {
       await processMessage(inputValue);
     }
   }, [inputValue, isTyping, isListening, processMessage, selectedLanguage]);
-
-  const isSpeechRecognitionAvailable = recognitionRef.current !== null;
 
   const messageElements = useMemo(() => {
     const renderContent = (text) => {
@@ -589,7 +589,8 @@ const ChiziAI = () => {
             {selectedLanguage && (
               <div className="p-3 sm:p-4 md:p-5 lg:p-6 border-t-2 border-primary/30 bg-gradient-to-r from-card/50 via-card/30 to-card/50 backdrop-blur-sm z-10">
                 <form onSubmit={handleSendMessage} className="flex gap-2 sm:gap-3">
-                  {isSpeechRecognitionAvailable && (
+                  {/* FIXED: The Microphone button uses the correctly established isSpeechSupported state */}
+                  {isSpeechSupported && (
                     <button type="button" onClick={isListening ? stopListening : startListening} disabled={isTyping} className={`rounded-xl sm:rounded-2xl px-3 py-3 sm:px-5 sm:py-4 font-bold transition-all duration-300 flex items-center justify-center min-w-[48px] sm:min-w-[60px] border-2 shadow-lg touch-manipulation ${isListening ? "bg-gradient-to-r from-accent to-primary text-white border-accent/50 animate-pulse" : "bg-gradient-to-r from-card to-card/80 text-primary hover:text-accent border-primary/30"}`}>
                       <FaMicrophone className={`text-base sm:text-xl ${isListening ? "animate-pulse" : ""}`} />
                     </button>
