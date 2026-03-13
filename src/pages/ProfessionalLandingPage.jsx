@@ -18,20 +18,43 @@ import { socialLinks } from '@utils/constants';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── Shared cosmic background (identical to ContactSection) ─────────────────
-const CosmicBg = memo(() => (
-    <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
-        <img
-            src="/images/Chizel-verse-bg.jpg"
-            alt=""
-            className="w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-        />
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
-    </div>
-));
+// ─── Single fixed cosmic background behind the whole page ─────────────────
+const CosmicBg = memo(() => {
+    const starsData = useMemo(() => Array.from({ length: 60 }, (_, i) => ({
+        top:  `${(i * 37 + 11) % 100}%`,
+        left: `${(i * 53 + 7)  % 100}%`,
+        size: `${(i % 3) * 0.55 + 0.35}px`,
+        delay: `${(i * 0.21) % 5}s`,
+        dur:   `${(i % 4) * 1.1 + 1.8}s`,
+    })), []);
+
+    return (
+        <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+            {/* Slow Ken-Burns pan — the only movement on the bg image */}
+            <img
+                src="/images/Chizel-verse-bg.jpg"
+                alt=""
+                className="absolute w-[106%] h-[106%] object-cover"
+                style={{ animation: 'cosmicPan 30s ease-in-out infinite alternate', transformOrigin: 'center', top: '-3%', left: '-3%' }}
+                loading="eager"
+                decoding="async"
+            />
+            {/* Uniform dark overlay — same opacity everywhere, no orbs */}
+            <div className="absolute inset-0" style={{ background: 'rgba(11,18,38,0.80)' }} />
+            {/* One very subtle static center ambient — adds depth without patchy zones */}
+            <div className="absolute inset-0" style={{
+                background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(31,111,235,0.055) 0%, transparent 70%)'
+            }} />
+            {/* Twinkling star particles — gives "alive" feel uniformly */}
+            {starsData.map((s, i) => (
+                <div key={i} className="absolute rounded-full bg-white"
+                    style={{ top: s.top, left: s.left, width: s.size, height: s.size, animation: `starTwinkle ${s.dur} ${s.delay} infinite ease-in-out alternate` }} />
+            ))}
+        </div>
+    );
+});
 CosmicBg.displayName = 'CosmicBg';
+
 
 // ─── Obstacle Card ──────────────────────────────────────────────────────────
 const ObstacleCard = memo(({ icon, title, description, delay }) => {
@@ -135,21 +158,46 @@ const ImpactSlider = memo(() => {
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
         >
-            {/* ── 3-panel row ── */}
-            <div
-                className="flex items-center justify-center gap-2 sm:gap-4 px-10 sm:px-14 md:px-16"
-                style={{ minHeight: 'clamp(200px, 38vw, 420px)' }}
-            >
+            {/* ── MOBILE: single full-width card (hidden on sm+) ── */}
+            <div className="block sm:hidden px-2">
+                <div
+                    className="relative w-full rounded-2xl overflow-hidden mx-auto"
+                    style={{
+                        aspectRatio: '4/3',
+                        maxWidth: '100%',
+                        boxShadow: '0 0 50px rgba(31,111,235,0.55), 0 0 100px rgba(93,63,211,0.25)',
+                        border: '1.5px solid rgba(31,111,235,0.5)',
+                    }}
+                >
+                    <img
+                        src={SLIDER_IMAGES[displayed]}
+                        alt={`Impact ${displayed + 1}`}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.32s ease-in-out' }}
+                        loading="eager"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 pointer-events-none z-10" />
+                    <div className="absolute inset-0 pointer-events-none z-10" style={{
+                        background: 'radial-gradient(ellipse at top left, rgba(31,111,235,0.18), transparent 55%), radial-gradient(ellipse at bottom right, rgba(93,63,211,0.14), transparent 55%)'
+                    }} />
+                    {/* Mobile tap zones */}
+                    <div className="absolute inset-y-0 left-0 w-1/3 z-20" onClick={goPrev} aria-label="Previous" role="button" />
+                    <div className="absolute inset-y-0 right-0 w-1/3 z-20" onClick={goNext} aria-label="Next" role="button" />
+                </div>
+            </div>
 
+            {/* ── DESKTOP: 3-panel row (hidden on mobile) ── */}
+            <div
+                className="hidden sm:flex items-center justify-center gap-4 px-14 md:px-16"
+                style={{ minHeight: 'clamp(220px, 36vw, 420px)' }}
+            >
                 {/* LEFT — blurred side */}
                 <div
                     className="flex-shrink-0 cursor-pointer rounded-xl overflow-hidden"
                     style={{
-                        width: 'clamp(18%, 20%, 22%)',
-                        aspectRatio: '4/3',
-                        filter: 'blur(3px) brightness(0.4)',
-                        transform: 'scale(0.84)',
-                        opacity: 0.65,
+                        width: '20%', aspectRatio: '4/3',
+                        filter: 'blur(3px) brightness(0.38)',
+                        transform: 'scale(0.83)', opacity: 0.6,
                         transition: 'all 0.5s ease',
                     }}
                     onClick={goPrev}
@@ -162,14 +210,12 @@ const ImpactSlider = memo(() => {
                 <div
                     className="relative flex-shrink-0 rounded-2xl overflow-hidden"
                     style={{
-                        width: 'clamp(56%, 58%, 62%)',
-                        aspectRatio: '4/3',
-                        boxShadow: '0 0 60px rgba(31,111,235,0.5), 0 0 120px rgba(93,63,211,0.2)',
-                        border: '1px solid rgba(31,111,235,0.4)',
+                        width: '58%', aspectRatio: '4/3',
+                        boxShadow: '0 0 70px rgba(31,111,235,0.55), 0 0 120px rgba(93,63,211,0.22)',
+                        border: '1px solid rgba(31,111,235,0.45)',
                         transition: 'box-shadow 0.4s ease',
                     }}
                 >
-                    {/* Crossfade: two images stacked */}
                     <img
                         key={`bg-${displayed}`}
                         src={SLIDER_IMAGES[displayed]}
@@ -178,9 +224,7 @@ const ImpactSlider = memo(() => {
                         style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.32s ease-in-out' }}
                         loading="eager"
                     />
-                    {/* Gradient vignette */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10 pointer-events-none z-10" />
-                    {/* Subtle corner glows */}
                     <div className="absolute inset-0 pointer-events-none z-10" style={{
                         background: 'radial-gradient(ellipse at top left, rgba(31,111,235,0.15), transparent 60%), radial-gradient(ellipse at bottom right, rgba(93,63,211,0.12), transparent 60%)'
                     }} />
@@ -190,11 +234,9 @@ const ImpactSlider = memo(() => {
                 <div
                     className="flex-shrink-0 cursor-pointer rounded-xl overflow-hidden"
                     style={{
-                        width: 'clamp(18%, 20%, 22%)',
-                        aspectRatio: '4/3',
-                        filter: 'blur(3px) brightness(0.4)',
-                        transform: 'scale(0.84)',
-                        opacity: 0.65,
+                        width: '20%', aspectRatio: '4/3',
+                        filter: 'blur(3px) brightness(0.38)',
+                        transform: 'scale(0.83)', opacity: 0.6,
                         transition: 'all 0.5s ease',
                     }}
                     onClick={goNext}
@@ -346,9 +388,11 @@ const ProfessionalLandingPage = () => {
     return (
         <div ref={containerRef} className="professional-landing text-text relative z-10 flex-grow">
 
+            {/* Single fixed bg — renders once behind all sections, no patchy seams */}
+            <CosmicBg />
+
             {/* ══════════ SECTION 1 — HERO ══════════ */}
-            <section className="section-1 relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-24 overflow-hidden">
-                <CosmicBg />
+            <section className="section-1 relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-24">
                 <div className="relative z-10 flex flex-col items-center max-w-4xl mx-auto">
                     <h1 className="font-heading leading-tight">
                         <span className="hero-line-1 block text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-text drop-shadow-[0_0_24px_rgba(31,111,235,0.4)]">
@@ -374,8 +418,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION 2 — OBSTACLES ══════════ */}
-            <section className="section-2 relative min-h-screen flex flex-col items-center justify-center px-5 sm:px-10 md:px-16 py-20 md:py-28 overflow-hidden">
-                <CosmicBg />
+            <section className="section-2 relative min-h-screen flex flex-col items-center justify-center px-5 sm:px-10 md:px-16 py-20 md:py-28">
                 <div className="relative z-10 w-full max-w-5xl text-center">
                     <h2 className="anim font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-text mb-10 md:mb-14">
                         What&apos;s <span className="text-red-400">Holding</span> You Back?
@@ -389,8 +432,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION 3 — ONE-TIME SOLUTION ══════════ */}
-            <section className="section-3 relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-20 overflow-hidden">
-                <CosmicBg />
+            <section className="section-3 relative min-h-screen flex flex-col items-center justify-center text-center px-5 py-20">
                 <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto">
                     <div className="anim mb-8">
                         <img
@@ -411,8 +453,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION 4 — OUR IMPACT ══════════ */}
-            <section className="section-4 relative flex flex-col items-center justify-center py-20 md:py-28 px-5 text-center overflow-hidden">
-                <CosmicBg />
+            <section className="section-4 relative flex flex-col items-center justify-center py-20 md:py-28 px-5 text-center">
                 <div className="relative z-10 w-full max-w-5xl">
                     <h3 className="anim font-heading text-4xl sm:text-5xl md:text-6xl mb-3 animated-gradient-heading drop-shadow-lg">
                         Our Impact
@@ -427,8 +468,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION — TRY CHIZEL FOR FREE ══════════ */}
-            <section className="section-try relative flex flex-col items-center justify-center text-center px-5 py-20 md:py-28 overflow-hidden">
-                <CosmicBg />
+            <section className="section-try relative flex flex-col items-center justify-center text-center px-5 py-20 md:py-28">
                 <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto">
                     <h2 className="anim font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-text mb-4 drop-shadow-md leading-tight">
                         Try <span className="animated-gradient-heading">Chizel</span> for Free
@@ -449,8 +489,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION 5 — READY TO IGNITE ══════════ */}
-            <section className="section-5 relative flex flex-col items-center justify-center text-center px-5 py-20 md:py-28 overflow-hidden">
-                <CosmicBg />
+            <section className="section-5 relative flex flex-col items-center justify-center text-center px-5 py-20 md:py-28">
                 <div className="relative z-10 w-full max-w-3xl">
                     <h2 className="anim font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text mb-5 drop-shadow-md">
                         Ready to Ignite <span className="animated-gradient-heading">Potential?</span>
@@ -462,8 +501,7 @@ const ProfessionalLandingPage = () => {
             </section>
 
             {/* ══════════ SECTION — SOCIALS ══════════ */}
-            <section className="section-socials relative flex flex-col items-center justify-center text-center px-5 pt-10 pb-24 overflow-hidden">
-                <CosmicBg />
+            <section className="section-socials relative flex flex-col items-center justify-center text-center px-5 pt-10 pb-24">
                 <div className="relative z-10 w-full max-w-lg">
                     <h4 className="anim font-ui uppercase tracking-widest text-secondary-text mb-8">
                         FOLLOW OUR JOURNEY
@@ -508,6 +546,33 @@ const ProfessionalLandingPage = () => {
                 @keyframes gradientFlow {
                     0%   { background-position: 0% center; }
                     100% { background-position: 200% center; }
+                }
+
+                /* ── Cosmic bg animations ── */
+                @keyframes cosmicPan {
+                    0%   { transform: scale(1.05) translate(0%, 0%); }
+                    25%  { transform: scale(1.06) translate(-1%, 0.5%); }
+                    50%  { transform: scale(1.07) translate(-1.5%, -0.8%); }
+                    75%  { transform: scale(1.06) translate(-0.5%, -1%); }
+                    100% { transform: scale(1.05) translate(1%, 0.5%); }
+                }
+                @keyframes orbFloat1 {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    33%      { transform: translate(3%, -4%) scale(1.06); }
+                    66%      { transform: translate(-2%, 3%) scale(0.96); }
+                }
+                @keyframes orbFloat2 {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    40%      { transform: translate(-4%, 3%) scale(1.05); }
+                    70%      { transform: translate(2%, -2%) scale(0.97); }
+                }
+                @keyframes orbFloat3 {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    50%      { transform: translate(3%, -5%) scale(1.08); }
+                }
+                @keyframes starTwinkle {
+                    0%   { opacity: 0.15; transform: scale(0.85); }
+                    100% { opacity: 0.9;  transform: scale(1.25); }
                 }
 
                 /* ── Bounce ── */
