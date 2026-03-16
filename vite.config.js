@@ -33,5 +33,6 @@ export default defineConfig({
     cssCodeSplit: true,
     sourcemap: false,
   },
-  base: './',
+  // Use root-relative URLs so assets load correctly on deep routes like /auth/callback
+  base: '/',
 })
