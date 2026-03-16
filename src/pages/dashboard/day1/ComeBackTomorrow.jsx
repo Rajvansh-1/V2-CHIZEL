@@ -29,7 +29,12 @@ export const ShieldProgressBar = ({ completedDays = 0, mini = false }) => {
   const ref = useRef(null);
   const TOTAL_DAYS = 7;
   // In mini mode (e.g. rules popup), always show a fully colored shield for stronger visual impact
-  const pct = mini ? 1 : Math.min(completedDays / TOTAL_DAYS, 1);
+  const getVisualPct = (days) => {
+    if (days <= 0) return 0;
+    if (days === 1) return 1 / 3;
+    return (1 / 3) + ((days - 1) / (TOTAL_DAYS - 1)) * (2 / 3);
+  };
+  const pct = mini ? 1 : Math.min(getVisualPct(completedDays), 1);
   const clipTop = Math.round((1 - pct) * 100);
   const clipPath = pct === 0
     ? 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)'
