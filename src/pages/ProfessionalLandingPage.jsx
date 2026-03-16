@@ -4,8 +4,10 @@ import { useRef, useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useNavigate } from 'react-router-dom';
 import Button from '@/components/ui/Button';
+import AuthModal from '@/components/auth/AuthModal';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 import {
@@ -98,20 +100,16 @@ ObstacleCard.displayName = 'ObstacleCard';
 
 // ─── 3-Panel Impact Slider ─────────────────────────────────────────────────
 const SLIDER_IMAGES = [
-    "/images/slider/i1.jpg",
-    "/images/slider/i3.jpg",
-    "/images/slider/i6.png",
-    "/images/slider/i7.png",
-    "/images/slider/i8.png",
-    "/images/slider/i12.png",
-    "/images/slider/i13.JPG",
-    "/images/slider/i14.JPG",
-    "/images/slider/i15.jpeg",
-    "/images/slider/i16.jpeg",
-    "/images/slider/i17.jpeg",
-    "/images/slider/i18.jpeg",
-    "/images/slider/i2.jpg",
-    "/images/slider/i4.jpg",
+    "/images/slider/i1.jpeg",
+    "/images/slider/i2.jpeg",
+    "/images/slider/i3.jpeg",
+    "/images/slider/i4.jpeg",
+    "/images/slider/i5.jpeg",
+    "/images/slider/i6.jpeg",
+    "/images/slider/i7.jpeg",
+    "/images/slider/i8.jpeg",
+    "/images/slider/i9.jpeg",
+    "/images/slider/i10.jpeg",
 ];
 const TOTAL = SLIDER_IMAGES.length;
 
@@ -300,8 +298,8 @@ ImpactSlider.displayName = 'ImpactSlider';
 // ─── Main Landing Page ──────────────────────────────────────────────────────
 const ProfessionalLandingPage = () => {
     const containerRef = useRef(null);
-    const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+    const [authOpen, setAuthOpen] = useState(false);
 
     const iconMap = {
         Instagram: <FaInstagram size="1.5em" />,
@@ -325,7 +323,16 @@ const ProfessionalLandingPage = () => {
     }, []);
 
     // ── Handlers ──────────────────────────────────────────────────────────
-    const handleBrainrotCure = useCallback(() => navigate('/brainrot-cure'), [navigate]);
+    const { user, loading } = useAuth();
+    const navigate = useNavigate();
+
+    const handleTryChizel = useCallback(() => {
+        if (user) {
+            navigate('/day/1');
+        } else {
+            setAuthOpen(true);
+        }
+    }, [user, navigate]);
     const handleWaitlist     = useCallback(() => window.open(
         "https://docs.google.com/forms/d/1Hx5WA9eEEKGYv96UcotYh-t5ImBNvdO_WdD6IzftTD0/viewform?edit_requested=true",
         '_blank'
@@ -479,8 +486,8 @@ const ProfessionalLandingPage = () => {
                     <div className="anim relative group">
                         <div className="absolute -inset-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur-lg opacity-50 group-hover:opacity-80 transition-opacity duration-300 pointer-events-none animate-pulse-glow" />
                         <Button
-                            title="TRY CHIZEL FREE"
-                            onClick={handleBrainrotCure}
+                            title={user ? "RESUME PROGRESS" : "TRY CHIZEL FREE"}
+                            onClick={handleTryChizel}
                             rightIcon={<FaArrowRight />}
                             containerClass="relative !text-base sm:!text-lg !py-4 !px-10 md:!px-12 !bg-gradient-to-r !from-primary !to-accent !font-bold hover:!shadow-[0_0_30px_rgba(31,111,235,0.6)] transition-shadow duration-300"
                         />
@@ -612,6 +619,9 @@ const ProfessionalLandingPage = () => {
                 /* ── Consistent bg across sections ── */
                 .professional-landing section { position: relative; width: 100%; overflow: hidden; }
             `}</style>
+
+            {/* Auth Modal */}
+            <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
         </div>
     );
 };

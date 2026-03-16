@@ -12,6 +12,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@studio-freight/lenis": "^1.0.42",
+    "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/vite": "^4.1.11",
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",

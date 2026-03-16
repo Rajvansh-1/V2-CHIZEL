@@ -3,15 +3,20 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { navItems } from "@utils/constants";
 import { useScrollDirection } from "@hooks/useScrollDirection";
-import { useLocation, useNavigate } from "react-router-dom"; // Removed Link as direct navigation is handled
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import AuthModal from "@/components/auth/AuthModal";
 import clsx from "clsx";
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeSection, setActiveSection] = useState("#home");
+    const [authOpen, setAuthOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const isVisible = useScrollDirection();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, signOut } = useAuth();
 
     // Refs
     const containerRef = useRef(null);
@@ -176,6 +181,7 @@ const Navbar = () => {
 
     // --- RENDER ---
     return (
+        <>
         <div ref={containerRef}>
             {/* Desktop Navbar */}
             <nav
@@ -210,6 +216,55 @@ const Navbar = () => {
                                 {item.name}
                             </a>
                         ))}
+                    </div>
+
+                    {/* Auth Button / User Avatar */}
+                    <div className="relative">
+                        {user ? (
+                            <>
+                                <button
+                                    onClick={() => setDropdownOpen(d => !d)}
+                                    className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm text-white"
+                                    style={{ background: 'linear-gradient(135deg,#1f6feb,#7c4dff)', boxShadow:'0 0 14px rgba(31,111,235,0.5)' }}
+                                    aria-label="User menu"
+                                >
+                                    {(() => {
+                                        const dName = user.user_metadata?.full_name || user.user_metadata?.name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'U';
+                                        return dName[0].toUpperCase();
+                                    })()}
+                                </button>
+                                {dropdownOpen && (
+                                    <div
+                                        className="absolute right-0 top-full mt-2 w-40 rounded-xl border border-white/10 shadow-2xl overflow-hidden z-[100]"
+                                        style={{ background: 'rgba(15,22,45,0.97)', backdropFilter: 'blur(12px)' }}
+                                    >
+                                        <div className="px-4 py-2 border-b border-white/10">
+                                            <p className="text-xs text-secondary-text truncate">{user.user_metadata?.full_name || user.user_metadata?.name || user.email}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => { navigate('/day/1'); setDropdownOpen(false); }}
+                                            className="w-full text-left px-4 py-2 text-sm text-text hover:bg-white/5 transition-colors"
+                                        >
+                                            🎮 Resume Progress
+                                        </button>
+                                        <button
+                                            onClick={() => { signOut(); setDropdownOpen(false); }}
+                                            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setAuthOpen(true)}
+                                className="px-4 py-1.5 rounded-full text-sm font-ui font-semibold text-white transition-all duration-200 hover:scale-105"
+                                style={{ background: 'linear-gradient(135deg,#1f6feb,#7c4dff)', boxShadow:'0 0 14px rgba(31,111,235,0.4)' }}
+                            >
+                                Login
+                            </button>
+                        )}
                     </div>
 
                     {/* Mobile Menu Hamburger Button */}
@@ -251,6 +306,9 @@ const Navbar = () => {
                 </div>
             </div>
         </div>
+        {/* Auth Modal */}
+        <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+        </>
     );
 };
 

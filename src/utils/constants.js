@@ -35,14 +35,8 @@ export const holoDecks = [
 ];
 
 export const navItems = [
-    { name: "Home", href: "#home" },
-    { name: "Problem", href: "#problem" },
-    { name: "Chizelverse", href: "#chizelverse-cards" },
+    { name: "Home", href: "/" },
     { name: "About", href: "/about-us" },
-    { name: "Ecosystem", href: "#chizel-ecosystem" },
-    { name: "Chizel App", href: "#chizel-app" },
-    { name: "Chizel Web", href: "/chizel-web" },
-    { name: "Contact", href: "#contact" },
   ];
 
 export const principles = [
