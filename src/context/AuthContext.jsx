@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, SUPABASE_CONFIGURED } from '@/lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -26,6 +26,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!SUPABASE_CONFIGURED) {
+      setSession(null);
+      setUser(null);
+      setOnboardingDone(false);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -52,6 +60,7 @@ export const AuthProvider = ({ children }) => {
   }, [fetchProfile]);
 
   const signOut = useCallback(async () => {
+    if (!SUPABASE_CONFIGURED) return;
     await supabase.auth.signOut();
     setOnboardingDone(false);
   }, []);

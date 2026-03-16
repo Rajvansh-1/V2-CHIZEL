@@ -2,7 +2,7 @@
 // Handles the OAuth redirect from Supabase Google login
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase, SUPABASE_CONFIGURED } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 
 const AuthCallbackPage = () => {
@@ -10,6 +10,11 @@ const AuthCallbackPage = () => {
   const { onboardingDone } = useAuth();
 
   useEffect(() => {
+    if (!SUPABASE_CONFIGURED) {
+      navigate('/', { replace: true });
+      return;
+    }
+
     // Supabase automatically handles the token from the URL hash
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
