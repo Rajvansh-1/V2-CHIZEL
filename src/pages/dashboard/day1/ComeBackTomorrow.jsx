@@ -28,7 +28,8 @@ const Confetti = () => (
 export const ShieldProgressBar = ({ completedDays = 0, mini = false }) => {
   const ref = useRef(null);
   const TOTAL_DAYS = 7;
-  const pct = Math.min(completedDays / TOTAL_DAYS, 1);
+  // In mini mode (e.g. rules popup), always show a fully colored shield for stronger visual impact
+  const pct = mini ? 1 : Math.min(completedDays / TOTAL_DAYS, 1);
   const clipTop = Math.round((1 - pct) * 100);
   const clipPath = pct === 0
     ? 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)'
@@ -50,12 +51,14 @@ export const ShieldProgressBar = ({ completedDays = 0, mini = false }) => {
         <div className="shield-glow absolute inset-0 rounded-full blur-[40px] opacity-0 pointer-events-none"
           style={{ background: pct > 0 ? 'radial-gradient(ellipse, rgba(124,77,255,0.7), rgba(31,111,235,0.4), transparent 70%)' : 'transparent' }} />
 
-        <img
-          src="/images/shield.png"
-          alt="Shield"
-          className="absolute inset-0 w-full h-full object-contain"
-          style={{ filter: 'grayscale(1) brightness(0.2)', userSelect: 'none', pointerEvents: 'none' }}
-        />
+        {!mini && (
+          <img
+            src="/images/shield.png"
+            alt="Shield"
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{ filter: 'grayscale(1) brightness(0.2)', userSelect: 'none', pointerEvents: 'none' }}
+          />
+        )}
 
         <img
           src="/images/shield.png"
