@@ -4,7 +4,9 @@ import AppRouter from "@/router";
 import Loader from "@components/ui/Loader";
 
 const App = () => {
-  const [isPageLoading, setIsPageLoading] = useState(true);
+  // Skip the cinematic loader on auth callback so the post-login flow feels instant
+  const isAuthCallback = typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/');
+  const [isPageLoading, setIsPageLoading] = useState(!isAuthCallback);
 
   // Callback function for the Loader to signal completion
   const handleLoaderComplete = () => {
@@ -15,6 +17,8 @@ const App = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   useEffect(() => {
+    if (isAuthCallback) return;
+
     // Only run this effect once
     if (initialLoadComplete) return;
 
@@ -31,7 +35,7 @@ const App = () => {
     return () => {
       clearTimeout(minLoadTimer);
     };
-  }, [initialLoadComplete]); // Depend on initialLoadComplete
+  }, [initialLoadComplete, isAuthCallback]); // Depend on initialLoadComplete
 
   return (
     <>

@@ -16,7 +16,12 @@ import { ShieldProgressBar, ComeBackTomorrow } from './day1/ComeBackTomorrow';
 // ── User Avatar Widget ────────────────────────────────────────────────────────
 const AvatarWidget = ({ user, totalPts, onLogout }) => {
   const [open, setOpen] = useState(false);
-  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Explorer';
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.user_metadata?.display_name ||
+    user?.email?.split('@')[0] ||
+    'Explorer';
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
