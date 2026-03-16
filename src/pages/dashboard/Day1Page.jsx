@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useUI } from '@/context/UIContext';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useSound } from '@/hooks/useSound';
@@ -191,12 +192,18 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
 // ── Main Day1 Page ────────────────────────────────────────────────────────────
 export default function Day1Page() {
   const { user, signOut } = useAuth();
+  const { setHideNavbar } = useUI();
   const [showRules,   setShowRules]   = useState(() => !localStorage.getItem('chizel_rules_seen_vx'));
   const [view,        setView]        = useState('overview'); // 'overview' | 'm1' | 'm2' | 'm3' | 'done'
   const [reward,      setReward]      = useState(null);
   const [missions,    setMissions]    = useState({ m1: false, m2: false, m3: false });
   const [scores,      setScores]      = useState({ brain: 0, social: 0, creator: 0 });
   const [loading,     setLoading]     = useState(true);
+
+  useEffect(() => {
+    setHideNavbar(view !== 'overview');
+    return () => setHideNavbar(false);
+  }, [setHideNavbar, view]);
 
   useEffect(() => {
     let isMounted = true;

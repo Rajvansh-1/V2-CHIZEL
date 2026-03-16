@@ -1,7 +1,7 @@
 // src/components/auth/AuthModal.jsx
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase, SUPABASE_CONFIGURED, getSupabaseConfigErrorMessage } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { FaGoogle, FaTimes, FaEye, FaEyeSlash, FaEnvelope, FaLock } from 'react-icons/fa';
 
@@ -36,6 +36,9 @@ const AuthModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true); setError('');
     try {
+      if (!SUPABASE_CONFIGURED) {
+        throw new Error(getSupabaseConfigErrorMessage());
+      }
       if (tab === 'signup') {
         const { error } = await supabase.auth.signUp({
           email, password,
@@ -58,6 +61,9 @@ const AuthModal = ({ isOpen, onClose }) => {
   const handleGoogle = async () => {
     setLoading(true); setError('');
     try {
+      if (!SUPABASE_CONFIGURED) {
+        throw new Error(getSupabaseConfigErrorMessage());
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/auth/callback` },

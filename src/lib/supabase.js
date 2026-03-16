@@ -1,24 +1,29 @@
 // src/lib/supabase.js
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey  = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn(
-    '[Chizel] Supabase env vars not found. ' +
-    'Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local'
+export const SUPABASE_CONFIGURED = Boolean(supabaseUrl && supabaseKey);
+
+if (!SUPABASE_CONFIGURED) {
+  // eslint-disable-next-line no-console
+  console.error(
+    '[Chizel] ERROR: Missing Supabase env vars. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Cloudflare Pages project settings (Production).'
   );
 }
 
-export const supabase = createClient(
-  supabaseUrl  || 'https://placeholder.supabase.co',
-  supabaseKey  || 'placeholder-key',
-  {
-    auth: {
-      persistSession:    true,
-      autoRefreshToken:  true,
-      detectSessionInUrl: true,
-    },
-  }
-);
+const finalUrl = supabaseUrl || 'https://placeholder.supabase.co';
+const finalKey = supabaseKey || 'placeholder-key';
+
+export const supabase = createClient(finalUrl, finalKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
+
+export function getSupabaseConfigErrorMessage() {
+  return 'Auth is temporarily unavailable (server misconfiguration). Please try again later.';
+}

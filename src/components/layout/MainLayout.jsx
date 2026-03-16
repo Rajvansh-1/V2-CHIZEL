@@ -1,20 +1,28 @@
 // src/components/layout/MainLayout.jsx
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import CustomCursor from "@components/layout/CustomCursor";
 import useLenisScroll from "@hooks/useLenisScroll";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ChiziAI from "@/components/common/ChiziAI";
+import { useUI } from "@/context/UIContext";
 
 const MainLayout = () => {
   // Initialize smooth scrolling
   useLenisScroll();
+  const location = useLocation();
+  const { hideNavbar } = useUI();
+
+  const hideNavbarForRoute =
+    location.pathname === '/onboarding' ||
+    location.pathname === '/intro' ||
+    location.pathname.startsWith('/day/');
 
   return (
     // Flex container to manage vertical layout and ensure minimum screen height
     <div className="flex flex-col min-h-screen bg-background"> {/* Added bg-background here for safety */}
       <CustomCursor />
-      <Navbar />
+      {!(hideNavbar || hideNavbarForRoute) && <Navbar />}
 
       {/* Main content area that grows to fill space */}
       <main className="relative w-full flex-grow"> {/* flex-grow is key */}
