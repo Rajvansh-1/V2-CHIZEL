@@ -7,8 +7,9 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const SUPABASE_CONFIGURED = Boolean(supabaseUrl && supabaseKey);
 
 if (!SUPABASE_CONFIGURED) {
+  // eslint-disable-next-line no-console
   console.error(
-    '[Chizel] ERROR: Missing Supabase env vars. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your build environment.'
+    '[Chizel] ERROR: Missing Supabase env vars. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your Cloudflare Pages project settings (Production).'
   );
 }
 
