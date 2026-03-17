@@ -196,15 +196,29 @@ const OnboardingPage = () => {
   const total = QUESTIONS.length;
   const progress = (step / total) * 100;
 
+  const isTransitioning = useRef(false);
+  const timeoutRef = useRef(null);
+
   const animateTransition = useCallback((dir, cb) => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
     const el = containerRef.current?.querySelector('.question-wrap');
-    if (!el) { cb(); return; }
+    if (!el) { 
+      cb(); 
+      isTransitioning.current = false;
+      return; 
+    }
     // Lightning fast animations 0.15s
     gsap.to(el, {
       opacity: 0, x: dir === 'next' ? -20 : 20, duration: 0.15, ease: 'power2.in',
       onComplete: () => {
         cb();
-        gsap.fromTo(el, { opacity: 0, x: dir === 'next' ? 20 : -20 }, { opacity: 1, x: 0, duration: 0.25, ease: 'power2.out' });
+        gsap.fromTo(el, { opacity: 0, x: dir === 'next' ? 20 : -20 }, { 
+          opacity: 1, x: 0, duration: 0.25, ease: 'power2.out',
+          onComplete: () => {
+             isTransitioning.current = false;
+          }
+        });
       },
     });
   }, []);
@@ -214,12 +228,13 @@ const OnboardingPage = () => {
     
     // Auto-advance for ultra-smooth gaming feel if it's not a custom text input
     if (!opt.startsWith('custom:')) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       if (step < total - 1) {
-        setTimeout(() => {
-          animateTransition('next', () => setStep(s => s + 1));
+        timeoutRef.current = setTimeout(() => {
+          animateTransition('next', () => setStep(s => Math.min(s + 1, total - 1)));
         }, 250);
       } else {
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           handleSubmitWithLatest(opt);
         }, 250);
       }
@@ -233,7 +248,7 @@ const OnboardingPage = () => {
   const handleNext = useCallback(() => {
     if (!answers[step]) return; // must select something
     if (step < total - 1) {
-      animateTransition('next', () => setStep(s => s + 1));
+      animateTransition('next', () => setStep(s => Math.min(s + 1, total - 1)));
     } else {
       handleSubmitWithLatest(answers[step]);
     }
@@ -241,7 +256,7 @@ const OnboardingPage = () => {
   }, [step, answers, animateTransition, total]);
 
   const handleBack = useCallback(() => {
-    if (step > 0) animateTransition('back', () => setStep(s => s - 1));
+    if (step > 0) animateTransition('back', () => setStep(s => Math.max(s - 1, 0)));
   }, [step, animateTransition]);
 
   const handleSubmitWithLatest = async (latestAnswer) => {
@@ -316,41 +331,49 @@ const OnboardingPage = () => {
       {/* Question */}
       <div className="flex flex-col items-center justify-center min-h-screen px-4 pt-20">
         <div className="question-wrap w-full max-w-lg">
-          <QuestionCard
-            q={QUESTIONS[step]}
-            idx={step}
-            total={total}
-            answer={answers[step]}
-            customAnswer={customAnswers[step] || ''}
-            onSelect={handleSelect}
-            onCustom={handleCustom}
-          />
+          {QUESTIONS[step] ? (
+            <>
+              <QuestionCard
+                q={QUESTIONS[step]}
+                idx={step}
+                total={total}
+                answer={answers[step]}
+                customAnswer={customAnswers[step] || ''}
+                onSelect={handleSelect}
+                onCustom={handleCustom}
+              />
 
-          {/* Navigation buttons */}
-          <div className="flex items-center gap-3 mt-6 max-w-lg mx-auto">
-            {step > 0 && (
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 text-secondary-text hover:text-text hover:border-white/25 transition-all duration-200 text-sm font-ui"
-              >
-                <FaArrowLeft size="0.8em" /> Back
-              </button>
-            )}
-            <button
-              onClick={handleNext}
-              disabled={!answers[step] || saving}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-white text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02]"
-              style={{ background: 'linear-gradient(135deg, #1f6feb, #7c4dff)', boxShadow: answers[step] ? '0 0 20px rgba(31,111,235,0.4)' : 'none' }}
-            >
-              {saving ? (
-                <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-              ) : step === total - 1 ? (
-                <><FaCheck size="0.9em" /> Reveal My Avatar</>
-              ) : (
-                <>Next <FaArrowRight size="0.9em" /></>
-              )}
-            </button>
-          </div>
+              {/* Navigation buttons */}
+              <div className="flex items-center gap-3 mt-6 max-w-lg mx-auto">
+                {step > 0 && (
+                  <button
+                    onClick={handleBack}
+                    className="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 text-secondary-text hover:text-text hover:border-white/25 transition-all duration-200 text-sm font-ui"
+                  >
+                    <FaArrowLeft size="0.8em" /> Back
+                  </button>
+                )}
+                <button
+                  onClick={handleNext}
+                  disabled={!answers[step] || saving}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-white text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(135deg, #1f6feb, #7c4dff)', boxShadow: answers[step] ? '0 0 20px rgba(31,111,235,0.4)' : 'none' }}
+                >
+                  {saving ? (
+                    <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  ) : step === total - 1 ? (
+                    <><FaCheck size="0.9em" /> Reveal My Avatar</>
+                  ) : (
+                    <>Next <FaArrowRight size="0.9em" /></>
+                  )}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-4 py-12">
+               <span className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            </div>
+          )}
         </div>
       </div>
     </div>
