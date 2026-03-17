@@ -3,6 +3,19 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import MainLayout from "@components/layout/MainLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+
+// Component to scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 // Lazy load page components
 const ProfessionalLandingPage = lazy(() => import("@/pages/ProfessionalLandingPage"));
@@ -34,7 +47,12 @@ const withSuspense = (Component) => (
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <>
+        <ScrollToTop />
+        <MainLayout />
+      </>
+    ),
     children: [
       // ── Public routes ─────────────────────────────────────────
       { index: true,           element: withSuspense(ProfessionalLandingPage) },

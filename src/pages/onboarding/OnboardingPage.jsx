@@ -152,21 +152,32 @@ const AvatarReveal = ({ avatarType, onContinue }) => {
   }, { scope: ref });
 
   return (
-    <div ref={ref} className="flex flex-col items-center justify-center min-h-screen px-5 text-center">
-      <div className="avatar-reveal-el text-8xl mb-4" style={{ filter: `drop-shadow(0 0 30px ${meta.color})` }}>
+    <div 
+      ref={ref} 
+      onClick={onContinue} 
+      className="absolute inset-0 z-50 flex flex-col items-center justify-center px-5 text-center cursor-pointer select-none bg-background"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+    >
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 50%, ${meta.color}25, transparent 70%)` }} />
+      <div className="avatar-reveal-el text-8xl mb-6 transition-transform duration-300 hover:scale-110 drop-shadow-2xl" style={{ filter: `drop-shadow(0 0 40px ${meta.color})` }}>
         {meta.emoji}
       </div>
-      <h2 className="avatar-reveal-el font-heading text-3xl sm:text-4xl font-black text-text mb-2">
+      <h2 className="avatar-reveal-el font-heading text-4xl sm:text-5xl font-black text-text mb-3 tracking-tight">
         You are <span style={{ color: meta.color }}>{meta.label}</span>!
       </h2>
-      <p className="avatar-reveal-el text-secondary-text text-lg max-w-xs mb-8">{meta.desc}</p>
-      <button
-        onClick={onContinue}
-        className="avatar-reveal-el flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white text-base transition-all duration-200 hover:scale-105"
-        style={{ background: `linear-gradient(135deg, ${meta.color}, #7c4dff)`, boxShadow: `0 0 30px ${meta.color}60` }}
-      >
-        Start My Journey <FaArrowRight />
-      </button>
+      <p className="avatar-reveal-el text-secondary-text text-xl max-w-sm mb-12">{meta.desc}</p>
+      
+      <div className="avatar-reveal-el flex flex-col items-center gap-6">
+        <button
+          className="flex items-center gap-3 px-10 py-5 rounded-full font-black text-white text-lg transition-transform duration-200 active:scale-95 shadow-2xl pointer-events-none"
+          style={{ background: `linear-gradient(135deg, ${meta.color}, #7c4dff)`, boxShadow: `0 0 40px ${meta.color}60` }}
+        >
+          Start Journey <FaArrowRight />
+        </button>
+        <span className="text-secondary-text/60 text-sm font-ui uppercase tracking-widest animate-pulse mt-2">
+          Tap anywhere to continue
+        </span>
+      </div>
     </div>
   );
 };
@@ -200,7 +211,20 @@ const OnboardingPage = () => {
 
   const handleSelect = useCallback((opt) => {
     setAnswers(prev => ({ ...prev, [step]: opt }));
-  }, [step]);
+    
+    // Auto-advance for ultra-smooth gaming feel if it's not a custom text input
+    if (!opt.startsWith('custom:')) {
+      if (step < total - 1) {
+        setTimeout(() => {
+          animateTransition('next', () => setStep(s => s + 1));
+        }, 250);
+      } else {
+        setTimeout(() => {
+          handleSubmitWithLatest(opt);
+        }, 250);
+      }
+    }
+  }, [step, total, animateTransition]);
 
   const handleCustom = useCallback((val) => {
     setCustomAnswers(prev => ({ ...prev, [step]: val }));
@@ -211,7 +235,7 @@ const OnboardingPage = () => {
     if (step < total - 1) {
       animateTransition('next', () => setStep(s => s + 1));
     } else {
-      handleSubmit();
+      handleSubmitWithLatest(answers[step]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, answers, animateTransition, total]);
@@ -220,9 +244,12 @@ const OnboardingPage = () => {
     if (step > 0) animateTransition('back', () => setStep(s => s - 1));
   }, [step, animateTransition]);
 
-  const handleSubmit = async () => {
+  const handleSubmitWithLatest = async (latestAnswer) => {
+    if (saving) return;
     setSaving(true);
-    const avatar = determineAvatar(answers);
+    
+    const finalAnswers = { ...answers, [step]: latestAnswer };
+    const avatar = determineAvatar(finalAnswers);
     setAvatarType(avatar);
 
     try {
@@ -232,12 +259,12 @@ const OnboardingPage = () => {
         user_id:        user.id,
         display_name:   displayName,
         avatar_type:    avatar,
-        age_group:      answers[0] || '',
+        age_group:      finalAnswers[0] || '',
         onboarding_done: true,
       }, { onConflict: 'user_id' });
 
       // Save individual answers
-      const answerRows = Object.entries(answers).map(([idx, ans]) => ({
+      const answerRows = Object.entries(finalAnswers).map(([idx, ans]) => ({
         user_id:        user.id,
         question_index: parseInt(idx),
         answer:         ans.startsWith('custom:') ? customAnswers[idx] || '' : ans,
@@ -258,8 +285,7 @@ const OnboardingPage = () => {
   // Avatar reveal screen
   if (step === 10 && avatarType) {
     return (
-      <div className="min-h-screen bg-background relative overflow-hidden">
-        <div className="fixed inset-0 -z-10" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(31,111,235,0.1), transparent 70%)' }} />
+      <div className="fixed inset-0 min-h-[100dvh] bg-background relative overflow-hidden z-[100]" style={{ touchAction: 'manipulation' }}>
         <AvatarReveal avatarType={avatarType} onContinue={() => navigate('/intro')} />
       </div>
     );

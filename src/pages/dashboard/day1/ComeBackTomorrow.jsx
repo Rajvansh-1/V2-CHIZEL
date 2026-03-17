@@ -31,8 +31,8 @@ export const ShieldProgressBar = ({ completedDays = 0, mini = false }) => {
   // In mini mode (e.g. rules popup), always show a fully colored shield for stronger visual impact
   const getVisualPct = (days) => {
     if (days <= 0) return 0;
-    if (days === 1) return 1 / 3;
-    return (1 / 3) + ((days - 1) / (TOTAL_DAYS - 1)) * (2 / 3);
+    if (days === 1) return 0.5; // 50% requested for day 1
+    return 0.5 + ((days - 1) / (TOTAL_DAYS - 1)) * 0.5;
   };
   const pct = mini ? 1 : Math.min(getVisualPct(completedDays), 1);
   const clipTop = Math.round((1 - pct) * 100);

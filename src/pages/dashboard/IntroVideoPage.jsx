@@ -6,17 +6,17 @@ import { FaArrowRight } from 'react-icons/fa';
 const IntroVideoPage = () => {
   const navigate = useNavigate();
   const [canSkip,    setCanSkip]    = useState(true); // Allow skipping instantly
-  const [countdown,  setCountdown]  = useState(3);
+  const [countdown,  setCountdown]  = useState(2);
   const [hasVideo] = useState(false); // Set to true when adding video
   const timerRef = useRef(null);
 
   useEffect(() => {
-    // Auto-skip or countdown
+    // Auto-skip or countdown (2 seconds fixed for initialization sequence)
     timerRef.current = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
           clearInterval(timerRef.current);
-          if (!hasVideo) navigate('/day/1'); // Auto skip if no video
+          if (!hasVideo) navigate('/day/1'); // Auto skip if no video after 2 seconds
           return 0;
         }
         return c - 1;
