@@ -18,6 +18,9 @@ const MainLayout = () => {
     location.pathname === '/intro' ||
     location.pathname.startsWith('/day/');
 
+  // Also hide footer on the same routes – game pages are full-screen
+  const hideFooterForRoute = hideNavbarForRoute;
+
   return (
     // Flex container to manage vertical layout and ensure minimum screen height
     <div className="flex flex-col min-h-screen bg-background"> {/* Added bg-background here for safety */}
@@ -30,7 +33,7 @@ const MainLayout = () => {
       </main>
 
       {/* Footer is placed last in the flex container */}
-      <Footer />
+      {!hideFooterForRoute && <Footer />}
 
       {/* Floating elements remain fixed */}
       <ChiziAI />

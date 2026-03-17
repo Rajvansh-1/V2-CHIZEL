@@ -210,6 +210,18 @@ export default function Day1Page() {
     return () => setHideNavbar(false);
   }, [setHideNavbar, view]);
 
+  // Always start at the very top when switching views
+  useEffect(() => {
+    try {
+      // Bypass Lenis smooth-scroll for instant jump
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } catch (_) {
+      window.scrollTo(0, 0);
+    }
+  }, [view]);
+
   useEffect(() => {
     let isMounted = true;
     const fetchProgress = async () => {
