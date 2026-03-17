@@ -29,7 +29,7 @@ export const Mission2 = ({ onComplete }) => {
         <div className="text-[100px] leading-none mb-2 drop-shadow-2xl animate-bounce">🏠✨</div>
         <div className="bg-white text-background p-6 rounded-[2rem] rounded-bl-sm relative shadow-[0_20px_50px_rgba(255,255,255,0.2)]">
           <div className="font-heading text-2xl sm:text-3xl font-black leading-tight uppercase tracking-tight text-indigo-900 border-4 border-dashed border-indigo-200 p-4 rounded-xl flex flex-col gap-2">
-            <span className="text-xl sm:text-2xl text-indigo-600">Ask anyone at home:</span>
+            <span className="text-xl sm:text-2xl text-[#ec4899]">Ask anyone at home:</span>
             <span>"What was their favourite hobby growing up?"</span>
           </div>
           <div className="absolute -bottom-6 left-12 w-0 h-0 border-l-[16px] border-l-transparent border-t-[24px] border-t-white border-r-[16px] border-r-transparent" />
