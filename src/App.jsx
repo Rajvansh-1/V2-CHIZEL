@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import AppRouter from "@/router";
 import Loader from "@components/ui/Loader";
+import OfflineBanner from "@/components/ui/OfflineBanner";
 
 const App = () => {
   // Skip the cinematic loader on auth callback so the post-login flow feels instant
@@ -39,6 +40,7 @@ const App = () => {
 
   return (
     <>
+      <OfflineBanner />
       {/* Conditionally render Loader based on isPageLoading state */}
       {isPageLoading && <Loader setIsLoading={handleLoaderComplete} />}
       {/* AppRouter is implicitly rendered when Loader is not present */}

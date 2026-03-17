@@ -1,0 +1,17 @@
+{
+  "name": "Chizel",
+  "short_name": "Chizel",
+  "description": "Turning Screen Time Into Skill Time",
+  "theme_color": "#0B1226",
+  "background_color": "#0B1226",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

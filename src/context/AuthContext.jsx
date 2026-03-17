@@ -18,9 +18,23 @@ export const AuthProvider = ({ children }) => {
         .select('onboarding_done, display_name, avatar_type')
         .eq('user_id', userId)
         .single();
-      if (data) setOnboardingDone(!!data.onboarding_done);
+      
+      if (data) {
+        setOnboardingDone(!!data.onboarding_done);
+        // Cache to localStorage for offline robustness
+        localStorage.setItem(`chz_profile_${userId}`, JSON.stringify(data));
+      }
     } catch {
-      // profile not created yet — onboarding is pending
+      // Fallback to cache if network fails
+      const cached = localStorage.getItem(`chz_profile_${userId}`);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setOnboardingDone(!!parsed.onboarding_done);
+          return;
+        } catch (_) {}
+      }
+      // profile not created yet, or complete failure
       setOnboardingDone(false);
     }
   }, []);
@@ -34,11 +48,31 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+    // Get initial session with an 8-second timeout fallback
+    const fetchSession = supabase.auth.getSession();
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ error: 'timeout' }), 8000));
+    
+    Promise.race([fetchSession, timeout]).then(async (result) => {
+      let currentSession = null;
+      
+      if (result.error === 'timeout' || result.error) {
+        // Fallback: try to pull standard supabase local session
+        const localStr = localStorage.getItem(`sb-${new URL(import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co').hostname.split('.')[0]}-auth-token`);
+        if (localStr) {
+          try {
+            const parsed = JSON.parse(localStr);
+            currentSession = parsed;
+          } catch (_) {}
+        }
+      } else {
+        currentSession = result.data?.session;
+      }
+
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      if (currentSession?.user) {
+        await fetchProfile(currentSession.user.id);
+      }
       setLoading(false);
     });
 

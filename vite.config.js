@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
+import viteCompression from 'vite-plugin-compression'
 import path from 'path'
 
 // https://vite.dev/config/
@@ -8,6 +10,28 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
+    viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,woff2,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              networkTimeoutSeconds: 5
+            }
+          }
+        ]
+      }
+    }),
   ],
   resolve: {
     alias: {
@@ -24,12 +48,19 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Removed manual chunks to avoid duplication hooks errors
+        // Smart chunk splitting for high cacheability
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'router-vendor': ['react-router-dom'],
+          'gsap-vendor': ['gsap', '@gsap/react'],
+          'supabase-vendor': ['@supabase/supabase-js']
+        },
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
       },
     },
+    chunkSizeWarningLimit: 800,
     cssCodeSplit: true,
     sourcemap: false,
   },

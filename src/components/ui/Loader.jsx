@@ -104,7 +104,7 @@ const Loader = ({ setIsLoading }) => {
         
         {/* Logo */}
         <div className="loader-logo">
-          <img src="/images/logo.png" alt="Chizel Logo" className="w-28 h-28 md:w-32 md:h-32 object-contain mb-4" />
+          <img src="/images/logo.png" alt="Chizel Logo" decoding="async" className="w-28 h-28 md:w-32 md:h-32 object-contain mb-4" />
         </div>
 
         {/* Welcome Text */}
