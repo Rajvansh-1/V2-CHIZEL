@@ -12,7 +12,7 @@ const determineAvatar = (answers) => {
   const scores = { thinker: 0, creator: 0, explorer: 0, connector: 0 };
   if (answers[3]?.includes('Drawing'))   scores.creator  += 2;
   if (answers[3]?.includes('sport'))     scores.explorer += 2;
-  if (answers[3]?.includes('puzzle'))    scores.thinker  += 2;
+  if (answers[3]?.includes('puzzle') || answers[3]?.includes('find')) scores.explorer += 2;
   if (answers[5] === 'I love them')      scores.thinker  += 2;
   if (answers[6] === 'Very comfortable') scores.connector+= 2;
   if (answers[8]?.includes('Think'))     scores.thinker  += 1;
@@ -51,9 +51,9 @@ const QUESTIONS = [
     hasCustom: true,
   },
   {
-    q: 'Which activity do you enjoy the most?',
+    q: 'What is Your Hobby?',
     emoji: '⭐',
-    options: ['Drawing or creating', 'Playing sports', 'Solving puzzles'],
+    options: ['Drawing or creating', 'Playing sports', 'I want to find my hobby'],
     hasCustom: true,
   },
   {
