@@ -29,7 +29,10 @@ const AuthCallbackPage         = lazy(() => import("@/pages/auth/AuthCallbackPag
 const OnboardingPage           = lazy(() => import("@/pages/onboarding/OnboardingPage"));
 const IntroVideoPage           = lazy(() => import("@/pages/dashboard/IntroVideoPage"));
 const Day1Page                 = lazy(() => import("@/pages/dashboard/Day1Page"));
-
+const Day2Page                 = lazy(() => import("@/pages/dashboard/Day2Page"));
+const Day3Page                 = lazy(() => import("@/pages/dashboard/Day3Page"));
+const Day4Page                 = lazy(() => import("@/pages/dashboard/Day4Page"));
+const Day5Page                 = lazy(() => import("@/pages/dashboard/Day5Page"));
 // Loading fallback — keeps bg color consistent, no flash
 const LoadingFallback = () => (
   <div style={{ minHeight: '100vh', background: 'var(--color-background)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -93,6 +96,46 @@ const router = createBrowserRouter([
           <ProtectedRoute requiresOnboarding={true}>
             <Suspense fallback={<LoadingFallback />}>
               <Day1Page />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "day/2",
+        element: (
+          <ProtectedRoute requiresOnboarding={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <Day2Page />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "day/3",
+        element: (
+          <ProtectedRoute requiresOnboarding={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <Day3Page />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "day/4",
+        element: (
+          <ProtectedRoute requiresOnboarding={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <Day4Page />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "day/5",
+        element: (
+          <ProtectedRoute requiresOnboarding={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <Day5Page />
             </Suspense>
           </ProtectedRoute>
         ),
