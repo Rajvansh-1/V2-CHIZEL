@@ -7,11 +7,8 @@ import gsap from 'gsap';
 import { useSound } from '@/hooks/useSound';
 import { FaArrowRight, FaStar, FaSignOutAlt, FaChevronDown, FaEye } from 'react-icons/fa';
 
-import { Mission1 } from './day1/Mission1';
-import { Mission2 } from './day1/Mission2';
-import { Mission3 } from './day1/Mission3';
-import { RewardBanner } from './day1/RewardBanner';
-import { ShieldProgressBar, ComeBackTomorrow } from './day1/ComeBackTomorrow';
+import { RewardBanner } from '../day1/RewardBanner';
+import { ShieldProgressBar, ComeBackTomorrow } from '../day1/ComeBackTomorrow';
 
 // ── User Avatar Widget ────────────────────────────────────────────────────────
 const AvatarWidget = ({ user, totalPts, onLogout }) => {
@@ -26,7 +23,7 @@ const AvatarWidget = ({ user, totalPts, onLogout }) => {
 
   return (
     <div className="relative z-[999]">
-      <button 
+      <button
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-3 bg-black/40 border-2 p-1.5 pr-5 rounded-full hover:bg-black/60 transition-all ${open ? 'border-primary shadow-[0_0_20px_rgba(31,111,235,0.4)]' : 'border-white/10'}`}
       >
@@ -47,7 +44,7 @@ const AvatarWidget = ({ user, totalPts, onLogout }) => {
       {open && (
         <div className="absolute right-0 top-[calc(100%+12px)] w-64 rounded-3xl border-2 border-primary/30 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in slide-in-from-top-4 z-[999]"
              style={{ background: 'linear-gradient(145deg, rgba(20,28,58,0.98), rgba(11,18,38,0.98))', backdropFilter: 'blur(20px)' }}>
-          
+
           <div className="p-6 border-b border-white/10 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[40px] pointer-events-none" />
             <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center font-heading font-black text-3xl text-white shadow-inner border-4 border-white/20 mb-3"
@@ -60,7 +57,7 @@ const AvatarWidget = ({ user, totalPts, onLogout }) => {
               <p className="text-yellow-400 font-black text-base">{totalPts} XP</p>
             </div>
           </div>
-          
+
           <div className="p-3">
             <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-red-400 border-2 border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all font-black tracking-widest uppercase text-sm group">
               <FaSignOutAlt className="group-hover:-translate-x-1 transition-transform" /> Log Out
@@ -72,52 +69,36 @@ const AvatarWidget = ({ user, totalPts, onLogout }) => {
   );
 };
 
-// ── Rules Modal with Shield Teaser ──────────────────────────────────────────────
-const RulesModal = ({ onAccept }) => (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-background/95 backdrop-blur-xl">
-    <div className="relative w-full max-w-lg rounded-[2.5rem] border border-primary/40 p-8 sm:p-10 overflow-hidden animate-in zoom-in-95" 
-         style={{ background: 'linear-gradient(145deg, rgba(15,22,45,0.95), rgba(8,12,25,0.98))', boxShadow: '0 0 100px rgba(31,111,235,0.3)' }}>
-      
-      <div className="text-center mb-8">
-        <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary uppercase tracking-widest text-xs font-bold mb-4 font-ui">
-          Initialization
-        </div>
-        <h2 className="font-heading text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-pink-500 mb-2 uppercase tracking-tight">Mission Briefing</h2>
-        <p className="text-secondary-text text-sm">Follow the rules to forge your shield!</p>
-      </div>
-
-      {/* Shield Teaser */}
-      <div className="bg-white/5 rounded-3xl p-6 mb-8 border border-white/10 flex flex-col items-center">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-accent mb-4">You are building this:</p>
-        <ShieldProgressBar completedDays={1} mini={true} />
-        <p className="text-xs text-secondary-text mt-4 text-center">Complete today's missions to lock in Day 1 progress!</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {[
-          ['🎯', 'No Skipping'],
-          ['🤝', 'Real Connection'],
-          ['🎨', 'Real Effort'],
-          ['🏆', 'Honor Code']
-        ].map(([icon, label]) => (
-          <div key={label} className="bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col items-center justify-center gap-2 text-center">
-            <span className="text-2xl">{icon}</span>
-            <span className="text-white font-bold text-[11px] uppercase tracking-wide">{label}</span>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={onAccept}
-        className="w-full py-5 rounded-full font-heading font-black text-white text-xl tracking-widest uppercase transition-all hover:scale-[1.02] shadow-[0_15px_30px_rgba(31,111,235,0.4)]"
-        style={{ background: 'linear-gradient(135deg, #1f6feb, #7c4dff)' }}
-      >
-        START JOURNEY 🚀
-      </button>
+// ── XP Float Animation ─────────────────────────────────────────────────────
+const XPToast = ({ pts, color }) => (
+  <div
+    className="fixed top-24 right-6 z-[200] pointer-events-none animate-in fade-in slide-in-from-bottom-4 duration-300"
+    style={{ animation: 'xpFloat 2.5s ease-out forwards' }}
+  >
+    <div className="px-5 py-3 rounded-full font-heading font-black text-2xl text-white shadow-2xl border border-white/20"
+         style={{ background: `linear-gradient(135deg, ${color}, #f59e0b)`, boxShadow: `0 10px 30px ${color}60` }}>
+      +{pts} XP ⚡
     </div>
+    <style>{`@keyframes xpFloat { 0%{opacity:0;transform:translateY(20px) scale(0.8)} 20%{opacity:1;transform:translateY(0) scale(1.1)} 70%{opacity:1;transform:translateY(-20px) scale(1)} 100%{opacity:0;transform:translateY(-50px) scale(0.9)} }`}</style>
   </div>
 );
 
+// ── Points Progress Bar ────────────────────────────────────────────────────
+const PointsBar = ({ label, value, max = 150, color }) => {
+  const pct = Math.min((value / max) * 100, 100);
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-secondary-text text-xs font-black uppercase tracking-wider w-16 shrink-0">{label}</span>
+      <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-1000 ease-out"
+             style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}99)`, boxShadow: `0 0 8px ${color}60` }} />
+      </div>
+      <span className="text-white text-xs font-black w-10 text-right">{value}</span>
+    </div>
+  );
+};
+
+// ── Gamified Mission Card ─────────────────────────────────────────────────────
 const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, delay, onReview }) => {
   const ref = useRef(null);
   const { playClick, playError } = useSound();
@@ -135,41 +116,34 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
       className={`relative rounded-[2rem] p-6 lg:p-8 overflow-hidden transition-all duration-300 group ${isLocked ? '' : 'cursor-pointer hover:scale-[1.02]'}`}
       style={{
         background: isAvailable ? `linear-gradient(145deg, ${color}20, rgba(11,18,38,0.95))` : 'linear-gradient(145deg, rgba(15,22,45,0.6), rgba(8,12,25,0.8))',
-        border: `2px solid ${isAvailable ? color : 'rgba(255,255,255,0.05)'}`,
-        boxShadow: isAvailable ? `0 10px 40px ${color}30 inset, 0 0 30px ${color}20` : 'none',
+        border: `2px solid ${isAvailable ? color : isCompleted ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.05)'}`,
+        boxShadow: isAvailable ? `0 10px 40px ${color}30 inset, 0 0 30px ${color}20` : isCompleted ? '0 0 20px rgba(74,222,128,0.1)' : 'none',
       }}
       onClick={() => {
-        if (isLocked) {
-          playError();
-        } else if (isCompleted && onReview) {
-          playClick();
-          onReview();
-        } else if (onClick) {
-          playClick();
-          onClick();
-        }
+        if (isLocked) { playError(); }
+        else if (isCompleted && onReview) { playClick(); onReview(); }
+        else if (onClick) { playClick(); onClick(); }
       }}
     >
       <div className="relative z-10 flex flex-col sm:flex-row gap-6 items-center">
-        
-        {/* Giant Game Icon */}
+
         <div className="flex-shrink-0 relative">
-          <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-6xl shadow-inner relative z-10 transition-transform group-hover:scale-110" 
+          <div className="w-24 h-24 rounded-3xl flex items-center justify-center text-6xl shadow-inner relative z-10 transition-transform group-hover:scale-110"
                style={{ background: `${color}15`, border: `2px solid ${color}40`, filter: isLocked ? 'grayscale(1) brightness(0.5)' : 'none' }}>
             {isLocked ? '🔒' : isCompleted ? '✅' : icon}
           </div>
           {isAvailable && <div className="absolute inset-0 rounded-3xl blur-2xl opacity-40 animate-pulse" style={{ background: color }} />}
         </div>
-        
+
         <div className="flex-grow w-full text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border" 
-                  style={{ 
-                    borderColor: isCompleted ? '#4ade80' : isAvailable ? color : 'rgba(255,255,255,0.2)', 
+            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border"
+                  style={{
+                    borderColor: isCompleted ? '#4ade80' : isAvailable ? color : 'rgba(255,255,255,0.2)',
                     color: isCompleted ? '#4ade80' : isAvailable ? color : 'rgba(255,255,255,0.5)',
                     background: isCompleted ? 'rgba(74,222,128,0.1)' : isAvailable ? `${color}15` : 'rgba(255,255,255,0.05)'
                   }}>
-              {isCompleted ? 'CLEARED' : isAvailable ? 'ACTIVE' : 'LOCKED'}
+              {isCompleted ? 'CLEARED ✓' : isAvailable ? 'ACTIVE' : 'LOCKED'}
             </span>
             <span className="text-sm font-ui font-black uppercase tracking-widest" style={{ color: isLocked ? '#666' : color }}>{points}</span>
           </div>
@@ -177,7 +151,7 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
           <p className="text-secondary-text text-sm sm:text-base pr-0 sm:pr-8">{subtitle}</p>
         </div>
 
-        <div className="flex-shrink-0 w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+        <div className="flex-shrink-0 w-full sm:w-auto flex gap-2">
           {isCompleted && onReview && (
             <button
               onClick={(e) => { e.stopPropagation(); playClick(); onReview(); }}
@@ -187,7 +161,7 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
             </button>
           )}
           <button
-            className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all flex items-center justify-center gap-3`}
+            className="flex-1 sm:flex-none px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all flex items-center justify-center gap-3"
             style={{
               background: isAvailable ? color : 'transparent',
               color: isAvailable ? '#fff' : isCompleted ? '#4ade80' : '#666',
@@ -195,7 +169,7 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
               boxShadow: isAvailable ? `0 10px 20px ${color}60` : 'none'
             }}
           >
-            {isAvailable ? 'PLAY NOW' : isCompleted ? 'REVIEWED' : 'RESTRICTED'}
+            {isAvailable ? 'PLAY NOW' : isCompleted ? 'DONE' : 'RESTRICTED'}
             {isAvailable && <FaArrowRight className="text-lg group-hover:translate-x-2 transition-transform" />}
           </button>
         </div>
@@ -204,64 +178,65 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
   );
 };
 
-// ── Main Day1 Page ────────────────────────────────────────────────────────────
-export default function Day1Page() {
+// ── Main Template ─────────────────────────────────────────────────────────────
+export function DayPageTemplate({ dayNumber, themeColor, title, subtitle, missionsConfig, M1Component, M2Component, M3Component }) {
   const { user, signOut } = useAuth();
   const { setHideNavbar } = useUI();
-  const [showRules,   setShowRules]   = useState(() => !localStorage.getItem('chizel_rules_seen_vx'));
-  const [view,        setView]        = useState('overview'); // 'overview' | 'm1' | 'm2' | 'm3' | 'done'
-  const [reward,      setReward]      = useState(null);
-  const [missions,    setMissions]    = useState({ m1: false, m2: false, m3: false });
-  const [scores,      setScores]      = useState({ brain: 0, social: 0, creator: 0 });
-  const [savedMeta,   setSavedMeta]   = useState({ m1: null, m2: null, m3: null });
-  const [allTimeXP,   setAllTimeXP]   = useState(0);
-  const [loading,     setLoading]     = useState(true);
+  const [view,        setView]       = useState('overview'); // 'overview'|'m1'|'m2'|'m3'|'review_m1'|'review_m2'|'review_m3'|'done'
+  const [reward,      setReward]     = useState(null);
+  const [missions,    setMissions]   = useState({ m1: false, m2: false, m3: false });
+  const [scores,      setScores]     = useState({ brain: 0, social: 0, creator: 0 });
+  const [savedMeta,   setSavedMeta]  = useState({ m1: null, m2: null, m3: null });
+  const [allTimeXP,   setAllTimeXP]  = useState(0);
+  const [loading,     setLoading]    = useState(true);
+  const [xpToast,     setXpToast]   = useState(null);
 
   useEffect(() => {
     setHideNavbar(view !== 'overview');
     return () => setHideNavbar(false);
   }, [setHideNavbar, view]);
 
-  // Always start at the very top when switching views
   useEffect(() => {
     try {
-      // Bypass Lenis smooth-scroll for instant jump
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    } catch (_) {
-      window.scrollTo(0, 0);
-    }
+    } catch (_) { window.scrollTo(0, 0); }
   }, [view]);
 
+  // Fetch this day's progress + all-time XP
   useEffect(() => {
     let isMounted = true;
     const fetchProgress = async () => {
       if (!user) { setLoading(false); return; }
       try {
-        const { data, error } = await supabase.from('mission_progress').select('*').eq('user_id', user.id).eq('day', 1);
+        // This day's missions
+        const { data: dayData, error } = await supabase
+          .from('mission_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('day', dayNumber);
         if (error) throw error;
-        
-        if (data && data.length > 0 && isMounted) {
+
+        if (dayData && dayData.length > 0 && isMounted) {
           const completed = { m1: false, m2: false, m3: false };
           const loadedScores = { brain: 0, social: 0, creator: 0 };
           const meta = { m1: null, m2: null, m3: null };
-          
-          data.forEach(m => {
+
+          dayData.forEach(m => {
             if (m.mission === 1 && m.completed) { completed.m1 = true; loadedScores.brain = m.points || 0; meta.m1 = m.metadata; }
             if (m.mission === 2 && m.completed) { completed.m2 = true; loadedScores.social = m.points || 0; meta.m2 = m.metadata; }
             if (m.mission === 3 && m.completed) { completed.m3 = true; loadedScores.creator = m.points || 0; meta.m3 = m.metadata; }
           });
-          
+
           setMissions(completed);
           setScores(loadedScores);
           setSavedMeta(meta);
 
-          if (completed.m1 && completed.m2 && completed.m3) {
-            setView('done');
-          }
+          if (completed.m1 && completed.m2 && completed.m3) setView('done');
         }
 
+        // All-time XP (all days)
         const { data: allData } = await supabase
           .from('mission_progress')
           .select('points')
@@ -279,12 +254,12 @@ export default function Day1Page() {
     };
     fetchProgress();
     return () => { isMounted = false; };
-  }, [user]);
+  }, [user, dayNumber]);
 
-  const acceptRules = () => {
-    localStorage.setItem('chizel_rules_seen_vx', '1');
-    setShowRules(false);
-  };
+  const showXPToast = useCallback((pts, color) => {
+    setXpToast({ pts, color });
+    setTimeout(() => setXpToast(null), 2500);
+  }, []);
 
   const completeMission = useCallback((mission, points, rewardData, metadata = {}) => {
     const pts = Object.values(points)[0];
@@ -292,49 +267,49 @@ export default function Day1Page() {
     setScores(prev => ({ ...prev, ...points }));
     setAllTimeXP(prev => prev + pts);
     setSavedMeta(prev => ({ ...prev, [mission]: metadata }));
-    
+    showXPToast(pts, rewardData.color || themeColor);
+
     if (user) {
       supabase.from('mission_progress').upsert({
         user_id:      user.id,
-        day:          1,
+        day:          dayNumber,
         mission:      parseInt(mission.replace('m', '')),
         completed:    true,
-        points:       Object.values(points)[0],
+        points:       pts,
         metadata:     metadata,
         completed_at: new Date().toISOString(),
       }, { onConflict: 'user_id,day,mission' });
     }
-    
+
     setReward({ ...rewardData, onContinue: () => { setReward(null); setView('overview'); } });
-  }, [user]);
+  }, [user, dayNumber, themeColor, showXPToast]);
 
-  const onM1Complete = useCallback(() => completeMission('m1', { brain: 50 }, {
-    emoji: '🧠', title: 'Brain Power Unlocked!', points: '+50 Brain Points', color: '#3b82f6',
-  }), [completeMission]);
+  const onM1Complete = useCallback(() =>
+    completeMission('m1', { brain: 50 }, missionsConfig.m1.reward),
+  [completeMission, missionsConfig]);
 
-  const onM2Complete = useCallback(() => completeMission('m2', { social: 50 }, {
-    emoji: '🤝', title: 'Social Power Unlocked!', points: '+50 Social Points', color: '#7c4dff',
-  }), [completeMission]);
+  const onM2Complete = useCallback((payload) =>
+    completeMission('m2', { social: 50 }, missionsConfig.m2.reward,
+      typeof payload === 'object' ? payload : {}),
+  [completeMission, missionsConfig]);
 
-  const onM3Complete = useCallback((imageUrl) => {
-    completeMission('m3', { creator: 50 }, {
-      emoji: '🎨', title: 'Creator Power Unlocked!', points: '+50 Creator Points', color: '#f59e0b',
-    }, { image_url: imageUrl });
-    
-    // Auto-transition to done screen
-    setTimeout(() => {
-      setReward(null);
-      setView('done');
-    }, 4000); // give them plenty of time to enjoy the reward before cutting to tomorrow
-  }, [completeMission]);
+  const onM3Complete = useCallback((urlOrMetadata) => {
+    completeMission('m3', { creator: 50 }, missionsConfig.m3.reward,
+      typeof urlOrMetadata === 'string' ? { image_url: urlOrMetadata } : (urlOrMetadata || {}));
+    setTimeout(() => { setReward(null); setView('done'); }, 4000);
+  }, [completeMission, missionsConfig]);
 
-  if (view === 'm1') return <><Mission1 onComplete={onM1Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm2') return <><Mission2 onComplete={onM2Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm3') return <><Mission3 onComplete={onM3Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'done') return <ComeBackTomorrow scores={scores} completedDays={1} />;
+  const totalPts = scores.brain + scores.social + scores.creator;
 
+  // ── Views ─────────────────────────────────────────────────────────────────
+  if (view === 'm1') return <><M1Component onComplete={onM1Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm2') return <><M2Component onComplete={onM2Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm3') return <><M3Component onComplete={onM3Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'done') return <ComeBackTomorrow scores={scores} completedDays={dayNumber} />;
+
+  // ── Review views ──────────────────────────────────────────────────────────
   if (view === 'review_m2') return (
-    <Mission2
+    <M2Component
       onComplete={() => {}}
       savedMeta={savedMeta.m2}
       onBack={() => setView('overview')}
@@ -345,7 +320,7 @@ export default function Day1Page() {
     const meta  = savedMeta[which];
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
-           style={{ background: `radial-gradient(100% 100% at 50% 0%, rgba(31,111,235,0.2) 0%, #050814 100%)` }}>
+           style={{ background: `radial-gradient(100% 100% at 50% 0%, ${themeColor}20 0%, #050814 100%)` }}>
         <div className="w-full max-w-xl">
           <div className="text-center mb-8">
             <div className="text-7xl mb-4">📊</div>
@@ -367,7 +342,7 @@ export default function Day1Page() {
           <button
             onClick={() => setView('overview')}
             className="w-full py-5 rounded-full font-heading font-black text-white text-xl tracking-widest uppercase hover:scale-[1.02] transition-all border border-white/20"
-            style={{ background: `linear-gradient(135deg, #1f6feb, #ec4899)` }}
+            style={{ background: `linear-gradient(135deg, ${themeColor}, #ec4899)` }}
           >
             ← BACK TO MISSIONS
           </button>
@@ -376,29 +351,31 @@ export default function Day1Page() {
     );
   }
 
-  const m1Status  = missions.m1 ? 'completed' : 'available';
-  const m2Status  = missions.m1 ? (missions.m2 ? 'completed' : 'available') : 'locked';
-  const m3Status  = missions.m2 ? (missions.m3 ? 'completed' : 'available') : 'locked';
-  const totalPts  = scores.brain + scores.social + scores.creator;
+  const m1Status = missions.m1 ? 'completed' : 'available';
+  const m2Status = missions.m1 ? (missions.m2 ? 'completed' : 'available') : 'locked';
+  const m3Status = missions.m2 ? (missions.m3 ? 'completed' : 'available') : 'locked';
 
   if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" /></div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin"
+             style={{ borderColor: themeColor, borderTopColor: 'transparent' }} />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-x-hidden selection:bg-primary/30">
-      
-      {/* Immersive Background */}
-      <div className="fixed inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 100% 100% at 50% -20%, rgba(31,111,235,0.15) 0%, transparent 80%)' }} />
-      {/* Background stars/particles */}
+    <div className="min-h-screen bg-background relative overflow-x-hidden selection:bg-white/10">
+      <div className="fixed inset-0 pointer-events-none"
+           style={{ background: `radial-gradient(ellipse 100% 100% at 50% -20%, ${themeColor}20 0%, transparent 80%)` }} />
       <div className="fixed top-20 left-10 w-2 h-2 rounded-full bg-white opacity-20 animate-pulse pointer-events-none" />
       <div className="fixed top-40 right-20 w-3 h-3 rounded-full bg-white opacity-10 animate-pulse pointer-events-none" style={{ animationDelay: '1s' }} />
-      <div className="fixed bottom-40 left-1/4 w-1.5 h-1.5 rounded-full bg-blue-500 opacity-30 animate-pulse pointer-events-none" style={{ animationDelay: '0.5s' }} />
+      <div className="fixed bottom-40 left-1/4 w-1.5 h-1.5 rounded-full opacity-30 animate-pulse pointer-events-none" style={{ backgroundColor: themeColor, animationDelay: '0.5s' }} />
 
-      {showRules && <RulesModal onAccept={acceptRules} />}
-      {reward    && <RewardBanner {...reward} />}
+      {/* XP Toast */}
+      {xpToast && <XPToast pts={xpToast.pts} color={xpToast.color} />}
+      {reward && <RewardBanner {...reward} />}
 
-      {/* Modern Header */}
       <header className="sticky top-0 z-[100] border-b border-white/5 bg-background/80 backdrop-blur-2xl">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -413,52 +390,32 @@ export default function Day1Page() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 mb-20">
-        
-        {/* Giant Hero Section */}
         <section className="py-12 sm:py-20 text-center animate-in fade-in slide-in-from-bottom-5 duration-700">
           <h1 className="font-heading text-6xl sm:text-8xl font-black text-white tracking-tight drop-shadow-2xl mb-4">
-            DAY 1 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">ADVENTURE</span> 🗺️
+            DAY {dayNumber} <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${themeColor}, #ec4899)` }}>{title}</span>
           </h1>
-          <p className="text-secondary-text text-lg sm:text-xl max-w-2xl mx-auto font-ui">Complete today's 3 epic challenges to forge the very first piece of your Chizel Shield.</p>
+          <p className="text-secondary-text text-lg sm:text-xl max-w-2xl mx-auto font-ui">{subtitle}</p>
+
+          {/* Points breakdown */}
+          {(scores.brain > 0 || scores.social > 0 || scores.creator > 0) && (
+            <div className="mt-8 max-w-sm mx-auto p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3 text-left">
+              <p className="text-center text-xs font-black uppercase tracking-widest text-secondary-text mb-4">Today's Progress</p>
+              <PointsBar label="Brain" value={scores.brain} color={themeColor} />
+              <PointsBar label="Social" value={scores.social} color="#6366f1" />
+              <PointsBar label="Creator" value={scores.creator} color="#10b981" />
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <span className="text-white/50 text-xs font-black uppercase tracking-wider">Day Total</span>
+                <span className="font-heading font-black text-yellow-400 text-lg">{totalPts} / 150 XP</span>
+              </div>
+            </div>
+          )}
         </section>
 
-        {/* Level List */}
         <section className="space-y-6">
-          <MissionCard
-            icon="🧠"
-            title="Brain Blaster"
-            subtitle="Fire up your neurons with 5 lightning-fast logic challenges"
-            points="+50 XP"
-            status={m1Status}
-            color="#3b82f6"
-            onClick={() => setView('m1')}
-            onReview={() => setView('review_m1')}
-            delay={0}
-          />
-          <MissionCard
-            icon="🤝"
-            title="Family Quest"
-            subtitle="Discover an awesome secret from someone at home"
-            points="+50 XP"
-            status={m2Status}
-            color="#7c4dff"
-            onClick={() => setView('m2')}
-            onReview={() => setView('review_m2')}
-            delay={1}
-          />
-          <MissionCard
-            icon="🎨"
-            title="Creator Studio"
-            subtitle="Unleash your art skills and capture a masterpiece"
-            points="+50 XP"
-            status={m3Status}
-            color="#f59e0b"
-            onClick={() => setView('m3')}
-            onReview={() => setView('review_m3')}
-            delay={2}
-          />
+          <MissionCard {...missionsConfig.m1} status={m1Status} onClick={() => setView('m1')} onReview={() => setView('review_m1')} delay={0} />
+          <MissionCard {...missionsConfig.m2} status={m2Status} onClick={() => setView('m2')} onReview={() => setView('review_m2')} delay={1} />
+          <MissionCard {...missionsConfig.m3} status={m3Status} onClick={() => setView('m3')} onReview={() => setView('review_m3')} delay={2} />
         </section>
-
       </main>
     </div>
   );
