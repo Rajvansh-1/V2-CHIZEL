@@ -18,7 +18,7 @@ const AuthCallbackPage = () => {
     // Supabase automatically handles the token from the URL hash
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate(onboardingDone ? '/day/1' : '/onboarding', { replace: true });
+        navigate(onboardingDone ? '/dashboard' : '/onboarding', { replace: true });
       } else {
         navigate('/', { replace: true });
       }

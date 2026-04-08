@@ -302,9 +302,9 @@ export function DayPageTemplate({ dayNumber, themeColor, title, subtitle, missio
   const totalPts = scores.brain + scores.social + scores.creator;
 
   // ── Views ─────────────────────────────────────────────────────────────────
-  if (view === 'm1') return <><M1Component onComplete={onM1Complete} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm2') return <><M2Component onComplete={onM2Complete} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm3') return <><M3Component onComplete={onM3Complete} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm1') return <><M1Component onComplete={onM1Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm2') return <><M2Component onComplete={onM2Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm3') return <><M3Component onComplete={onM3Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
   if (view === 'done') return <ComeBackTomorrow scores={scores} completedDays={dayNumber} />;
 
   // ── Review views ──────────────────────────────────────────────────────────

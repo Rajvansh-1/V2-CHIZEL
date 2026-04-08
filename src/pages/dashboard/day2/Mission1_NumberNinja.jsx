@@ -9,7 +9,7 @@ const BOOSTER_LEVELS = [
   { level: 5, title: 'Memory Flash',     question: 'You saw: 🐶 🍎 🚗 — What was FIRST?', options: ['🍎','🚗','🐶','🏠'], correctIndex: 2 },
 ];
 
-export const Mission1_BrainBooster = ({ onComplete }) => {
+export const Mission1_BrainBooster = ({ onComplete, onBack }) => {
   const [level,     setLevel]    = useState(0);
   const [selected,  setSelected] = useState(null);
   const [feedback,  setFeedback] = useState(null);
@@ -90,7 +90,7 @@ export const Mission1_BrainBooster = ({ onComplete }) => {
           </div>
         )}
 
-        <button onClick={() => { stopBgMusic(); window.location.reload(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        <button onClick={() => { stopBgMusic(); if (onBack) onBack(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
           ✕
         </button>
       </div>

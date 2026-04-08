@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useSound } from '@/hooks/useSound';
 import { FaUpload, FaTimes } from 'react-icons/fa';
 
-export const Mission3_EmojiChallenge = ({ onComplete }) => {
+export const Mission3_EmojiChallenge = ({ onComplete, onBack }) => {
   const { user } = useAuth();
   const [phase,     setPhase]    = useState('instructions');
   const [funniness, setFunniness]= useState(null);
@@ -58,7 +58,7 @@ export const Mission3_EmojiChallenge = ({ onComplete }) => {
             <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: phase === 'upload' ? '100%' : phase === 'rating' ? '65%' : '20%' }} />
           </div>
         </div>
-        <button onClick={() => window.location.reload()} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">✕</button>
+        <button onClick={() => { if (onBack) onBack(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">✕</button>
       </div>
 
       {/* Phase: Instructions */}

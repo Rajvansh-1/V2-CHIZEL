@@ -5,7 +5,7 @@ import { useUI } from '@/context/UIContext';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useSound } from '@/hooks/useSound';
-import { FaArrowRight, FaStar, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
+import { FaArrowRight, FaStar, FaSignOutAlt, FaChevronDown, FaEye } from 'react-icons/fa';
 
 import { Mission1 } from './day1/Mission1';
 import { Mission2 } from './day1/Mission2';
@@ -118,8 +118,7 @@ const RulesModal = ({ onAccept }) => (
   </div>
 );
 
-// ── Gamified Mission Card ────────────────────────────────────────────────────────
-const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, delay }) => {
+const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, delay, onReview }) => {
   const ref = useRef(null);
   const { playClick, playError } = useSound();
   useGSAP(() => {
@@ -142,6 +141,9 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
       onClick={() => {
         if (isLocked) {
           playError();
+        } else if (isCompleted && onReview) {
+          playClick();
+          onReview();
         } else if (onClick) {
           playClick();
           onClick();
@@ -175,7 +177,15 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
           <p className="text-secondary-text text-sm sm:text-base pr-0 sm:pr-8">{subtitle}</p>
         </div>
 
-        <div className="flex-shrink-0 w-full sm:w-auto">
+        <div className="flex-shrink-0 w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+          {isCompleted && onReview && (
+            <button
+              onClick={(e) => { e.stopPropagation(); playClick(); onReview(); }}
+              className="px-5 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all flex items-center gap-2 border border-white/10 hover:border-white/30 text-white/50 hover:text-white"
+            >
+              <FaEye /> REVIEW
+            </button>
+          )}
           <button
             className={`w-full sm:w-auto px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all flex items-center justify-center gap-3`}
             style={{
@@ -185,7 +195,7 @@ const MissionCard = ({ icon, title, subtitle, points, status, color, onClick, de
               boxShadow: isAvailable ? `0 10px 20px ${color}60` : 'none'
             }}
           >
-            {isAvailable ? 'PLAY NOW' : isCompleted ? 'REVIEW' : 'RESTRICTED'}
+            {isAvailable ? 'PLAY NOW' : isCompleted ? 'REVIEWED' : 'RESTRICTED'}
             {isAvailable && <FaArrowRight className="text-lg group-hover:translate-x-2 transition-transform" />}
           </button>
         </div>
@@ -203,6 +213,8 @@ export default function Day1Page() {
   const [reward,      setReward]      = useState(null);
   const [missions,    setMissions]    = useState({ m1: false, m2: false, m3: false });
   const [scores,      setScores]      = useState({ brain: 0, social: 0, creator: 0 });
+  const [savedMeta,   setSavedMeta]   = useState({ m1: null, m2: null, m3: null });
+  const [allTimeXP,   setAllTimeXP]   = useState(0);
   const [loading,     setLoading]     = useState(true);
 
   useEffect(() => {
@@ -233,19 +245,31 @@ export default function Day1Page() {
         if (data && data.length > 0 && isMounted) {
           const completed = { m1: false, m2: false, m3: false };
           const loadedScores = { brain: 0, social: 0, creator: 0 };
+          const meta = { m1: null, m2: null, m3: null };
           
           data.forEach(m => {
-            if (m.mission === 1 && m.completed) { completed.m1 = true; loadedScores.brain = m.points || 0; }
-            if (m.mission === 2 && m.completed) { completed.m2 = true; loadedScores.social = m.points || 0; }
-            if (m.mission === 3 && m.completed) { completed.m3 = true; loadedScores.creator = m.points || 0; }
+            if (m.mission === 1 && m.completed) { completed.m1 = true; loadedScores.brain = m.points || 0; meta.m1 = m.metadata; }
+            if (m.mission === 2 && m.completed) { completed.m2 = true; loadedScores.social = m.points || 0; meta.m2 = m.metadata; }
+            if (m.mission === 3 && m.completed) { completed.m3 = true; loadedScores.creator = m.points || 0; meta.m3 = m.metadata; }
           });
           
           setMissions(completed);
           setScores(loadedScores);
+          setSavedMeta(meta);
 
           if (completed.m1 && completed.m2 && completed.m3) {
             setView('done');
           }
+        }
+
+        const { data: allData } = await supabase
+          .from('mission_progress')
+          .select('points')
+          .eq('user_id', user.id)
+          .eq('completed', true);
+
+        if (allData && isMounted) {
+          setAllTimeXP(allData.reduce((sum, r) => sum + (r.points || 0), 0));
         }
       } catch (err) {
         console.error(err);
@@ -263,8 +287,11 @@ export default function Day1Page() {
   };
 
   const completeMission = useCallback((mission, points, rewardData, metadata = {}) => {
+    const pts = Object.values(points)[0];
     setMissions(prev => ({ ...prev, [mission]: true }));
     setScores(prev => ({ ...prev, ...points }));
+    setAllTimeXP(prev => prev + pts);
+    setSavedMeta(prev => ({ ...prev, [mission]: metadata }));
     
     if (user) {
       supabase.from('mission_progress').upsert({
@@ -301,10 +328,53 @@ export default function Day1Page() {
     }, 4000); // give them plenty of time to enjoy the reward before cutting to tomorrow
   }, [completeMission]);
 
-  if (view === 'm1') return <><Mission1 onComplete={onM1Complete} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm2') return <><Mission2 onComplete={onM2Complete} />{reward && <RewardBanner {...reward} />}</>;
-  if (view === 'm3') return <><Mission3 onComplete={onM3Complete} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm1') return <><Mission1 onComplete={onM1Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm2') return <><Mission2 onComplete={onM2Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
+  if (view === 'm3') return <><Mission3 onComplete={onM3Complete} onBack={() => setView('overview')} />{reward && <RewardBanner {...reward} />}</>;
   if (view === 'done') return <ComeBackTomorrow scores={scores} completedDays={1} />;
+
+  if (view === 'review_m2') return (
+    <Mission2
+      onComplete={() => {}}
+      savedMeta={savedMeta.m2}
+      onBack={() => setView('overview')}
+    />
+  );
+  if (view === 'review_m1' || view === 'review_m3') {
+    const which = view === 'review_m1' ? 'm1' : 'm3';
+    const meta  = savedMeta[which];
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
+           style={{ background: `radial-gradient(100% 100% at 50% 0%, rgba(31,111,235,0.2) 0%, #050814 100%)` }}>
+        <div className="w-full max-w-xl">
+          <div className="text-center mb-8">
+            <div className="text-7xl mb-4">📊</div>
+            <h2 className="font-heading text-4xl font-black text-white uppercase tracking-widest mb-2">Mission Summary</h2>
+            <p className="text-secondary-text font-ui">You already completed this mission!</p>
+          </div>
+          <div className="space-y-4 mb-8">
+            <div className="p-5 rounded-2xl border border-green-500/30 bg-green-500/10 text-center">
+              <p className="text-5xl mb-2">✅</p>
+              <p className="font-heading font-black text-2xl text-white">Mission Cleared!</p>
+              <p className="text-green-400 font-black">+{which === 'm1' ? scores.brain : scores.creator} XP Earned</p>
+            </div>
+            {meta?.image_url && (
+              <div className="rounded-2xl overflow-hidden border border-white/10">
+                <img src={meta.image_url} alt="Your upload" className="w-full object-cover max-h-64" />
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setView('overview')}
+            className="w-full py-5 rounded-full font-heading font-black text-white text-xl tracking-widest uppercase hover:scale-[1.02] transition-all border border-white/20"
+            style={{ background: `linear-gradient(135deg, #1f6feb, #ec4899)` }}
+          >
+            ← BACK TO MISSIONS
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const m1Status  = missions.m1 ? 'completed' : 'available';
   const m2Status  = missions.m1 ? (missions.m2 ? 'completed' : 'available') : 'locked';
@@ -338,7 +408,7 @@ export default function Day1Page() {
               <span className="text-secondary-text text-[10px] font-black uppercase tracking-widest">Adventure Mode</span>
             </div>
           </div>
-          <AvatarWidget user={user} totalPts={totalPts} onLogout={signOut} />
+          <AvatarWidget user={user} totalPts={allTimeXP} onLogout={signOut} />
         </div>
       </header>
 
@@ -362,6 +432,7 @@ export default function Day1Page() {
             status={m1Status}
             color="#3b82f6"
             onClick={() => setView('m1')}
+            onReview={() => setView('review_m1')}
             delay={0}
           />
           <MissionCard
@@ -372,6 +443,7 @@ export default function Day1Page() {
             status={m2Status}
             color="#7c4dff"
             onClick={() => setView('m2')}
+            onReview={() => setView('review_m2')}
             delay={1}
           />
           <MissionCard
@@ -382,6 +454,7 @@ export default function Day1Page() {
             status={m3Status}
             color="#f59e0b"
             onClick={() => setView('m3')}
+            onReview={() => setView('review_m3')}
             delay={2}
           />
         </section>

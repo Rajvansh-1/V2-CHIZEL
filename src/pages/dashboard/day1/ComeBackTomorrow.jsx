@@ -180,22 +180,13 @@ export const ShieldProgressBar = ({ completedDays = 0, mini = false }) => {
 };
 
 // ── Bonus Mission — Chizel Tree ───────────────────────────────────────────────
-const BonusMission = ({ user }) => {
+const BonusMission = ({ user, onComplete }) => {
   const [phase, setPhase] = useState('reveal'); // reveal | instructions | upload | success
   const [preview, setPreview] = useState(null);
   const [treeName, setTreeName] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [alreadyDone, setAlreadyDone] = useState(false);
   const fileRef = useRef(null);
   const revealRef = useRef(null);
-
-  // Check if already submitted
-  useEffect(() => {
-    if (!user) return;
-    supabase.from('bonus_missions').select('id').eq('user_id', user.id).limit(1).then(({ data }) => {
-      if (data && data.length > 0) setAlreadyDone(true);
-    });
-  }, [user]);
 
   // Animate reveal phase
   useGSAP(() => {
@@ -453,7 +444,20 @@ export const ComeBackTomorrow = ({ scores, completedDays }) => {
   const isDay5    = completedDays === 5;
   const [realXP,  setRealXP]  = useState(dayTotal);
   const [timeLeft, setTimeLeft] = useState('00:00:00');
-  const [showBonus, setShowBonus] = useState(false);
+  const [treeDone, setTreeDone] = useState(false);
+  const [checkingTree, setCheckingTree] = useState(true);
+
+  // Check if Day 5 Tree is done
+  useEffect(() => {
+    if (isDay5 && user) {
+      supabase.from('bonus_missions').select('id').eq('user_id', user.id).limit(1).then(({ data }) => {
+        if (data && data.length > 0) setTreeDone(true);
+        setCheckingTree(false);
+      });
+    } else {
+      setCheckingTree(false);
+    }
+  }, [user, isDay5]);
 
   // Fetch all-time XP
   useEffect(() => {
@@ -485,13 +489,7 @@ export const ComeBackTomorrow = ({ scores, completedDays }) => {
     return () => clearInterval(id);
   }, []);
 
-  // Day 5: show bonus after shield anim completes
-  useEffect(() => {
-    if (isDay5) {
-      const t = setTimeout(() => setShowBonus(true), 4000);
-      return () => clearTimeout(t);
-    }
-  }, [isDay5]);
+  // We don't use showBonus anymore because the exact same `BonusMission` handles it before rendering shield
 
   useGSAP(() => {
     const tl = gsap.timeline();
@@ -502,50 +500,72 @@ export const ComeBackTomorrow = ({ scores, completedDays }) => {
   }, { scope: ref });
 
   return (
-    <div ref={ref} className="min-h-screen flex flex-col items-center justify-start px-4 py-10 relative overflow-hidden"
-      style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(124,77,255,0.15), transparent 60%), linear-gradient(180deg, #050814, #080c20)' }}>
+    <>
+      {checkingTree && (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        </div>
+      )}
+      {!checkingTree && isDay5 && !treeDone && (
+        <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(34,197,94,0.15), transparent 60%), linear-gradient(180deg, #050814, #052e16)' }}>
+          <BonusMission user={user} onComplete={() => setTreeDone(true)} />
+        </div>
+      )}
+      {!checkingTree && (!isDay5 || treeDone) && (
+        <div ref={ref} className="min-h-screen flex flex-col items-center justify-start px-4 py-10 relative overflow-hidden"
+             style={{ background: isDay5 ? 'radial-gradient(ellipse 150% 100% at 50% -20%, rgba(251,191,36,0.3), #020617 70%)' : 'radial-gradient(ellipse 120% 80% at 50% 0%, rgba(124,77,255,0.15), transparent 60%), linear-gradient(180deg, #050814, #080c20)' }}>
 
-      {(isDay5) && <Confetti count={100} />}
+      {(isDay5) && <Confetti count={200} />}
 
       {/* BG rings */}
       <div className="fixed inset-0 -z-10 flex items-center justify-center pointer-events-none">
         <div className="cbt-lock-ring absolute w-[500px] h-[500px] rounded-full border-[2px] border-dashed border-primary/20" />
         <div className="cbt-lock-ring absolute w-[700px] h-[700px] rounded-full border-[1px] border-dashed border-accent/10" style={{ animationDelay: '-6s' }} />
+        {isDay5 && (
+          <div className="absolute w-full h-[600px] top-[-100px] bg-yellow-500/10 blur-[120px] rounded-full pointer-events-none" />
+        )}
       </div>
 
-      <div className="cbt-card w-full max-w-lg mt-4">
+      <div className={`cbt-card w-full mt-4 ${isDay5 ? 'max-w-2xl' : 'max-w-lg'}`}>
 
         {/* Day cleared badge */}
         <div className="cbt-el flex justify-center mb-6">
-          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full border-2"
+          <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full border-2"
             style={{
-              borderColor: isDay5 ? 'rgba(250,204,21,0.5)' : 'rgba(16,185,129,0.4)',
-              background:  isDay5 ? 'rgba(250,204,21,0.1)' : 'rgba(16,185,129,0.1)',
-              boxShadow:   isDay5 ? '0 0 25px rgba(250,204,21,0.3)' : '0 0 20px rgba(16,185,129,0.3)'
+              borderColor: isDay5 ? 'rgba(250,204,21,0.8)' : 'rgba(16,185,129,0.4)',
+              background:  isDay5 ? 'rgba(250,204,21,0.15)' : 'rgba(16,185,129,0.1)',
+              boxShadow:   isDay5 ? '0 0 40px rgba(250,204,21,0.5)' : '0 0 20px rgba(16,185,129,0.3)',
+              transform: isDay5 ? 'scale(1.1)' : 'none'
             }}>
-            <span className="w-3 h-3 rounded-full animate-pulse" style={{ background: isDay5 ? '#fbbf24' : '#4ade80', boxShadow: isDay5 ? '0 0 10px #fbbf24' : '0 0 10px #4ade80' }} />
-            <span className="text-sm font-black uppercase tracking-[0.2em]" style={{ color: isDay5 ? '#fbbf24' : '#4ade80' }}>
-              {isDay5 ? '🏆 ALL 5 DAYS COMPLETE!' : `DAY ${completedDays} CLEARED! ✅`}
+            <span className="w-4 h-4 rounded-full animate-pulse" style={{ background: isDay5 ? '#fbbf24' : '#4ade80', boxShadow: isDay5 ? '0 0 15px #fbbf24' : '0 0 10px #4ade80' }} />
+            <span className={`font-black uppercase tracking-[0.25em] ${isDay5 ? 'text-lg text-yellow-300 drop-shadow-md' : 'text-sm text-green-400'}`}>
+              {isDay5 ? '🏆 ULTIMATE JOURNEY COMPLETE!' : `DAY ${completedDays} CLEARED! ✅`}
             </span>
           </div>
         </div>
 
         {/* Shield */}
-        <div className="cbt-el flex justify-center mb-8 relative">
-          <div className="absolute inset-0 blur-[80px] rounded-full mix-blend-screen pointer-events-none"
-            style={{ background: isDay5 ? 'rgba(250,204,21,0.2)' : 'rgba(124,77,255,0.2)' }} />
-          <ShieldProgressBar completedDays={completedDays} />
+        <div className="cbt-el flex justify-center relative" style={{ marginBottom: isDay5 ? '3rem' : '2rem' }}>
+          {isDay5 && (
+            <div className="absolute inset-0 top-[-50px] bottom-[-50px] blur-[100px] mix-blend-screen pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(250,204,21,0.4) 0%, transparent 60%)' }} />
+          )}
+          <div style={{ transform: isDay5 ? 'scale(1.4)' : 'scale(1)' }} className="transition-transform duration-1000 ease-out">
+             <ShieldProgressBar completedDays={completedDays} />
+          </div>
         </div>
 
         {/* Title */}
-        <div className="cbt-el text-center mb-8">
+        <div className="cbt-el text-center mb-10 mt-10">
           {isDay5 ? (
-            <>
-              <h1 className="font-heading text-5xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 leading-tight tracking-tight mb-4 drop-shadow-xl">
-                YOU DID IT! 🎉
+            <div className="animate-in slide-in-from-bottom-10 fade-in duration-1000 delay-300">
+              <h1 className="font-heading text-6xl sm:text-[90px] font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-200 via-yellow-400 to-amber-600 leading-[1.1] tracking-tight mb-4 drop-shadow-[0_10px_30px_rgba(250,204,21,0.5)]" style={{ filter: 'drop-shadow(0 0 10px rgba(250,204,21,0.3))' }}>
+                YOU DID IT!
               </h1>
-              <p className="text-secondary-text text-lg sm:text-xl font-ui">Your shield is complete. You are an official <strong className="text-white">Chizel Explorer!</strong></p>
-            </>
+              <p className="text-yellow-100/80 text-xl sm:text-2xl font-ui font-bold max-w-lg mx-auto leading-relaxed">
+                Your Chizel Shield is permanently forged. You are officially an elite <strong className="text-yellow-400 tracking-widest uppercase">Chizel Explorer!</strong> 🌍⚡
+              </p>
+            </div>
           ) : (
             <>
               <h1 className="font-heading text-5xl sm:text-6xl font-black text-white leading-tight tracking-tight mb-4 drop-shadow-xl">
@@ -558,51 +578,60 @@ export const ComeBackTomorrow = ({ scores, completedDays }) => {
         </div>
 
         {/* XP Card */}
-        <div className="cbt-el rounded-[2rem] border-2 border-white/10 p-6 mb-6 relative overflow-hidden group"
-          style={{ background: 'linear-gradient(145deg, rgba(31,111,235,0.15), rgba(124,77,255,0.1))', backdropFilter: 'blur(20px)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+        <div className="cbt-el rounded-[2.5rem] p-8 sm:p-10 relative overflow-hidden group border-2"
+          style={{ 
+            background: isDay5 ? 'linear-gradient(145deg, rgba(250,204,21,0.1), rgba(0,0,0,0.8))' : 'linear-gradient(145deg, rgba(31,111,235,0.15), rgba(124,77,255,0.1))', 
+            backdropFilter: 'blur(20px)', 
+            boxShadow: isDay5 ? '0 30px 60px rgba(250,204,21,0.2) inset, 0 30px 60px rgba(0,0,0,0.8)' : '0 20px 50px rgba(0,0,0,0.5)',
+            borderColor: isDay5 ? 'rgba(250,204,21,0.3)' : 'rgba(255,255,255,0.1)'
+          }}>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-          <div className="flex items-center gap-5 justify-center mb-5">
-            <div className="text-5xl cbt-trophy drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]">🏆</div>
-            <div>
-              <p className="text-secondary-text text-xs font-black uppercase tracking-widest mb-1">Total XP Earned</p>
-              <p className="text-5xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 tracking-tight">
+          
+          <div className="flex flex-col sm:flex-row items-center gap-6 justify-center mb-8">
+            <div className="text-[80px] cbt-trophy drop-shadow-[0_0_25px_rgba(250,204,21,0.7)] animate-pulse">🏆</div>
+            <div className="text-center sm:text-left">
+              <p className="text-secondary-text text-sm font-black uppercase tracking-[0.3em] mb-2">{isDay5 ? 'Final Journey XP Earned' : 'Total XP Earned'}</p>
+              <p className="text-6xl sm:text-7xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-yellow-600 tracking-tight" style={{ filter: 'drop-shadow(0 5px 15px rgba(250,204,21,0.4))' }}>
                 <AnimatedXP target={realXP} /> PTS
               </p>
             </div>
           </div>
 
+          {/* All 5 days total bar */}
+          {isDay5 && (
+            <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-black/50 border border-yellow-500/20 shadow-inner">
+              <div className="flex justify-between items-end mb-3">
+                <span className="text-yellow-500/80 text-sm font-black uppercase tracking-[0.2em]">Overall Journey</span>
+                <span className="text-yellow-400 font-heading font-black text-3xl"><AnimatedXP target={realXP} /> / 750</span>
+              </div>
+              <div className="w-full h-4 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                <div className="h-full rounded-full transition-all duration-[2000ms] ease-out"
+                  style={{
+                    width: `${Math.min((realXP / 750) * 100, 100)}%`,
+                    background: 'linear-gradient(90deg, #7c4dff, #1f6feb, #10b981, #fbbf24)',
+                    boxShadow: '0 0 20px rgba(250,204,21,0.8)'
+                  }} />
+              </div>
+            </div>
+          )}
+
           {/* Per-category breakdown */}
-          <div className="space-y-2.5 border-t border-white/10 pt-4">
+          <div className={`space-y-4 ${isDay5 ? 'border-t border-yellow-500/20' : 'border-t border-white/10'} pt-6`}>
             {[
-              { label: '🧠 Brain', value: scores.brain, color: '#7c4dff' },
-              { label: '💬 Social', value: scores.social, color: '#6366f1' },
-              { label: '🎨 Creator', value: scores.creator, color: '#10b981' },
+              { label: '🧠 Brain', value: scores.brain, color: isDay5 ? '#a78bfa' : '#7c4dff' },
+              { label: '💬 Social', value: scores.social, color: isDay5 ? '#818cf8' : '#6366f1' },
+              { label: '🎨 Creator', value: scores.creator, color: isDay5 ? '#34d399' : '#10b981' },
             ].map(c => (
-              <div key={c.label} className="flex items-center gap-3">
-                <span className="text-secondary-text text-xs font-bold w-20 shrink-0">{c.label}</span>
-                <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min((c.value / 50) * 100, 100)}%`, background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
+              <div key={c.label} className="flex items-center gap-4">
+                <span className="text-secondary-text text-sm font-bold w-24 shrink-0 uppercase tracking-widest">{c.label}</span>
+                <div className="flex-1 h-3 rounded-full bg-white/5 overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-[1500ms] ease-out" style={{ width: `${Math.min((c.value / 50) * 100, 100)}%`, background: c.color, boxShadow: `0 0 10px ${c.color}` }} />
                 </div>
-                <span className="text-white text-xs font-black w-8 text-right">{c.value}</span>
+                <span className="text-white text-base font-black w-10 text-right">{c.value}</span>
               </div>
             ))}
           </div>
 
-          {/* All 5 days total bar */}
-          <div className="mt-4 p-3 rounded-xl bg-black/30 border border-white/5">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-secondary-text text-xs font-black uppercase tracking-wider">Overall Journey</span>
-              <span className="text-yellow-400 font-heading font-black"><AnimatedXP target={realXP} /> / 750 XP</span>
-            </div>
-            <div className="w-full h-3 rounded-full bg-white/5 overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-1500"
-                style={{
-                  width: `${Math.min((realXP / 750) * 100, 100)}%`,
-                  background: 'linear-gradient(90deg, #7c4dff, #1f6feb, #10b981, #fbbf24)',
-                  boxShadow: '0 0 10px rgba(124,77,255,0.5)'
-                }} />
-            </div>
-          </div>
         </div>
 
         {/* Demo jump button (only for non-day5) */}
@@ -617,22 +646,9 @@ export const ComeBackTomorrow = ({ scores, completedDays }) => {
           </div>
         )}
 
-        {/* Bonus Mission — Only Day 5, animated in */}
-        {isDay5 && (
-          <div
-            className="cbt-el mt-6"
-            style={{
-              opacity: showBonus ? 1 : 0,
-              transform: showBonus ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
-              transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              pointerEvents: showBonus ? 'auto' : 'none',
-            }}
-          >
-            {showBonus && <BonusMission user={user} />}
-          </div>
-        )}
-
       </div>
     </div>
+    )}
+  </>
   );
 };

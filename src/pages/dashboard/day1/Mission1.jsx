@@ -9,7 +9,7 @@ const BRAIN_LEVELS = [
   { level: 5, title: 'Star Counter',   question: '⭐ ⭐ ⭐', options: ['1','2','3','4'], correctIndex: 2 },
 ];
 
-export const Mission1 = ({ onComplete }) => {
+export const Mission1 = ({ onComplete, onBack }) => {
   const [level,     setLevel]    = useState(0);
   const [selected,  setSelected] = useState(null);
   const [feedback,  setFeedback] = useState(null);
@@ -93,7 +93,7 @@ export const Mission1 = ({ onComplete }) => {
           </div>
         )}
 
-        <button onClick={() => { stopBgMusic(); window.location.reload(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
+        <button onClick={() => { stopBgMusic(); if (onBack) onBack(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
           ✕
         </button>
       </div>

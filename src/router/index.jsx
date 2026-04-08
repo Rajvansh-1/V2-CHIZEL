@@ -33,6 +33,7 @@ const Day2Page                 = lazy(() => import("@/pages/dashboard/Day2Page")
 const Day3Page                 = lazy(() => import("@/pages/dashboard/Day3Page"));
 const Day4Page                 = lazy(() => import("@/pages/dashboard/Day4Page"));
 const Day5Page                 = lazy(() => import("@/pages/dashboard/Day5Page"));
+const DashboardRouter          = lazy(() => import("@/pages/dashboard/DashboardRouter"));
 // Loading fallback — keeps bg color consistent, no flash
 const LoadingFallback = () => (
   <div style={{ minHeight: '100vh', background: 'var(--color-background)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -86,6 +87,16 @@ const router = createBrowserRouter([
           <ProtectedRoute requiresOnboarding={true}>
             <Suspense fallback={<LoadingFallback />}>
               <IntroVideoPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "dashboard",
+        element: (
+          <ProtectedRoute requiresOnboarding={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <DashboardRouter />
             </Suspense>
           </ProtectedRoute>
         ),

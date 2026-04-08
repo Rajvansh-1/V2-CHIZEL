@@ -128,7 +128,7 @@ export const FamilyQuest = ({
       try { recognitionRef.current.stop(); } catch(_) {}
     }
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognitionRef.current = recognition;
@@ -139,7 +139,7 @@ export const FamilyQuest = ({
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           const final = event.results[i][0].transcript;
-          setFamilyAnswer(prev => (prev ? prev + ' ' : '') + final);
+          setFamilyAnswer(prev => (prev ? prev + ' ' : '') + final.trim());
           setTranscript('');
           playCombo();
         } else {
@@ -178,7 +178,9 @@ export const FamilyQuest = ({
     }
   };
 
-  const canProceedTask2 = familyAnswer.trim().length > 2;
+  const displayAnswer = (familyAnswer + (transcript && isListening ? (familyAnswer ? ' ' : '') + transcript : '')).trim();
+
+  const canProceedTask2 = familyAnswer.trim().length > 2 || displayAnswer.length > 2;
   const canProceedTask3 = willTry !== '';
   const canProceedTask4 = whoAsked !== '';
 
@@ -220,23 +222,18 @@ export const FamilyQuest = ({
       <h2 className="font-heading text-4xl font-black text-white mb-2 uppercase tracking-widest">Their Answer</h2>
       <p className="text-secondary-text mb-6 font-ui">Type what they said, or tap the mic to record!</p>
 
-      <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 mb-6 shadow-xl backdrop-blur-md">
+      <div className={`bg-white/5 border ${isListening ? 'border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'border-white/10 shadow-xl'} rounded-[2rem] p-6 mb-6 transition-all duration-300 backdrop-blur-md`}>
         <textarea
-          value={familyAnswer}
-          onChange={e => setFamilyAnswer(e.target.value)}
-          placeholder="Type what they said here..."
+          value={displayAnswer}
+          onChange={e => {
+            if (!isListening) setFamilyAnswer(e.target.value);
+          }}
+          placeholder={isListening ? "Listening..." : "Type what they said here..."}
           rows={4}
-          className="w-full px-6 py-5 rounded-[1.5rem] bg-black/40 text-white placeholder-white/30 text-xl font-bold focus:outline-none focus:ring-4 transition-all resize-none shadow-inner mb-4"
+          disabled={isListening}
+          className="w-full px-6 py-5 rounded-[1.5rem] bg-black/40 text-white placeholder-white/30 text-xl font-bold focus:outline-none focus:ring-4 transition-all resize-none shadow-inner mb-4 disabled:opacity-80"
           style={{ focusRingColor: themeColor }}
         />
-
-        {/* Live transcript overlay */}
-        {isListening && transcript && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-left">
-            <p className="text-white/50 text-xs uppercase tracking-wide mb-1">Listening...</p>
-            <p className="text-white italic text-lg">{transcript}</p>
-          </div>
-        )}
 
         <div className="grid grid-cols-2 gap-3">
           <button
@@ -382,7 +379,7 @@ export const FamilyQuest = ({
                  style={{ width: `${((task + 1) / 4) * 100}%`, background: `linear-gradient(90deg, ${themeColor}, ${accentColor})` }} />
           </div>
         </div>
-        <button onClick={() => window.location.reload()}
+        <button onClick={() => { if (onBack) onBack(); }}
                 className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">
           ✕
         </button>

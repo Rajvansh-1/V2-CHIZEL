@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useSound } from '@/hooks/useSound';
 import { FaUpload, FaTimes, FaTrophy } from 'react-icons/fa';
 
-export const Mission3_SpaceMission = ({ onComplete }) => {
+export const Mission3_SpaceMission = ({ onComplete, onBack }) => {
   const { user } = useAuth();
   const [phase,     setPhase]    = useState('instructions'); 
   const [preview,   setPreview]  = useState(null);
@@ -71,7 +71,7 @@ export const Mission3_SpaceMission = ({ onComplete }) => {
             <div className="h-full bg-violet-500 transition-all duration-500" style={{ width: phase === 'upload' ? '100%' : '50%' }} />
           </div>
         </div>
-        <button onClick={() => window.location.reload()} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">✕</button>
+        <button onClick={() => { if (onBack) onBack(); }} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors">✕</button>
       </div>
 
       {phase === 'instructions' ? (
