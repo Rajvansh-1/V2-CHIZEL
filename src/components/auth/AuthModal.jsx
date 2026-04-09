@@ -9,6 +9,9 @@ import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(
   typeof navigator !== 'undefined' ? navigator.userAgent : ''
 );
+const IS_IOS = /iPhone|iPad|iPod/i.test(
+  typeof navigator !== 'undefined' ? navigator.userAgent : ''
+);
 
 /* ─── SHA-256 nonce pair ─────────────────────────────────────────────────── */
 async function makeNonce() {
@@ -70,7 +73,6 @@ const AuthModal = ({ isOpen, onClose }) => {
 
   const nonceRawRef = useRef('');
   const gisReadyRef  = useRef(false);
-  const gLoadRef     = useRef(false);  // mirror of gLoad without stale closure
 
   /* ── Spring entrance / exit ───────────────────────────────────────────── */
   useEffect(() => {
@@ -90,54 +92,6 @@ const AuthModal = ({ isOpen, onClose }) => {
       navigate(onboardingDone ? '/day/1' : '/onboarding');
     }
   }, [user, isOpen, onboardingDone, onClose, navigate]);
-
-  /* ── Keep gLoadRef in sync ───────────────────────────────────────────── */
-  useEffect(() => { gLoadRef.current = gLoad; }, [gLoad]);
-
-  /* ── Mobile safety net: visibilitychange + 90s timeout ──────────────── */
-  /*
-   * On mobile, Google may open a new tab for sign-in. When that tab closes
-   * and the user returns, window.opener.postMessage often fails (iOS/Android
-   * security), so the GIS callback never fires → gLoad stuck forever.
-   *
-   * Fix: listen for the tab becoming visible again. If gLoad is true, poll
-   * Supabase directly — if a session exists the user signed in successfully.
-   * A 90s timeout acts as a final safety net so the spinner never freezes.
-   */
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const onVisible = async () => {
-      if (document.visibilityState !== 'visible' || !gLoadRef.current) return;
-      // Give the session a moment to propagate
-      await new Promise(r => setTimeout(r, 600));
-      if (!gLoadRef.current) return; // already resolved
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // Sign-in succeeded in the other tab — AuthContext will pick it up
-        setGLoad(false);
-      } else {
-        // User came back without signing in (cancelled)
-        setGLoad(false);
-        setError('Google Sign-In was cancelled or timed out. Please try again.');
-      }
-    };
-
-    document.addEventListener('visibilitychange', onVisible);
-
-    // 90-second hard timeout — user is never permanently stuck
-    const timer = setTimeout(() => {
-      if (gLoadRef.current) {
-        setGLoad(false);
-        setError('Google Sign-In timed out. Please try again.');
-      }
-    }, 90_000);
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisible);
-      clearTimeout(timer);
-    };
-  }, [isOpen, gLoad]); // re-register when gLoad flips so we always have latest state
 
   /* ── Pre-warm GIS + pre-render button when modal opens ──────────────── */
   /*
@@ -164,6 +118,7 @@ const AuthModal = ({ isOpen, onClose }) => {
           nonce: hashed,            // GIS embeds hashedNonce in the id_token
           callback: async ({ credential }) => {
             try {
+              setGLoad(true);
               const { error } = await supabase.auth.signInWithIdToken({
                 provider: 'google',
                 token: credential,
@@ -190,6 +145,9 @@ const AuthModal = ({ isOpen, onClose }) => {
           });
         }
 
+        // Trigger One Tap immediately on modal open (skip on strict iOS)
+        if (!IS_IOS) window.google.accounts.id.prompt();
+
         gisReadyRef.current = true;
         return true;
       };
@@ -213,47 +171,6 @@ const AuthModal = ({ isOpen, onClose }) => {
     setError(''); setSuccess(''); setLoading(false); setShowPw(false);
   }, []);
   const switchTab = t => { setTab(t); reset(); };
-
-  /* ── Google click — fully synchronous on the hot path ───────────────── */
-  const handleGoogle = useCallback(() => {
-    if (!SUPABASE_CONFIGURED) { setError(getSupabaseConfigErrorMessage()); return; }
-    if (!window.google?.accounts?.id) {
-      setError('Google Sign-In is loading — please try again in a moment.');
-      return;
-    }
-
-    setGLoad(true);
-    setError('');
-
-    // Synchronously click the pre-rendered hidden button.
-    // This is the ONLY way to reliably open a popup on iOS Safari.
-    const clickHidden = () => {
-      const btn = document.querySelector('#gsi-hidden div[role=button]');
-      if (btn) { btn.click(); return true; }
-      return false;
-    };
-
-    if (IS_MOBILE) {
-      // Mobile: skip One Tap (suppressed by iOS ITP) → straight to button click
-      if (!clickHidden()) {
-        setError('Still loading Google Sign-In — please try again in a moment.');
-        setGLoad(false);
-      }
-      return;
-    }
-
-    // Desktop: One Tap overlay (nicer for already-signed-in users)
-    // Falls back to hidden button if suppressed
-    window.google.accounts.id.prompt(n => {
-      if (n.isDismissedMoment())                      setGLoad(false);
-      if (n.isNotDisplayed() || n.isSkippedMoment()) {
-        if (!clickHidden()) {
-          setError('Popup blocked. Allow popups for this site and try again.');
-          setGLoad(false);
-        }
-      }
-    });
-  }, []);
 
   /* ── Email / password submit ─────────────────────────────────────────── */
   const handleEmail = async e => {
@@ -363,10 +280,14 @@ const AuthModal = ({ isOpen, onClose }) => {
             {/* ── Google button (hero) ── */}
             <button
               id="google-signin-btn"
-              onClick={handleGoogle}
+              onClick={() => {
+                if (!SUPABASE_CONFIGURED) setError(getSupabaseConfigErrorMessage());
+                else if (!gisReadyRef.current) setError('Google Sign-In is loading — please try again in a moment.');
+              }}
               disabled={gLoad}
               aria-label="Continue with Google"
               style={{
+                position: 'relative', overflow: 'hidden',
                 width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:12,
                 padding: IS_MOBILE ? '16px 20px' : '14px 20px',
                 borderRadius:16, marginBottom:20,
@@ -386,6 +307,11 @@ const AuthModal = ({ isOpen, onClose }) => {
                 ? <><Spinner size={IS_MOBILE ? 20 : 17}/><span>Signing you in…</span></>
                 : <><GoogleG size={IS_MOBILE ? 22 : 20}/><span>Continue with Google</span></>
               }
+              <div id="gsi-hidden" aria-hidden="true" style={{
+                position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) scale(1.8)',
+                opacity: 0.01, zIndex: 10,
+                pointerEvents: (gLoad || !SUPABASE_CONFIGURED) ? 'none' : 'auto',
+              }} />
             </button>
 
             {/* Divider */}
@@ -459,18 +385,6 @@ const AuthModal = ({ isOpen, onClose }) => {
             </form>
           </div>
 
-          {/*
-            Hidden GIS button container.
-            - Pre-rendered at modal-open time (not on click) so it exists synchronously.
-            - 1×1px with overflow hidden: invisible but real DOM node.
-            - pointer-events:none stops accidental taps; JS .click() still works.
-            - This is the key to iOS Safari popup permission.
-          */}
-          <div
-            id="gsi-hidden"
-            aria-hidden="true"
-            style={{ position:'absolute', bottom:0, left:0, width:'1px', height:'1px', overflow:'hidden', opacity:0, pointerEvents:'none' }}
-          />
         </div>
       </div>
     </>
