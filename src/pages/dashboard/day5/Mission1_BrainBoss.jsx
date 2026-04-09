@@ -72,7 +72,7 @@ export const Mission1_SpaceQuiz = ({ onComplete, onBack }) => {
   const progressPct = ((level) / SPACE_LEVELS.length) * 100;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 overflow-hidden touch-none selection:bg-transparent"
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 overflow-x-hidden overflow-y-auto pb-24 selection:bg-transparent"
          style={{ background: 'radial-gradient(100% 100% at 50% 0%, rgba(139,92,246,0.15) 0%, #050814 100%)' }}>
       
       <div className="w-full max-w-xl flex items-center justify-between mb-8 px-2">
