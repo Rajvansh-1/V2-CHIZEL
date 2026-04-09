@@ -17,6 +17,9 @@
     
     <!-- Faster DNS+TCP for API -->
     <link rel="preconnect" href="https://v2-chizel-api.supabase.co" crossorigin>
+    <!-- Google Identity Services: loaded early so it's ready when the login modal opens -->
+    <link rel="preconnect" href="https://accounts.google.com" crossorigin>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <meta property="og:title" content="Chizel — Turning Screen Time Into Skill Time" />
 <meta property="og:description" content="From brainrot to brilliance — Chizel transforms every minute of screen time into a step toward greatness." />
