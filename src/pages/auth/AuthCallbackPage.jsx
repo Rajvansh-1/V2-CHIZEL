@@ -1,5 +1,7 @@
 // src/pages/auth/AuthCallbackPage.jsx
-// Handles the OAuth redirect from Supabase Google login
+// Handles Supabase auth redirects (e.g. email magic links / confirmation).
+// NOTE: Google Sign-In no longer redirects here — it uses the frontend GIS flow
+// (signInWithIdToken) so the Google popup shows chizel.in, not supabase.co.
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase, SUPABASE_CONFIGURED } from '@/lib/supabase';
