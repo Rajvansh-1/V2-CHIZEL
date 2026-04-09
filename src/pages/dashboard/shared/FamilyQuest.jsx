@@ -92,7 +92,7 @@ export const FamilyQuest = ({
   // If already completed — show review
   if (savedMeta && onBack) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-hidden touch-none"
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-x-hidden overflow-y-auto pb-24"
            style={{ background: `radial-gradient(100% 100% at 50% 0%, ${themeColor}20 0%, #050814 100%)` }}>
         <div className="w-full max-w-xl flex items-center justify-between mb-8 px-2">
           <span className="text-secondary-text text-[10px] font-black uppercase tracking-widest">Mission Review</span>
@@ -367,7 +367,7 @@ export const FamilyQuest = ({
   const screens = [Task1, Task2, Task3, Task4];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 overflow-hidden touch-none selection:bg-transparent"
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 overflow-x-hidden overflow-y-auto pb-24 selection:bg-transparent"
          style={{ background: `radial-gradient(100% 100% at 50% 0%, ${themeColor}20 0%, #050814 100%)` }}>
 
       {/* HUD Bar */}

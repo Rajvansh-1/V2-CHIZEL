@@ -47,7 +47,7 @@ export const Mission3_EmojiChallenge = ({ onComplete, onBack }) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-hidden touch-none selection:bg-transparent"
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 overflow-x-hidden overflow-y-auto pb-24 selection:bg-transparent"
          style={{ background: 'radial-gradient(100% 100% at 50% 0%, rgba(59,130,246,0.15) 0%, #050814 100%)' }}>
 
       {/* Header */}
